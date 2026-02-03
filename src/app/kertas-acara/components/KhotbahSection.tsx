@@ -1,4 +1,5 @@
-import { Box, Typography, List, ListItem } from "@mui/material";
+import { Box, Typography, List, ListItem, Collapse, IconButton } from "@mui/material";
+import { ExpandMore, ExpandLess } from "@mui/icons-material";
 import { formatLaguSion } from "../utils";
 
 interface KhotbahSectionProps {
@@ -13,6 +14,8 @@ interface KhotbahSectionProps {
   judulKhotbah: string;
   ayatInti: string;
   ayatBersahutanText: string;
+  isExpanded: boolean;
+  onToggle: () => void;
 }
 
 export default function KhotbahSection({
@@ -27,6 +30,8 @@ export default function KhotbahSection({
   judulKhotbah,
   ayatInti,
   ayatBersahutanText,
+  isExpanded,
+  onToggle,
 }: KhotbahSectionProps) {
   const renderListItem = (
     key: string,
@@ -56,8 +61,20 @@ export default function KhotbahSection({
 
   return (
     <Box sx={styles.section}>
-      <Typography sx={styles.sectionTitle}>Khotbah</Typography>
-      <List sx={styles.list}>
+      <Box
+        sx={{
+          ...styles.sectionTitleContainer,
+          borderBottom: isExpanded ? "1px solid #dee2e6" : "none",
+        }}
+        onClick={onToggle}
+      >
+        <Typography sx={styles.sectionTitle}>Khotbah</Typography>
+        <IconButton size="small" sx={styles.expandIcon}>
+          {isExpanded ? <ExpandLess /> : <ExpandMore />}
+        </IconButton>
+      </Box>
+      <Collapse in={isExpanded}>
+        <List sx={styles.list}>
         {renderListItem(
           "lagu-partisipan-khotbah",
           "Lagu Partisipan Khotbah",
@@ -160,6 +177,7 @@ export default function KhotbahSection({
           true,
         )}
       </List>
+      </Collapse>
     </Box>
   );
 }
@@ -173,13 +191,24 @@ const styles = {
     boxShadow: "0 4px 16px 0 rgba(46, 108, 232, 0.1)",
     overflow: "hidden",
   },
+  sectionTitleContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    py: 2,
+    px: { xs: 2, sm: 3 },
+    cursor: "pointer",
+    "&:hover": {
+      bgcolor: "rgba(46, 108, 232, 0.05)",
+    },
+  },
   sectionTitle: {
     fontSize: { xs: "0.85rem", sm: "0.95rem", md: "1rem" },
     fontWeight: 700,
     color: "#2e6ce8",
-    textAlign: "center",
-    py: 2,
-    borderBottom: "1px solid #dee2e6",
+  },
+  expandIcon: {
+    color: "#2e6ce8",
   },
   list: {
     p: 0,
@@ -195,7 +224,7 @@ const styles = {
   listItemContent: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "flex-start",
     width: "100%",
     gap: 2,
   },
@@ -204,12 +233,16 @@ const styles = {
     fontWeight: 600,
     color: "#6c757d",
     flex: "0 0 auto",
+    maxWidth: "40%",
+    wordBreak: "break-word",
   },
   listValue: {
     fontSize: { xs: "0.75rem", sm: "0.85rem", md: "0.9rem" },
     color: "#111827",
     textAlign: "right",
     flex: "0 0 auto",
+    maxWidth: "40%",
+    wordBreak: "break-word",
   },
   middleValue: {
     fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.85rem" },
@@ -217,6 +250,7 @@ const styles = {
     fontStyle: "italic",
     textAlign: "center",
     flex: "1 1 auto",
+    wordBreak: "break-word",
   },
   laguLabel: {
     color: "#2e6ce8",

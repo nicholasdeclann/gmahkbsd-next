@@ -1,37 +1,64 @@
-import { Box, Typography, List, ListItem } from "@mui/material";
+import {
+  Box,
+  Typography,
+  List,
+  ListItem,
+  Collapse,
+  IconButton,
+} from "@mui/material";
+import { ExpandMore, ExpandLess } from "@mui/icons-material";
 
 interface DiakoniaSectionProps {
   diakoniaData: any[];
+  isExpanded: boolean;
+  onToggle: () => void;
 }
 
 export default function DiakoniaSection({
   diakoniaData,
+  isExpanded,
+  onToggle,
 }: DiakoniaSectionProps) {
   return (
     <Box sx={styles.section}>
-      <Typography sx={styles.sectionTitle}>Diakonia</Typography>
-      <List sx={styles.list}>
-        {diakoniaData.map((item, idx) =>
-          item.person2 ? (
-            <ListItem key={idx} sx={styles.listItem}>
-              <Box sx={styles.listItemContent}>
-                <Typography sx={styles.listLabel}>{item.role}</Typography>
-                <Box sx={{ textAlign: "right" }}>
-                  <Typography sx={styles.listValue}>{item.person}</Typography>
-                  <Typography sx={styles.listValue}>{item.person2}</Typography>
+      <Box
+        sx={{
+          ...styles.sectionTitleContainer,
+          borderBottom: isExpanded ? "1px solid #dee2e6" : "none",
+        }}
+        onClick={onToggle}
+      >
+        <Typography sx={styles.sectionTitle}>Diakonia</Typography>
+        <IconButton size="small" sx={styles.expandIcon}>
+          {isExpanded ? <ExpandLess /> : <ExpandMore />}
+        </IconButton>
+      </Box>
+      <Collapse in={isExpanded}>
+        <List sx={styles.list}>
+          {diakoniaData.map((item, idx) =>
+            item.person2 ? (
+              <ListItem key={idx} sx={styles.listItem}>
+                <Box sx={styles.listItemContent}>
+                  <Typography sx={styles.listLabel}>{item.role}</Typography>
+                  <Box sx={{ textAlign: "right" }}>
+                    <Typography sx={styles.listValue}>{item.person}</Typography>
+                    <Typography sx={styles.listValue}>
+                      {item.person2}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            </ListItem>
-          ) : (
-            <ListItem key={idx} sx={styles.listItem}>
-              <Box sx={styles.listItemContent}>
-                <Typography sx={styles.listLabel}>{item.role}</Typography>
-                <Typography sx={styles.listValue}>{item.person}</Typography>
-              </Box>
-            </ListItem>
-          ),
-        )}
-      </List>
+              </ListItem>
+            ) : (
+              <ListItem key={idx} sx={styles.listItem}>
+                <Box sx={styles.listItemContent}>
+                  <Typography sx={styles.listLabel}>{item.role}</Typography>
+                  <Typography sx={styles.listValue}>{item.person}</Typography>
+                </Box>
+              </ListItem>
+            ),
+          )}
+        </List>
+      </Collapse>
     </Box>
   );
 }
@@ -45,13 +72,24 @@ const styles = {
     boxShadow: "0 4px 16px 0 rgba(46, 108, 232, 0.1)",
     overflow: "hidden",
   },
+  sectionTitleContainer: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    py: 2,
+    px: { xs: 2, sm: 3 },
+    cursor: "pointer",
+    "&:hover": {
+      bgcolor: "rgba(46, 108, 232, 0.05)",
+    },
+  },
   sectionTitle: {
     fontSize: { xs: "0.85rem", sm: "0.95rem", md: "1rem" },
     fontWeight: 700,
     color: "#2e6ce8",
-    textAlign: "center",
-    py: 2,
-    borderBottom: "1px solid #dee2e6",
+  },
+  expandIcon: {
+    color: "#2e6ce8",
   },
   list: {
     p: 0,

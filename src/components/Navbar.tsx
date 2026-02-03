@@ -12,10 +12,13 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 function Navbar() {
+  const pathname = usePathname();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const isKertasAcaraPage = pathname === "/kertas-acara";
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -35,9 +38,16 @@ function Navbar() {
             alt="GMAHK BSD Logo"
             sx={styles.logoImage}
           />
-          <Typography variant="h6" sx={styles.logo}>
-            GMAHK BSD
-          </Typography>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography variant="h6" sx={styles.logo}>
+              GMAHK BSD
+            </Typography>
+            {isKertasAcaraPage && (
+              <Typography variant="h6" sx={styles.subtitle}>
+                Kertas Acara
+              </Typography>
+            )}
+          </Box>
         </Box>
 
         {/* Desktop Menu */}
@@ -114,6 +124,11 @@ const styles = {
     color: "#667eea",
     fontWeight: 600,
     fontSize: { xs: "1rem", sm: "1.15rem" },
+  },
+  subtitle: {
+    color: "#666",
+    fontWeight: 400,
+    fontSize: { xs: "0.85rem", sm: "0.95rem" },
   },
   desktopMenu: {
     display: { xs: "none", md: "flex" },

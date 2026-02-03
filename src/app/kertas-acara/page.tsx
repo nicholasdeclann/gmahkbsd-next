@@ -7,7 +7,7 @@ import {
   Button,
   CircularProgress,
 } from "@mui/material";
-import { ChevronRight } from "@mui/icons-material";
+import { ChevronRight, ChevronLeft } from "@mui/icons-material";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
@@ -17,6 +17,7 @@ import PelayananMusikSection from "@/app/kertas-acara/components/PelayananMusikS
 import DiakoniaSection from "@/app/kertas-acara/components/DiakoniaSection";
 import { SHEET_URL, KERTAS_ACARA_URL, LAGU_SION_URL } from "./constants";
 import { getThisWeeksSaturday, formatDate, getSaturdayOfMonth } from "./utils";
+import { LaguSionMap, ParticipantData, ParticipantItem, Row } from "./types";
 
 function KertasAcaraContent() {
   const searchParams = useSearchParams();
@@ -24,12 +25,11 @@ function KertasAcaraContent() {
 
   const [loading, setLoading] = useState(true);
   const [scheduleDate, setScheduleDate] = useState("");
-  const [lastUpdated, setLastUpdated] = useState("");
-  const [ssData, setSsData] = useState<any>({});
-  const [khotbahData, setKhotbahData] = useState<any>({});
-  const [pelayananData, setPelayananData] = useState<any[]>([]);
-  const [diakoniaData, setDiakoniaData] = useState<any[]>([]);
-  const [laguSionMap, setLaguSionMap] = useState<any>({});
+  const [ssData, setSsData] = useState<ParticipantData>({});
+  const [khotbahData, setKhotbahData] = useState<ParticipantData>({});
+  const [pelayananData, setPelayananData] = useState<ParticipantItem[]>([]);
+  const [diakoniaData, setDiakoniaData] = useState<ParticipantItem[]>([]);
+  const [laguSionMap, setLaguSionMap] = useState<LaguSionMap>({});
   const [laguBukaNum, setLaguBukaNum] = useState("");
   const [laguTutupNum, setLaguTutupNum] = useState("");
   const [laguBukaSSNum, setLaguBukaSSNum] = useState("");
@@ -37,7 +37,20 @@ function KertasAcaraContent() {
   const [judulKhotbah, setJudulKhotbah] = useState("");
   const [ayatInti, setAyatInti] = useState("");
   const [ayatBersahutanText, setAyatBersahutanText] = useState("");
-  const [cachedRows, setCachedRows] = useState<any>(null);
+  const [cachedRows, setCachedRows] = useState<Row[] | null>(null);
+  const [expandedSections, setExpandedSections] = useState({
+    sekolahSabat: true,
+    khotbah: true,
+    pelayananMusik: true,
+    diakonia: true,
+  });
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
 
   useEffect(() => {
     setLoading(true);
@@ -50,8 +63,8 @@ function KertasAcaraContent() {
         const laguSionJson = JSON.parse(
           laguSionText.substring(47, laguSionText.length - 2),
         );
-        const laguMap: any = {};
-        laguSionJson.table.rows.forEach((row: any) => {
+        const laguMap: LaguSionMap = {};
+        laguSionJson.table.rows.forEach((row: { c?: { v?: string }[] }) => {
           if (!row.c) return;
           const num = row.c[1]?.v;
           const title = row.c[2]?.v;
@@ -62,37 +75,28 @@ function KertasAcaraContent() {
         const kertasAcaraJson = JSON.parse(
           kertasAcaraText.substring(47, kertasAcaraText.length - 2),
         );
-        kertasAcaraJson.table.rows.forEach((row: any) => {
+
+        kertasAcaraJson.table.rows.forEach((row: { c?: { v?: string }[] }) => {
           if (!row.c) return;
           const label = (row.c[1]?.v || "").toLowerCase();
           if (label === "lagu buka") {
-            setLaguBukaNum(row.c[2]?.v);
-            setLaguBukaSSNum(row.c[9]?.v);
+            setLaguBukaNum(row.c[2]?.v ?? "");
+            setLaguBukaSSNum(row.c[9]?.v ?? "");
           } else if (label === "lagu tutup") {
-            setLaguTutupNum(row.c[2]?.v);
-            setLaguTutupSSNum(row.c[9]?.v);
+            setLaguTutupNum(row.c[2]?.v ?? "");
+            setLaguTutupSSNum(row.c[9]?.v ?? "");
           } else if (label === "judul khotbah") {
-            setJudulKhotbah(row.c[2]?.v);
+            setJudulKhotbah(row.c[2]?.v ?? "");
           } else if (label === "ayat inti") {
-            setAyatInti(row.c[2]?.v);
+            setAyatInti(row.c[2]?.v ?? "");
           } else if (label === "ayat bersahutan") {
-            setAyatBersahutanText(row.c[2]?.v);
+            setAyatBersahutanText(row.c[2]?.v ?? "");
           }
         });
 
         const json = JSON.parse(sheetText.substring(47, sheetText.length - 2));
         setCachedRows(json.table.rows);
 
-        const now = new Date();
-        const timeString = now.toLocaleString("en-GB", {
-          day: "2-digit",
-          month: "short",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: false,
-        });
-        setLastUpdated(`Data partisipan diambil pada: ${timeString}`);
         setLoading(false);
       })
       .catch(() => {
@@ -133,10 +137,10 @@ function KertasAcaraContent() {
 
     setScheduleDate(`Sabat, ${targetDate}`);
 
-    const newSsData: any = {};
-    const newKhotbahData: any = {};
-    const newPelayananData: any[] = [];
-    const newDiakoniaData: any[] = [];
+    const newSsData: ParticipantData = {};
+    const newKhotbahData: ParticipantData = {};
+    const newPelayananData: ParticipantItem[] = [];
+    const newDiakoniaData: ParticipantItem[] = [];
 
     let currentSection = null;
     let skipNextRow = false;
@@ -247,38 +251,42 @@ function KertasAcaraContent() {
 
       <Container maxWidth="lg" sx={styles.contentContainer}>
         <Box sx={styles.header}>
-          <Typography variant="h1" sx={styles.title}>
-            Kertas Acara GMAHK BSD
-          </Typography>
-
-          <Box sx={styles.buttonGroup}>
-            <Button
-              component={Link}
-              href="/kertas-acara"
-              variant={columnOffset === 0 ? "contained" : "outlined"}
-              sx={
-                columnOffset === 0 ? styles.activeButton : styles.inactiveButton
-              }
-            >
-              Sabat Ini
-            </Button>
-            <Button
-              component={Link}
-              href="/kertas-acara?week=next"
-              variant={columnOffset === 1 ? "contained" : "outlined"}
-              endIcon={<ChevronRight />}
-              sx={
-                columnOffset === 1 ? styles.activeButton : styles.inactiveButton
-              }
-            >
-              Sabat Depan
-            </Button>
+          <Box sx={styles.dateNavigation}>
+            {columnOffset === 1 && (
+              <Button
+                component={Link}
+                href="/kertas-acara"
+                variant="outlined"
+                startIcon={<ChevronLeft />}
+                sx={styles.inactiveButton}
+              >
+                Sabat Ini
+              </Button>
+            )}
+            <Box sx={styles.dateContainer}>
+              <Typography
+                variant="h2"
+                sx={
+                  columnOffset === 0
+                    ? styles.scheduleDateLeft
+                    : styles.scheduleDateRight
+                }
+              >
+                {scheduleDate}
+              </Typography>
+            </Box>
+            {columnOffset === 0 && (
+              <Button
+                component={Link}
+                href="/kertas-acara?week=next"
+                variant="outlined"
+                endIcon={<ChevronRight />}
+                sx={styles.inactiveButton}
+              >
+                Sabat Depan
+              </Button>
+            )}
           </Box>
-
-          <Typography variant="h2" sx={styles.scheduleDate}>
-            {scheduleDate}
-          </Typography>
-          <Typography sx={styles.lastUpdated}>{lastUpdated}</Typography>
         </Box>
 
         {!loading && (
@@ -290,6 +298,8 @@ function KertasAcaraContent() {
               laguBukaSSNum={laguBukaSSNum}
               laguTutupSSNum={laguTutupSSNum}
               laguSionMap={laguSionMap}
+              isExpanded={expandedSections.sekolahSabat}
+              onToggle={() => toggleSection("sekolahSabat")}
             />
             <KhotbahSection
               khotbahData={khotbahData}
@@ -303,9 +313,19 @@ function KertasAcaraContent() {
               judulKhotbah={judulKhotbah}
               ayatInti={ayatInti}
               ayatBersahutanText={ayatBersahutanText}
+              isExpanded={expandedSections.khotbah}
+              onToggle={() => toggleSection("khotbah")}
             />
-            <PelayananMusikSection pelayananData={pelayananData} />
-            <DiakoniaSection diakoniaData={diakoniaData} />
+            <PelayananMusikSection
+              pelayananData={pelayananData}
+              isExpanded={expandedSections.pelayananMusik}
+              onToggle={() => toggleSection("pelayananMusik")}
+            />
+            <DiakoniaSection
+              diakoniaData={diakoniaData}
+              isExpanded={expandedSections.diakonia}
+              onToggle={() => toggleSection("diakonia")}
+            />
           </Box>
         )}
       </Container>
@@ -321,17 +341,7 @@ const styles = {
     overflow: "hidden",
   },
   gradientBackground: {
-    position: "absolute",
-    top: { xs: "-20%", sm: "-30%" },
-    left: "50%",
-    transform: "translateX(-50%)",
-    width: { xs: "150%", sm: "120%", md: "100%" },
-    height: { xs: "60%", sm: "70%", md: "80%" },
-    background:
-      "radial-gradient(circle, rgba(46, 108, 232, 0.3) 0%, rgba(46, 108, 232, 0.2) 40%, transparent 70%)",
-    borderRadius: "50%",
-    filter: "blur(60px)",
-    zIndex: 0,
+    display: "none",
   },
   contentContainer: {
     py: { xs: 3, md: 5 },
@@ -349,26 +359,37 @@ const styles = {
     color: "#1a1a1a",
     mb: 3,
   },
-  buttonGroup: {
+  dateNavigation: {
     display: "flex",
-    justifyContent: "center",
-    gap: 2,
-    mb: 3,
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: { xs: 1, sm: 2 },
+    mb: 2,
+  },
+  dateContainer: {
+    flex: "1 1 auto",
+    minWidth: 0,
   },
   activeButton: {
-    fontSize: "0.9rem",
+    fontSize: { xs: "1.2rem", sm: "0.9rem" },
     textTransform: "none",
     bgcolor: "#2e6ce8",
     color: "white",
+    px: { xs: 1, sm: 2 },
+    py: { xs: 0.5, sm: 1 },
+    minWidth: { xs: "36px", sm: "64px" },
     "&:hover": {
       bgcolor: "#1e5cd4",
     },
   },
   inactiveButton: {
-    fontSize: "0.85rem",
+    fontSize: { xs: "0.85rem", sm: "0.85rem" },
     textTransform: "none",
     borderColor: "#6c757d",
     color: "#6c757d",
+    px: { xs: 1.5, sm: 2 },
+    py: { xs: 0.5, sm: 1 },
+    minWidth: { xs: "auto", sm: "64px" },
     "&:hover": {
       borderColor: "#2e6ce8",
       color: "#2e6ce8",
@@ -376,9 +397,23 @@ const styles = {
     },
   },
   scheduleDate: {
-    fontSize: { xs: "1.1rem", sm: "1.25rem" },
+    fontSize: { xs: "0.95rem", sm: "1.1rem", md: "1.25rem" },
     color: "#4a4a4a",
-    mb: 1,
+    mb: 0,
+  },
+  scheduleDateLeft: {
+    fontSize: { xs: "0.95rem", sm: "1.1rem", md: "1.25rem" },
+    fontWeight: 700,
+    color: "#4a4a4a",
+    mb: 0,
+    textAlign: "left",
+  },
+  scheduleDateRight: {
+    fontSize: { xs: "0.95rem", sm: "1.1rem", md: "1.25rem" },
+    fontWeight: 700,
+    color: "#4a4a4a",
+    mb: 0,
+    textAlign: "right",
   },
   lastUpdated: {
     fontSize: "0.75rem",
