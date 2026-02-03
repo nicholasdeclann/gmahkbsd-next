@@ -31,7 +31,7 @@ function Navbar() {
         <Box sx={styles.logoContainer} component={Link} href="/">
           <Box
             component="img"
-            src="/assets/images/logo.png"
+            src="/gmahkbsd-next/assets/images/logo.png"
             alt="GMAHK BSD Logo"
             sx={styles.logoImage}
           />

@@ -4,7 +4,7 @@ import { Box, Container, Typography, Button } from "@mui/material";
 import { ChevronRight } from "@mui/icons-material";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import SekolahSabatSection from "@/app/kertas-acara/components/SekolahSabatSection";
 import KhotbahSection from "@/app/kertas-acara/components/KhotbahSection";
 import PelayananMusikSection from "@/app/kertas-acara/components/PelayananMusikSection";
@@ -12,7 +12,7 @@ import DiakoniaSection from "@/app/kertas-acara/components/DiakoniaSection";
 import { SHEET_URL, KERTAS_ACARA_URL, LAGU_SION_URL } from "./constants";
 import { getThisWeeksSaturday, formatDate, getSaturdayOfMonth } from "./utils";
 
-export default function KertasAcara() {
+function KertasAcaraContent() {
   const searchParams = useSearchParams();
   const columnOffset = searchParams.get("week") === "next" ? 1 : 0;
 
@@ -385,3 +385,11 @@ const styles = {
     gap: { xs: 3, md: 4 },
   },
 };
+
+export default function KertasAcara() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <KertasAcaraContent />
+    </Suspense>
+  );
+}
