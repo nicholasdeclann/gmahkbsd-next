@@ -170,7 +170,10 @@ function Home() {
 
             <Box sx={styles.instagramEmbed}>
               {/* LightWidget WIDGET */}
-              <script src="https://cdn.lightwidget.com/widgets/lightwidget.js"></script>
+              <Script
+                src="https://cdn.lightwidget.com/widgets/lightwidget.js"
+                strategy="lazyOnload"
+              />
               <iframe
                 src="//lightwidget.com/widgets/bdb25f1b70a452e795ccc5a4c4993594.html"
                 className="lightwidget-widget"
