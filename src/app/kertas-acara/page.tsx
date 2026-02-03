@@ -12,6 +12,8 @@ import DiakoniaSection from "@/app/kertas-acara/components/DiakoniaSection";
 import { SHEET_URL, KERTAS_ACARA_URL, LAGU_SION_URL } from "./constants";
 import { getThisWeeksSaturday, formatDate, getSaturdayOfMonth } from "./utils";
 
+export const dynamic = "force-static";
+
 function KertasAcaraContent() {
   const searchParams = useSearchParams();
   const columnOffset = searchParams.get("week") === "next" ? 1 : 0;
