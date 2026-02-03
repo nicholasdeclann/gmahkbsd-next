@@ -20,7 +20,12 @@ export default function DiakoniaSection({
   onToggle,
 }: DiakoniaSectionProps) {
   return (
-    <Box sx={styles.section}>
+    <Box sx={{
+      ...styles.section,
+      bgcolor: isExpanded ? "rgba(255, 255, 255, 0.7)" : "transparent",
+      border: isExpanded ? "1px solid rgba(255, 255, 255, 0.3)" : "none",
+      boxShadow: isExpanded ? "0 4px 16px 0 rgba(46, 108, 232, 0.1)" : "none",
+    }}>
       <Box
         sx={{
           ...styles.sectionTitleContainer,

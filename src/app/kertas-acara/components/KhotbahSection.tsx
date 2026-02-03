@@ -60,7 +60,12 @@ export default function KhotbahSection({
   );
 
   return (
-    <Box sx={styles.section}>
+    <Box sx={{
+      ...styles.section,
+      bgcolor: isExpanded ? "rgba(255, 255, 255, 0.7)" : "transparent",
+      border: isExpanded ? "1px solid rgba(255, 255, 255, 0.3)" : "none",
+      boxShadow: isExpanded ? "0 4px 16px 0 rgba(46, 108, 232, 0.1)" : "none",
+    }}>
       <Box
         sx={{
           ...styles.sectionTitleContainer,
@@ -75,104 +80,104 @@ export default function KhotbahSection({
       </Box>
       <Collapse in={isExpanded}>
         <List sx={styles.list}>
-        {renderListItem(
+        {showSongs && renderListItem(
           "lagu-partisipan-khotbah",
           "Lagu Partisipan Khotbah",
-          showSongs ? formatLaguSion("421", laguSionMap) : "",
+          formatLaguSion("421", laguSionMap),
           undefined,
           true,
         )}
-        {renderListItem(
+        {showSongs && renderListItem(
           "lagu-pembuka",
           "Lagu Pembuka",
-          showSongs ? formatLaguSion(laguBukaNum, laguSionMap) : "",
+          formatLaguSion(laguBukaNum, laguSionMap),
           undefined,
           true,
         )}
-        {renderListItem(
+        {khotbahData["doa syafaat"]?.person && renderListItem(
           "doa-syafaat",
           "Doa Syafaat",
           khotbahData["doa syafaat"]?.person || "",
         )}
-        {renderListItem(
+        {bacaanPersembahan && renderListItem(
           "bacaan-persembahan",
           "Bacaan Persembahan",
           bacaanPersembahan,
         )}
-        {renderListItem(
+        {showSongs && renderListItem(
           "lagu-persembahan",
           "Lagu Persembahan",
-          showSongs ? "Instrumental" : "",
+          "Instrumental",
           undefined,
           true,
         )}
-        {renderListItem(
+        {showSongs && renderListItem(
           "lagu-sambutan-1",
           "Lagu Sambutan",
-          showSongs ? formatLaguSion("21", laguSionMap) : "",
+          formatLaguSion("21", laguSionMap),
           undefined,
           true,
         )}
-        {renderListItem(
+        {bacaanPersembahan && renderListItem(
           "doa-persembahan",
           "Doa Persembahan",
           bacaanPersembahan,
         )}
-        {renderListItem(
+        {(khotbahData["lagu pujian"]?.person || khotbahData["lagu pujian 1"]?.person) && renderListItem(
           "lagu-pujian-1",
           "Lagu Pujian",
           khotbahData["lagu pujian"]?.person ||
             khotbahData["lagu pujian 1"]?.person ||
             "",
         )}
-        {renderListItem(
+        {khotbahData["cerita anak"]?.person && renderListItem(
           "cerita-anak",
           "Cerita Anak",
           khotbahData["cerita anak"]?.person || "",
         )}
-        {renderListItem(
+        {khotbahData["lagu pujian 2"]?.person && renderListItem(
           "lagu-pujian-2",
           "Lagu Pujian",
           khotbahData["lagu pujian 2"]?.person || "",
         )}
-        {renderListItem(
+        {ayatBersahutan && renderListItem(
           "ayat-bersahutan",
           "Ayat Bersahutan",
           ayatBersahutan,
           showSongs ? ayatBersahutanText : undefined,
         )}
-        {renderListItem(
+        {ayatBersahutan && renderListItem(
           "ayat-inti",
           "Ayat Inti",
           ayatBersahutan,
           showSongs ? ayatInti : undefined,
         )}
-        {renderListItem(
+        {showSongs && renderListItem(
           "lagu-sambutan-khotbah",
           "Lagu Sambutan Khotbah",
-          showSongs ? formatLaguSion("524", laguSionMap) : "",
+          formatLaguSion("524", laguSionMap),
           undefined,
           true,
         )}
-        {renderListItem("doa-pendek", "Doa Pendek", pembicara)}
-        {renderListItem(
+        {pembicara && renderListItem("doa-pendek", "Doa Pendek", pembicara)}
+        {(khotbahData["khotbah"]?.person || pembicara) && renderListItem(
           "khotbah",
           "Khotbah",
           khotbahData["khotbah"]?.person || pembicara,
           showSongs ? judulKhotbah : undefined,
         )}
-        {renderListItem(
+        {showSongs && renderListItem(
           "lagu-penutup",
           "Lagu Penutup",
-          showSongs ? formatLaguSion(laguTutupNum, laguSionMap) : "",
+          formatLaguSion(laguTutupNum, laguSionMap),
           undefined,
           true,
         )}
-        {renderListItem("doa-penutup", "Doa Penutup", pembicara)}
-        {renderListItem(
+        {pembicara && renderListItem("doa-penutup", "Doa Penutup", pembicara)}
+        {showSongs && renderListItem(
           "lagu-sambutan-2",
           "Lagu Sambutan",
-          showSongs ? formatLaguSion("168", laguSionMap) : "",
+          formatLaguSion("168", laguSionMap),
           undefined,
           true,
         )}

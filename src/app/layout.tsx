@@ -6,6 +6,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import theme from "./theme";
 import Navbar from "@/components/Navbar";
 import "./globals.css";
+import { Box, Typography } from "@mui/material";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -27,9 +28,29 @@ export default function RootLayout({
             <CssBaseline />
             <Navbar />
             {children}
+            <Box component="footer" sx={styles.footer}>
+              <Typography variant="body2" sx={styles.footerText}>
+                &copy; {new Date().getFullYear()} GMAHK BSD. All rights
+                reserved.
+              </Typography>
+            </Box>
           </ThemeProvider>
         </AppRouterCacheProvider>
       </body>
     </html>
   );
 }
+
+const styles = {
+  footer: {
+    py: { xs: 2.5, sm: 3 },
+    px: 2,
+    textAlign: "center",
+    color: "#666",
+    position: "relative",
+    zIndex: 1,
+  },
+  footerText: {
+    fontSize: { xs: "0.8rem", sm: "0.85rem" },
+  },
+};

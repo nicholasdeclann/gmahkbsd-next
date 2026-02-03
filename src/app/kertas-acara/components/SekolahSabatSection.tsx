@@ -41,7 +41,12 @@ export default function SekolahSabatSection({
   );
 
   return (
-    <Box sx={styles.section}>
+    <Box sx={{
+      ...styles.section,
+      bgcolor: isExpanded ? "rgba(255, 255, 255, 0.7)" : "transparent",
+      border: isExpanded ? "1px solid rgba(255, 255, 255, 0.3)" : "none",
+      boxShadow: isExpanded ? "0 4px 16px 0 rgba(46, 108, 232, 0.1)" : "none",
+    }}>
       <Box
         sx={{
           ...styles.sectionTitleContainer,
@@ -56,34 +61,34 @@ export default function SekolahSabatSection({
       </Box>
       <Collapse in={isExpanded}>
         <List sx={styles.list}>
-        {renderListItem("Sambutan Pemimpin", ssData["pemimpin"]?.person || "")}
-        {renderListItem(
+        {ssData["pemimpin"]?.person && renderListItem("Sambutan Pemimpin", ssData["pemimpin"]?.person || "")}
+        {showSongs && renderListItem(
           "Lagu Pembuka",
-          showSongs ? formatLaguSion(laguBukaSSNum, laguSionMap) : "",
+          formatLaguSion(laguBukaSSNum, laguSionMap),
           true,
         )}
-        {renderListItem(
+        {ssData["ayat inti/doa buka ss"]?.person && renderListItem(
           "Ayat Inti & Doa Bertelut",
           ssData["ayat inti/doa buka ss"]?.person || "",
         )}
-        {renderListItem(
+        {ssData["berita mission"]?.person && renderListItem(
           "Berita Mission",
           ssData["berita mission"]?.person || "",
         )}
-        {renderListItem("Kuis", ssData["kuis sekolah sabat"]?.person || "")}
-        {renderListItem(
+        {ssData["kuis sekolah sabat"]?.person && renderListItem("Kuis", ssData["kuis sekolah sabat"]?.person || "")}
+        {ssData["diskusi sekolah sabat"]?.person && renderListItem(
           "Diskusi Pelajaran SS",
           ssData["diskusi sekolah sabat"]?.person || "",
         )}
-        {renderListItem("Lagu Pujian", ssData["lagu pujian"]?.person || "")}
-        {renderListItem("Dorongan PP", doronganPP)}
-        {renderListItem(
+        {ssData["lagu pujian"]?.person && renderListItem("Lagu Pujian", ssData["lagu pujian"]?.person || "")}
+        {doronganPP && renderListItem("Dorongan PP", doronganPP)}
+        {showSongs && renderListItem(
           "Lagu Penutup",
-          showSongs ? formatLaguSion(laguTutupSSNum, laguSionMap) : "",
+          formatLaguSion(laguTutupSSNum, laguSionMap),
           true,
         )}
-        {renderListItem("Doa Penutup", doronganPP)}
-        {renderListItem("Pengumuman", "Dept. Komunikasi, Ketua Jemaat")}
+        {doronganPP && renderListItem("Doa Penutup", doronganPP)}
+        {showSongs && renderListItem("Pengumuman", "Dept. Komunikasi, Ketua Jemaat")}
       </List>
       </Collapse>
     </Box>

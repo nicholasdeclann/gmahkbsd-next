@@ -6,8 +6,12 @@ import {
   Typography,
   Button,
   CircularProgress,
+  TextField,
+  IconButton,
+  Fade,
+  Grow,
 } from "@mui/material";
-import { ChevronRight, ChevronLeft } from "@mui/icons-material";
+import { ChevronRight, ChevronLeft, Search } from "@mui/icons-material";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
@@ -44,6 +48,8 @@ function KertasAcaraContent() {
     pelayananMusik: true,
     diakonia: true,
   });
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isSearchVisible, setIsSearchVisible] = useState(false);
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -240,95 +246,178 @@ function KertasAcaraContent() {
   }, [cachedRows, columnOffset]);
 
   const showSongs = columnOffset === 0;
-  const doronganPP = ssData["dor. pp/rt/kesehatan"]?.person || "";
-  const bacaanPersembahan = khotbahData["bacaan persembahan"]?.person || "";
-  const pembicara = khotbahData["pembicara"]?.person || "";
-  const ayatBersahutan = khotbahData["ayat bersahutan & inti"]?.person || "";
+
+  // Filter data based on search term
+  const filterBySearch = (text: string) => {
+    return text.toLowerCase().includes(searchTerm.toLowerCase());
+  };
+
+  const filteredSsData = Object.keys(ssData).reduce((acc, key) => {
+    const item = ssData[key];
+    if (
+      filterBySearch(item.person) ||
+      (item.person2 && filterBySearch(item.person2))
+    ) {
+      acc[key] = item;
+    }
+    return acc;
+  }, {} as ParticipantData);
+
+  const filteredKhotbahData = Object.keys(khotbahData).reduce((acc, key) => {
+    const item = khotbahData[key];
+    if (
+      filterBySearch(item.person) ||
+      (item.person2 && filterBySearch(item.person2))
+    ) {
+      acc[key] = item;
+    }
+    return acc;
+  }, {} as ParticipantData);
+
+  const filteredPelayananData = pelayananData.filter(
+    (item) =>
+      filterBySearch(item.person) ||
+      (item.person2 && filterBySearch(item.person2)),
+  );
+
+  const filteredDiakoniaData = diakoniaData.filter(
+    (item) =>
+      filterBySearch(item.person) ||
+      (item.person2 && filterBySearch(item.person2)),
+  );
+
+  // Use filtered data when searching
+  const activeSSData = searchTerm ? filteredSsData : ssData;
+  const activeKhotbahData = searchTerm ? filteredKhotbahData : khotbahData;
+
+  const doronganPP = activeSSData["dor. pp/rt/kesehatan"]?.person || "";
+  const bacaanPersembahan =
+    activeKhotbahData["bacaan persembahan"]?.person || "";
+  const pembicara = activeKhotbahData["pembicara"]?.person || "";
+  const ayatBersahutan =
+    activeKhotbahData["ayat bersahutan & inti"]?.person || "";
 
   return (
     <Box sx={styles.mainContainer}>
       <Box sx={styles.gradientBackground} />
 
-      <Container maxWidth="lg" sx={styles.contentContainer}>
-        <Box sx={styles.header}>
-          <Box sx={styles.dateNavigation}>
-            {columnOffset === 1 && (
-              <Button
-                component={Link}
-                href="/kertas-acara"
-                variant="outlined"
-                startIcon={<ChevronLeft />}
-                sx={styles.inactiveButton}
-              >
-                Sabat Ini
-              </Button>
-            )}
-            <Box sx={styles.dateContainer}>
-              <Typography
-                variant="h2"
-                sx={
-                  columnOffset === 0
-                    ? styles.scheduleDateLeft
-                    : styles.scheduleDateRight
-                }
-              >
-                {scheduleDate}
-              </Typography>
-            </Box>
-            {columnOffset === 0 && (
-              <Button
-                component={Link}
-                href="/kertas-acara?week=next"
-                variant="outlined"
-                endIcon={<ChevronRight />}
-                sx={styles.inactiveButton}
-              >
-                Sabat Depan
-              </Button>
-            )}
-          </Box>
+      {loading ? (
+        <Box sx={styles.loadingContainer}>
+          <CircularProgress size={60} sx={{ color: "#2e6ce8" }} />
         </Box>
+      ) : (
+        <Fade in={!loading} timeout={800}>
+          <Container maxWidth="lg" sx={styles.contentContainer}>
+            <Box sx={styles.header}>
+              <Box sx={styles.dateNavigation}>
+                {columnOffset === 1 && (
+                  <Button
+                    component={Link}
+                    href="/kertas-acara"
+                    variant="outlined"
+                    startIcon={<ChevronLeft />}
+                    sx={styles.inactiveButton}
+                  >
+                    Sabat Ini
+                  </Button>
+                )}
+                <Box sx={styles.dateContainer}>
+                  <Typography
+                    variant="h2"
+                    sx={
+                      columnOffset === 0
+                        ? styles.scheduleDateLeft
+                        : styles.scheduleDateRight
+                    }
+                  >
+                    {scheduleDate}
+                  </Typography>
+                </Box>
+                {columnOffset === 0 && (
+                  <Button
+                    component={Link}
+                    href="/kertas-acara?week=next"
+                    variant="outlined"
+                    endIcon={<ChevronRight />}
+                    sx={styles.inactiveButton}
+                  >
+                    Sabat Depan
+                  </Button>
+                )}
+              </Box>
+            </Box>
 
-        {!loading && (
-          <Box sx={styles.scheduleContainer}>
-            <SekolahSabatSection
-              ssData={ssData}
-              doronganPP={doronganPP}
-              showSongs={showSongs}
-              laguBukaSSNum={laguBukaSSNum}
-              laguTutupSSNum={laguTutupSSNum}
-              laguSionMap={laguSionMap}
-              isExpanded={expandedSections.sekolahSabat}
-              onToggle={() => toggleSection("sekolahSabat")}
-            />
-            <KhotbahSection
-              khotbahData={khotbahData}
-              bacaanPersembahan={bacaanPersembahan}
-              pembicara={pembicara}
-              ayatBersahutan={ayatBersahutan}
-              showSongs={showSongs}
-              laguBukaNum={laguBukaNum}
-              laguTutupNum={laguTutupNum}
-              laguSionMap={laguSionMap}
-              judulKhotbah={judulKhotbah}
-              ayatInti={ayatInti}
-              ayatBersahutanText={ayatBersahutanText}
-              isExpanded={expandedSections.khotbah}
-              onToggle={() => toggleSection("khotbah")}
-            />
-            <PelayananMusikSection
-              pelayananData={pelayananData}
-              isExpanded={expandedSections.pelayananMusik}
-              onToggle={() => toggleSection("pelayananMusik")}
-            />
-            <DiakoniaSection
-              diakoniaData={diakoniaData}
-              isExpanded={expandedSections.diakonia}
-              onToggle={() => toggleSection("diakonia")}
-            />
-          </Box>
-        )}
-      </Container>
+            {/* Search */}
+            <Box sx={styles.searchContainer}>
+              {!isSearchVisible ? (
+                <IconButton
+                  onClick={() => setIsSearchVisible(true)}
+                  sx={styles.searchIconButton}
+                >
+                  <Search />
+                </IconButton>
+              ) : (
+                <Grow in={isSearchVisible} timeout={300}>
+                  <TextField
+                    fullWidth
+                    autoFocus
+                    variant="outlined"
+                    placeholder="Cari Nama..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onBlur={() => {
+                      if (!searchTerm) {
+                        setIsSearchVisible(false);
+                      }
+                    }}
+                    sx={styles.searchField}
+                  />
+                </Grow>
+              )}
+            </Box>
+
+            <Box sx={styles.scheduleContainer}>
+              <SekolahSabatSection
+                ssData={activeSSData}
+                doronganPP={doronganPP}
+                showSongs={searchTerm ? false : showSongs}
+                laguBukaSSNum={laguBukaSSNum}
+                laguTutupSSNum={laguTutupSSNum}
+                laguSionMap={laguSionMap}
+                isExpanded={expandedSections.sekolahSabat}
+                onToggle={() => toggleSection("sekolahSabat")}
+              />
+              <KhotbahSection
+                khotbahData={activeKhotbahData}
+                bacaanPersembahan={bacaanPersembahan}
+                pembicara={pembicara}
+                ayatBersahutan={ayatBersahutan}
+                showSongs={searchTerm ? false : showSongs}
+                laguBukaNum={laguBukaNum}
+                laguTutupNum={laguTutupNum}
+                laguSionMap={laguSionMap}
+                judulKhotbah={judulKhotbah}
+                ayatInti={ayatInti}
+                ayatBersahutanText={ayatBersahutanText}
+                isExpanded={expandedSections.khotbah}
+                onToggle={() => toggleSection("khotbah")}
+              />
+              <PelayananMusikSection
+                pelayananData={
+                  searchTerm ? filteredPelayananData : pelayananData
+                }
+                isExpanded={expandedSections.pelayananMusik}
+                onToggle={() => toggleSection("pelayananMusik")}
+              />
+              <DiakoniaSection
+                diakoniaData={searchTerm ? filteredDiakoniaData : diakoniaData}
+                isExpanded={expandedSections.diakonia}
+                onToggle={() => toggleSection("diakonia")}
+              />
+            </Box>
+          </Container>
+        </Fade>
+      )}
     </Box>
   );
 }
@@ -342,6 +431,13 @@ const styles = {
   },
   gradientBackground: {
     display: "none",
+  },
+  loadingContainer: {
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    minHeight: "calc(100vh - 64px)",
   },
   contentContainer: {
     py: { xs: 3, md: 5 },
@@ -418,6 +514,36 @@ const styles = {
   lastUpdated: {
     fontSize: "0.75rem",
     color: "#6c757d",
+  },
+  searchContainer: {
+    mb: { xs: 3, md: 4 },
+    maxWidth: "300px",
+    mx: "auto",
+    display: "flex",
+    justifyContent: "center",
+  },
+  searchIconButton: {
+    color: "#2e6ce8",
+    bgcolor: "rgba(46, 108, 232, 0.1)",
+    "&:hover": {
+      bgcolor: "rgba(46, 108, 232, 0.2)",
+    },
+  },
+  searchField: {
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 2,
+      bgcolor: "rgba(255, 255, 255, 0.7)",
+      backdropFilter: "blur(10px)",
+      "& fieldset": {
+        borderColor: "rgba(46, 108, 232, 0.3)",
+      },
+      "&:hover fieldset": {
+        borderColor: "#2e6ce8",
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: "#2e6ce8",
+      },
+    },
   },
   scheduleContainer: {
     display: { xs: "flex", md: "grid" },

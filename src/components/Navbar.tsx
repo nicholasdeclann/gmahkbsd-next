@@ -19,6 +19,7 @@ function Navbar() {
   const pathname = usePathname();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isKertasAcaraPage = pathname === "/kertas-acara";
+  const isPengumumanPage = pathname === "/pengumuman";
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -47,15 +48,44 @@ function Navbar() {
                 Kertas Acara
               </Typography>
             )}
+            {isPengumumanPage && (
+              <Typography variant="h6" sx={styles.subtitle}>
+                Pengumuman
+              </Typography>
+            )}
           </Box>
         </Box>
 
         {/* Desktop Menu */}
         <Box sx={styles.desktopMenu}>
-          <Button component={Link} href="/" sx={styles.button}>
+          <Button
+            component={Link}
+            href="/"
+            sx={{
+              ...styles.button,
+              ...(pathname === "/" && styles.activeButton),
+            }}
+          >
             Home
           </Button>
-          <Button component={Link} href="/kertas-acara" sx={styles.button}>
+          <Button
+            component={Link}
+            href="/pengumuman"
+            sx={{
+              ...styles.button,
+              ...(pathname === "/pengumuman" && styles.activeButton),
+            }}
+          >
+            Pengumuman
+          </Button>
+          <Button
+            component={Link}
+            href="/kertas-acara"
+            sx={{
+              ...styles.button,
+              ...(pathname === "/kertas-acara" && styles.activeButton),
+            }}
+          >
             Kertas Acara
           </Button>
         </Box>
@@ -82,7 +112,10 @@ function Navbar() {
               component={Link}
               href="/"
               onClick={handleMenuClose}
-              sx={styles.menuItem}
+              sx={{
+                ...styles.menuItem,
+                ...(pathname === "/" && styles.activeMenuItem),
+              }}
             >
               Home
             </MenuItem>
@@ -90,9 +123,23 @@ function Navbar() {
               component={Link}
               href="/kertas-acara"
               onClick={handleMenuClose}
-              sx={styles.menuItem}
+              sx={{
+                ...styles.menuItem,
+                ...(pathname === "/kertas-acara" && styles.activeMenuItem),
+              }}
             >
               Kertas Acara
+            </MenuItem>
+            <MenuItem
+              component={Link}
+              href="/pengumuman"
+              onClick={handleMenuClose}
+              sx={{
+                ...styles.menuItem,
+                ...(pathname === "/pengumuman" && styles.activeMenuItem),
+              }}
+            >
+              Pengumuman
             </MenuItem>
           </Menu>
         </Box>
@@ -105,7 +152,8 @@ export default Navbar;
 
 const styles = {
   appBar: {
-    bgcolor: "rgba(255, 255, 255, 0.8)",
+    background:
+      "linear-gradient(90deg, rgba(255, 255, 255, 1) 0%, rgba(255, 255, 255, 1) 40%, rgba(255, 255, 255, 0.8) 100%)",
     backdropFilter: "blur(10px)",
   },
   logoContainer: {
@@ -121,7 +169,7 @@ const styles = {
     objectFit: "contain",
   },
   logo: {
-    color: "#667eea",
+    color: "#2e6ce8",
     fontWeight: 600,
     fontSize: { xs: "1rem", sm: "1.15rem" },
   },
@@ -144,11 +192,16 @@ const styles = {
     textTransform: "none",
     "&:hover": {
       bgcolor: "rgba(102, 126, 234, 0.05)",
-      color: "#667eea",
+      color: "#2e6ce8",
     },
   },
+  activeButton: {
+    color: "#2e6ce8",
+    fontWeight: 600,
+    bgcolor: "rgba(46, 108, 232, 0.1)",
+  },
   hamburger: {
-    color: "#667eea",
+    color: "#2e6ce8",
   },
   menuDropdown: {
     "& .MuiPaper-root": {
@@ -161,7 +214,12 @@ const styles = {
     color: "#666",
     "&:hover": {
       bgcolor: "rgba(102, 126, 234, 0.05)",
-      color: "#667eea",
+      color: "#2e6ce8",
     },
+  },
+  activeMenuItem: {
+    color: "#2e6ce8",
+    fontWeight: 600,
+    bgcolor: "rgba(46, 108, 232, 0.1)",
   },
 };
