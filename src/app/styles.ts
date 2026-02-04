@@ -183,8 +183,8 @@ export const styles = {
     pt: 2,
     borderTop: "1px solid rgba(46, 108, 232, 0.2)",
     display: "flex",
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: { xs: "column", sm: "row" },
+    alignItems: { xs: "stretch", sm: "center" },
     justifyContent: "space-between",
     gap: 2,
   },
@@ -286,6 +286,7 @@ export const styles = {
     boxShadow: "0 4px 14px 0 rgba(46, 108, 232, 0.4)",
     mt: 2,
     textTransform: "none",
+    width: { xs: "100%", sm: "auto" },
     "@keyframes gradient": {
       "0%": {
         backgroundPosition: "0% 50%",
