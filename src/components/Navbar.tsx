@@ -20,6 +20,7 @@ function Navbar() {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const isKertasAcaraPage = pathname === "/kertas-acara";
   const isPengumumanPage = pathname === "/pengumuman";
+  const isUlangTahunPage = pathname === "/ulang-tahun";
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -53,6 +54,11 @@ function Navbar() {
                 Pengumuman
               </Typography>
             )}
+            {isUlangTahunPage && (
+              <Typography variant="h6" sx={styles.subtitle}>
+                Ulang Tahun
+              </Typography>
+            )}
           </Box>
         </Box>
 
@@ -77,6 +83,16 @@ function Navbar() {
             }}
           >
             Kertas Acara
+          </Button>
+          <Button
+            component={Link}
+            href="/ulang-tahun"
+            sx={{
+              ...styles.button,
+              ...(pathname === "/ulang-tahun" && styles.activeButton),
+            }}
+          >
+            Ulang Tahun
           </Button>
           <Button
             component={Link}
@@ -129,6 +145,17 @@ function Navbar() {
               }}
             >
               Kertas Acara
+            </MenuItem>
+            <MenuItem
+              component={Link}
+              href="/ulang-tahun"
+              onClick={handleMenuClose}
+              sx={{
+                ...styles.menuItem,
+                ...(pathname === "/ulang-tahun" && styles.activeMenuItem),
+              }}
+            >
+              Ulang Tahun
             </MenuItem>
             <MenuItem
               component={Link}

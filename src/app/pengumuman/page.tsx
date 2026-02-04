@@ -1,43 +1,55 @@
-import { Box, Container, Typography } from "@mui/material";
+"use client";
+
+import { Box, Container, Typography, Grow } from "@mui/material";
+import { useState, useEffect } from "react";
 
 function Pengumuman() {
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    // Trigger the animation after component mounts
+    setShow(true);
+  }, []);
+
   return (
     <Box sx={styles.mainContainer}>
       <Box sx={styles.gradientBackground} />
 
       {/* Canva Carousel - Full Width */}
-      <Box sx={styles.canvaContainer}>
-        <Box
-          sx={{
-            position: "relative",
-            width: "100%",
-            height: 0,
-            paddingTop: "56.25%",
-            paddingBottom: 0,
-            boxShadow: "0 2px 8px 0 rgba(63,69,81,0.16)",
-            overflow: "hidden",
-            borderRadius: 0,
-            willChange: "transform",
-          }}
-        >
-          <iframe
-            loading="lazy"
-            style={{
-              position: "absolute",
+      <Grow in={show} timeout={800} style={{ transformOrigin: "center center" }}>
+        <Box sx={styles.canvaContainer}>
+          <Box
+            sx={{
+              position: "relative",
               width: "100%",
-              height: "100%",
-              top: 0,
-              left: 0,
-              border: "none",
-              padding: 0,
-              margin: 0,
+              height: 0,
+              paddingTop: "56.25%",
+              paddingBottom: 0,
+              boxShadow: "0 2px 8px 0 rgba(63,69,81,0.16)",
+              overflow: "hidden",
+              borderRadius: 0,
+              willChange: "transform",
             }}
-            src="https://www.canva.com/design/DAG-9nAgcSE/Ri8PyLxmRovXS8iWkST9aQ/view?embed"
-            allowFullScreen
-            allow="fullscreen"
-          />
+          >
+            <iframe
+              loading="lazy"
+              style={{
+                position: "absolute",
+                width: "100%",
+                height: "100%",
+                top: 0,
+                left: 0,
+                border: "none",
+                padding: 0,
+                margin: 0,
+              }}
+              src="https://www.canva.com/design/DAG-9nAgcSE/Ri8PyLxmRovXS8iWkST9aQ/view?embed"
+              allowFullScreen
+              allow="fullscreen"
+            />
+          </Box>
         </Box>
-      </Box>
+      </Grow>
     </Box>
   );
 }
