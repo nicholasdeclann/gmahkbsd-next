@@ -70,16 +70,6 @@ function Navbar() {
           </Button>
           <Button
             component={Link}
-            href="/pengumuman"
-            sx={{
-              ...styles.button,
-              ...(pathname === "/pengumuman" && styles.activeButton),
-            }}
-          >
-            Pengumuman
-          </Button>
-          <Button
-            component={Link}
             href="/kertas-acara"
             sx={{
               ...styles.button,
@@ -87,6 +77,16 @@ function Navbar() {
             }}
           >
             Kertas Acara
+          </Button>
+          <Button
+            component={Link}
+            href="/pengumuman"
+            sx={{
+              ...styles.button,
+              ...(pathname === "/pengumuman" && styles.activeButton),
+            }}
+          >
+            Pengumuman
           </Button>
         </Box>
 
