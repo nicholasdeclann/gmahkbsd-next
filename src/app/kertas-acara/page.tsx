@@ -290,7 +290,7 @@ function KertasAcaraContent() {
   const activeSSData = searchTerm ? filteredSsData : ssData;
   const activeKhotbahData = searchTerm ? filteredKhotbahData : khotbahData;
 
-  const doronganPP = activeSSData["dor. pp/rt/kesehatan"]?.person || "";
+  const doronganItem = activeSSData["dor. pp/rt/kesehatan"];
   const bacaanPersembahan =
     activeKhotbahData["bacaan persembahan"]?.person || "";
   const pembicara = activeKhotbahData["pembicara"]?.person || "";
@@ -379,7 +379,7 @@ function KertasAcaraContent() {
             <Box sx={styles.scheduleContainer}>
               <SekolahSabatSection
                 ssData={activeSSData}
-                doronganPP={doronganPP}
+                doronganItem={doronganItem}
                 showSongs={searchTerm ? false : showSongs}
                 laguBukaSSNum={laguBukaSSNum}
                 laguTutupSSNum={laguTutupSSNum}

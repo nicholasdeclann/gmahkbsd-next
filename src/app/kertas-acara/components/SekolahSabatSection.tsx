@@ -4,7 +4,7 @@ import { formatLaguSion } from "../utils";
 
 interface SekolahSabatSectionProps {
   ssData: any;
-  doronganPP: string;
+  doronganItem?: { role?: string; person?: string };
   showSongs: boolean;
   laguBukaSSNum: string;
   laguTutupSSNum: string;
@@ -15,7 +15,7 @@ interface SekolahSabatSectionProps {
 
 export default function SekolahSabatSection({
   ssData,
-  doronganPP,
+  doronganItem,
   showSongs,
   laguBukaSSNum,
   laguTutupSSNum,
@@ -81,13 +81,13 @@ export default function SekolahSabatSection({
           ssData["diskusi sekolah sabat"]?.person || "",
         )}
         {ssData["lagu pujian"]?.person && renderListItem("Lagu Pujian", ssData["lagu pujian"]?.person || "")}
-        {doronganPP && renderListItem("Dorongan PP", doronganPP)}
+        {doronganItem?.person && renderListItem(doronganItem.role || "Dorongan PP", doronganItem.person)}
         {showSongs && renderListItem(
           "Lagu Penutup",
           formatLaguSion(laguTutupSSNum, laguSionMap),
           true,
         )}
-        {doronganPP && renderListItem("Doa Penutup", doronganPP)}
+        {doronganItem?.person && renderListItem("Doa Penutup", doronganItem.person)}
         {showSongs && renderListItem("Pengumuman", "Dept. Komunikasi, Ketua Jemaat")}
       </List>
       </Collapse>
