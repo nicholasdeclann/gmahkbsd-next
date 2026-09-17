@@ -11,11 +11,27 @@ interface DownloadButtonProps {
   dateLabel?: string;
 }
 
+// Render scale used for the PDF page (see handleDownload). One inch of the
+// original PDF is `PDF_DPI * RENDER_SCALE` pixels in the rendered canvas.
+const PDF_DPI = 72;
+const RENDER_SCALE = 2.5;
+const PX_PER_INCH = PDF_DPI * RENDER_SCALE;
+
+// White padding to add around the tight content crop, per side (in inches).
+const PADDING_INCHES = { top: 0.3, right: 0.2, bottom: 0, left: 0.2 };
+
+const pad = {
+  top: Math.round(PADDING_INCHES.top * PX_PER_INCH),
+  right: Math.round(PADDING_INCHES.right * PX_PER_INCH),
+  bottom: Math.round(PADDING_INCHES.bottom * PX_PER_INCH),
+  left: Math.round(PADDING_INCHES.left * PX_PER_INCH),
+};
+
 /**
- * Crop a canvas to the exact bounding box of its non-white content, returning
- * a new tightly-cropped canvas (zero padding). A pixel counts as "content" if
- * any RGB channel is below `threshold`, which tolerates JPEG-style near-white
- * antialiasing without trimming faint cell borders.
+ * Crop a canvas to the bounding box of its non-white content, then add white
+ * padding around it (per-side, configured above). A pixel counts as "content"
+ * if any RGB channel is below `threshold`, which tolerates JPEG-style
+ * near-white antialiasing without trimming faint cell borders.
  */
 function cropToContent(
   source: HTMLCanvasElement,
@@ -53,16 +69,29 @@ function cropToContent(
   // No content found — return the original untouched.
   if (maxX < minX || maxY < minY) return source;
 
-  const cropW = maxX - minX + 1;
-  const cropH = maxY - minY + 1;
+  const contentW = maxX - minX + 1;
+  const contentH = maxY - minY + 1;
 
   const cropped = document.createElement("canvas");
-  cropped.width = cropW;
-  cropped.height = cropH;
+  cropped.width = contentW + pad.left + pad.right;
+  cropped.height = contentH + pad.top + pad.bottom;
   const cropCtx = cropped.getContext("2d");
   if (!cropCtx) return source;
 
-  cropCtx.drawImage(source, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+  // Fill with white, then place the cropped content offset by the padding.
+  cropCtx.fillStyle = "#ffffff";
+  cropCtx.fillRect(0, 0, cropped.width, cropped.height);
+  cropCtx.drawImage(
+    source,
+    minX,
+    minY,
+    contentW,
+    contentH,
+    pad.left,
+    pad.top,
+    contentW,
+    contentH,
+  );
   return cropped;
 }
 
@@ -112,8 +141,8 @@ export default function DownloadButton({ dateLabel }: DownloadButtonProps) {
       const pdf = await pdfjs.getDocument({ data: pdfData }).promise;
       const page = await pdf.getPage(1);
 
-      const scale = 2.5; // retina-quality output for crisp WhatsApp images
-      const viewport = page.getViewport({ scale });
+      // retina-quality output for crisp WhatsApp images
+      const viewport = page.getViewport({ scale: RENDER_SCALE });
 
       const canvas = document.createElement("canvas");
       canvas.width = Math.floor(viewport.width);
