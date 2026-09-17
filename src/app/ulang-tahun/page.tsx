@@ -17,15 +17,13 @@ import { churchConfig } from "@/config/church";
 import { imageAsset } from "@/lib/asset";
 import {
   type BirthdayPerson,
-  SHEET_URL,
+  SHEET_URLS,
   getCurrentWeekRange,
   formatDateShort,
   formatDateLong,
-  parseBirthday,
+  parseBirthdayRow,
   isBirthdayThisWeek,
-  calculateAge,
   getDayName,
-  reverseName,
 } from "./utils";
 
 function UlangTahunPage() {
@@ -41,42 +39,51 @@ function UlangTahunPage() {
     const range = getCurrentWeekRange();
     setWeekRange(range);
 
-    // Fetch birthdays from Google Sheets
-    fetch(SHEET_URL)
-      .then((res) => res.text())
-      .then((text) => {
-        const json = JSON.parse(text.substring(47, text.length - 2));
-        const rows = json.table.rows;
-
+    // Fetch every birthday tab in parallel and merge the results.
+    Promise.all(
+      SHEET_URLS.map((url) =>
+        fetch(url, { cache: "no-store" })
+          .then((res) => res.text())
+          .then((text) => {
+            const json = JSON.parse(text.substring(47, text.length - 2));
+            return (json.table?.rows ?? []) as {
+              c?: ({ v?: unknown } | null)[];
+            }[];
+          })
+          // Ignore a single failing/empty tab rather than failing the page.
+          .catch(() => []),
+      ),
+    )
+      .then((tabRows) => {
+        const seen = new Set<string>();
         const birthdayList: BirthdayPerson[] = [];
 
-        // Skip header row (index 0) and process data rows
-        for (let i = 1; i < rows.length; i++) {
-          const row = rows[i];
-          if (!row.c) continue;
+        for (const rows of tabRows) {
+          for (const row of rows) {
+            if (!row.c) continue;
 
-          const nama = reverseName(row.c[1]?.v);
-          const tanggalLahir = row.c[2]?.v;
+            const parsed = parseBirthdayRow(row.c);
+            if (!parsed) continue;
 
-          if (!nama || !tanggalLahir) continue;
+            // Deduplicate people that appear across multiple tabs.
+            const key = `${parsed.nama.toLowerCase()}|${parsed.birthday.month}|${parsed.birthday.day}`;
+            if (seen.has(key)) continue;
 
-          const birthday = parseBirthday(tanggalLahir);
+            if (isBirthdayThisWeek(parsed.birthday, range)) {
+              seen.add(key);
+              const birthdayDate = new Date(
+                new Date().getFullYear(),
+                parsed.birthday.month,
+                parsed.birthday.day,
+              );
 
-          if (birthday && isBirthdayThisWeek(birthday, range)) {
-            const age = calculateAge(birthday);
-            const birthdayDate = new Date(
-              new Date().getFullYear(),
-              birthday.month,
-              birthday.day,
-            );
-
-            birthdayList.push({
-              nama,
-              birthday,
-              age,
-              birthdayDate,
-              dayName: getDayName(birthdayDate),
-            });
+              birthdayList.push({
+                nama: parsed.nama,
+                birthday: parsed.birthday,
+                birthdayDate,
+                dayName: getDayName(birthdayDate),
+              });
+            }
           }
         }
 

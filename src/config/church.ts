@@ -93,9 +93,16 @@ export interface ChurchConfig {
       /** gid of the "Lagu Sion" (hymnal lookup) tab. */
       laguSionGid: string;
     };
-    /** Birthday (ulang tahun) sheet — congregation member birthdays. */
+    /**
+     * Birthday (ulang tahun) sheet — congregation member birthdays. The data
+     * is split across multiple tabs (roughly one per month, though rows are
+     * not strictly grouped by birth month). All tabs are fetched and merged;
+     * each person's birth month/day is read from their own row columns.
+     */
     birthdays: {
       sheetId: string;
+      /** gids of every tab that holds birthday rows. */
+      tabGids: string[];
     };
   };
 
@@ -200,7 +207,22 @@ export const churchConfig: ChurchConfig = {
       laguSionGid: "1174681408",
     },
     birthdays: {
-      sheetId: "1TM1e4w1mhgZvXo5JBcihACXPgrmFBKX91_qAp6wbU_Q",
+      sheetId: "1S5mpra2WiQDO_-pM0nhD71Af5UYEalbh",
+      tabGids: [
+        "2436171",
+        "244569119",
+        "344878463",
+        "626197923",
+        "671069382",
+        "1069981365",
+        "1083107201",
+        "1199476514",
+        "1564874483",
+        "1617354717",
+        "1920719344",
+        "1963630498",
+        "2108089331",
+      ],
     },
   },
 

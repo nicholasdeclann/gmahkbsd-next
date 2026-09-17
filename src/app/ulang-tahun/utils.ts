@@ -1,21 +1,54 @@
+import { churchConfig } from "@/config/church";
+
 export interface Birthday {
+  /** Day of month (1-31). */
   day: number;
+  /** Month index (0-11). */
   month: number;
-  year: number;
 }
 
 export interface BirthdayPerson {
   nama: string;
   birthday: Birthday;
-  age: number | null;
+  /** Date object for this year's occurrence, used for sorting/formatting. */
   birthdayDate: Date;
   dayName: string;
 }
 
-export const SHEET_ID = "1TM1e4w1mhgZvXo5JBcihACXPgrmFBKX91_qAp6wbU_Q";
-export const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
+const { sheetId, tabGids } = churchConfig.sheets.birthdays;
 
-// Get current week range (Sunday to Saturday)
+// URLs for every birthday tab; the app fetches and merges them all.
+export const SHEET_URLS = tabGids.map(
+  (gid) =>
+    `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:json&gid=${gid}`,
+);
+
+const INDONESIAN_MONTHS = [
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
+];
+
+const INDONESIAN_DAYS = [
+  "Minggu",
+  "Senin",
+  "Selasa",
+  "Rabu",
+  "Kamis",
+  "Jumat",
+  "Sabtu",
+];
+
+// Get current week range (Sunday to Saturday/Sabbath)
 export const getCurrentWeekRange = () => {
   const today = new Date();
   const dayOfWeek = today.getDay(); // 0 = Sunday, 6 = Saturday
@@ -25,7 +58,7 @@ export const getCurrentWeekRange = () => {
   sunday.setDate(today.getDate() - dayOfWeek);
   sunday.setHours(0, 0, 0, 0);
 
-  // Calculate Saturday of this week
+  // Calculate Saturday (Sabbath) of this week
   const saturday = new Date(sunday);
   saturday.setDate(sunday.getDate() + 6);
   saturday.setHours(23, 59, 59, 999);
@@ -33,80 +66,64 @@ export const getCurrentWeekRange = () => {
   return { sunday, saturday };
 };
 
-// Format date as "DD MMMM"
+// Format date as "DD MMMM" (e.g. "19 Februari")
 export const formatDateShort = (date: Date) => {
-  const months = [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember",
-  ];
-  const day = date.getDate();
-  const month = months[date.getMonth()];
-  return `${day} ${month}`;
+  return `${date.getDate()} ${INDONESIAN_MONTHS[date.getMonth()]}`;
 };
 
 // Format date as "DD MMMM YYYY"
 export const formatDateLong = (date: Date) => {
-  const months = [
-    "Januari",
-    "Februari",
-    "Maret",
-    "April",
-    "Mei",
-    "Juni",
-    "Juli",
-    "Agustus",
-    "September",
-    "Oktober",
-    "November",
-    "Desember",
-  ];
-  const day = date.getDate();
-  const month = months[date.getMonth()];
-  const year = date.getFullYear();
-  return `${day} ${month} ${year}`;
+  return `${date.getDate()} ${INDONESIAN_MONTHS[date.getMonth()]} ${date.getFullYear()}`;
 };
 
-// Parse birthday from Google Sheets Date string format
-export const parseBirthday = (birthdayData: any): Birthday | null => {
-  if (!birthdayData) return null;
+// Resolve an Indonesian month name to a 0-based month index. Accepts either the
+// full name (e.g. "Februari") or a numeric string (e.g. "2").
+const parseMonth = (monthValue: unknown): number | null => {
+  if (monthValue === null || monthValue === undefined) return null;
 
-  // Google Sheets returns dates as strings like "Date(1998,0,27)"
-  if (typeof birthdayData === "string" && birthdayData.startsWith("Date(")) {
-    // Extract the values: "Date(1998,0,27)" -> [1998, 0, 27]
-    const match = birthdayData.match(/Date\((\d+),(\d+),(\d+)\)/);
-    if (match) {
-      const year = parseInt(match[1]);
-      const month = parseInt(match[2]); // Already 0-indexed from Google Sheets
-      const day = parseInt(match[3]);
+  const raw = String(monthValue).trim();
+  if (!raw) return null;
 
-      return { day, month, year };
-    }
+  // Numeric month (1-12)
+  const asNumber = Number(raw);
+  if (Number.isInteger(asNumber) && asNumber >= 1 && asNumber <= 12) {
+    return asNumber - 1;
   }
 
-  return null;
+  const index = INDONESIAN_MONTHS.findIndex(
+    (m) => m.toLowerCase() === raw.toLowerCase(),
+  );
+  return index >= 0 ? index : null;
 };
 
-// Check if birthday falls in current week (only check month and day, ignore year)
+/**
+ * Parse a birthday row from the new sheet format. Columns:
+ *   A (0) = Nama, B (1) = Tanggal, C (2) = Hari (day), D (3) = Bulan (month name)
+ * The birth year is intentionally ignored — only month and day are used.
+ */
+export const parseBirthdayRow = (
+  cells: ({ v?: unknown } | null)[],
+): { nama: string; birthday: Birthday } | null => {
+  const nama = cells[0]?.v ? String(cells[0].v).trim() : "";
+  if (!nama || nama.toLowerCase() === "nama") return null;
+
+  const day = Number(cells[2]?.v);
+  const month = parseMonth(cells[3]?.v);
+
+  if (!Number.isInteger(day) || day < 1 || day > 31) return null;
+  if (month === null) return null;
+
+  return { nama, birthday: { day, month } };
+};
+
+// Check if a birthday (month + day only) falls within the current week
 export const isBirthdayThisWeek = (
   birthday: Birthday,
   weekRange: { sunday: Date; saturday: Date },
 ) => {
   if (!birthday) return false;
 
-  const today = new Date();
-  const currentYear = today.getFullYear();
-
-  // Create birthday date for this year using only month and day
+  const currentYear = new Date().getFullYear();
   const birthdayThisYear = new Date(
     currentYear,
     birthday.month,
@@ -119,42 +136,7 @@ export const isBirthdayThisWeek = (
   );
 };
 
-// Calculate age
-export const calculateAge = (birthday: Birthday): number | null => {
-  if (!birthday) return null;
-  const today = new Date();
-  const birthDate = new Date(birthday.year, birthday.month, birthday.day);
-  let age = today.getFullYear() - birthDate.getFullYear();
-  const monthDiff = today.getMonth() - birthDate.getMonth();
-  if (
-    monthDiff < 0 ||
-    (monthDiff === 0 && today.getDate() < birthDate.getDate())
-  ) {
-    age--;
-  }
-  return age;
-};
-
 // Get day name in Indonesian
 export const getDayName = (date: Date) => {
-  const days = [
-    "Minggu",
-    "Senin",
-    "Selasa",
-    "Rabu",
-    "Kamis",
-    "Jumat",
-    "Sabtu",
-  ];
-  return days[date.getDay()];
-};
-
-// Reverse name order (from "Surname Firstname" to "Firstname Surname")
-export const reverseName = (name: string) => {
-  if (!name) return name;
-  const parts = name.trim().split(" ");
-  if (parts.length === 1) return name; // Single name, return as-is
-  // Move first word to the end, keep rest in order
-  const [first, ...rest] = parts;
-  return [...rest, first].join(" ");
+  return INDONESIAN_DAYS[date.getDay()];
 };
