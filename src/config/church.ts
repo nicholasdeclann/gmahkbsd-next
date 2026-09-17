@@ -127,6 +127,18 @@ export interface ChurchConfig {
     /** Static text shown for the "Pengumuman" slot in Sekolah Sabat. */
     pengumumanRole: string;
     /**
+     * Downloadable JPG export of the worship order. The app proxies Google
+     * Sheets' native PDF export of the given cell range and converts it to a
+     * JPG in the browser. Requires the liturgy spreadsheet to be publicly
+     * viewable ("Anyone with the link").
+     */
+    export: {
+      sheetId: string;
+      gid: string;
+      /** Cell range to export, e.g. "B10:P70". */
+      range: string;
+    };
+    /**
      * Keywords used to classify rows in the schedule sheet into sections.
      * All comparisons are case-insensitive. Adjust these to match the exact
      * role labels used in your church's schedule spreadsheet.
@@ -235,6 +247,11 @@ export const churchConfig: ChurchConfig = {
       laguSambutan2: "168",
     },
     pengumumanRole: "Dept. Komunikasi, Ketua Jemaat",
+    export: {
+      sheetId: "1uW-CwZxGJ9Jfqv78pUc-4iE9fqgrV17eV9Ws_FEE5Ns",
+      gid: "1587228396",
+      range: "B10:P70",
+    },
     parsing: {
       skipRoleKeywords: ["penyedia potluck", "koordinator"],
       ssSectionMarker: "DEWASA",

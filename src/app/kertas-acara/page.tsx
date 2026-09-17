@@ -21,6 +21,7 @@ import SekolahSabatSection from "@/app/kertas-acara/components/SekolahSabatSecti
 import KhotbahSection from "@/app/kertas-acara/components/KhotbahSection";
 import PelayananMusikSection from "@/app/kertas-acara/components/PelayananMusikSection";
 import DiakoniaSection from "@/app/kertas-acara/components/DiakoniaSection";
+import DownloadButton from "@/app/kertas-acara/components/DownloadButton";
 import { SHEET_URL, KERTAS_ACARA_URL, LAGU_SION_URL } from "./constants";
 import { getThisWeeksSaturday, formatDate, getSaturdayOfMonth } from "./utils";
 import { LaguSionMap, ParticipantData, ParticipantItem, Row } from "./types";
@@ -415,6 +416,10 @@ function KertasAcaraContent() {
                 onToggle={() => toggleSection("diakonia")}
               />
             </Box>
+
+            <DownloadButton
+              dateLabel={scheduleDate.replace(/^Sabat,\s*/, "")}
+            />
           </Container>
         </Fade>
       )}

@@ -14,6 +14,11 @@ const nextConfig: NextConfig = {
   ...(isStaticExport ? { output: "export" } : {}),
   basePath,
   poweredByHeader: false,
+  // Files suffixed with `.node.*` (e.g. the export API route) require a server
+  // runtime, so they are only included when NOT doing a static export.
+  pageExtensions: isStaticExport
+    ? ["tsx", "ts", "jsx", "js"]
+    : ["node.tsx", "node.ts", "tsx", "ts", "jsx", "js"],
   images: {
     // Next.js image optimization requires a server, which a static export
     // does not have. On Vercel this stays enabled for WebP/AVIF + srcsets.
