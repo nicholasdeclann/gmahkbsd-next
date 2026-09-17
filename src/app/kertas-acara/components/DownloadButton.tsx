@@ -18,7 +18,7 @@ const RENDER_SCALE = 2.5;
 const PX_PER_INCH = PDF_DPI * RENDER_SCALE;
 
 // White padding to add around the tight content crop, per side (in inches).
-const PADDING_INCHES = { top: 0.3, right: 0.2, bottom: 0, left: 0.2 };
+const PADDING_INCHES = { top: 0.2, right: 0.2, bottom: 0.2, left: 0.2 };
 
 const pad = {
   top: Math.round(PADDING_INCHES.top * PX_PER_INCH),
@@ -36,7 +36,7 @@ const pad = {
 function cropToContent(
   source: HTMLCanvasElement,
   context: CanvasRenderingContext2D,
-  threshold = 250,
+  threshold = 240,
 ): HTMLCanvasElement {
   const { width, height } = source;
   const { data } = context.getImageData(0, 0, width, height);
