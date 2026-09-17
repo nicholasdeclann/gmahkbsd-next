@@ -159,9 +159,9 @@ export const churchConfig: ChurchConfig = {
     "Bergabunglah dengan kami dalam perjalanan iman, komunitas, dan pelayanan.",
 
   assets: {
-    logo: "logo.svg",
-    zoomLogo: "zoom-logo.svg",
-    birthdayHeader: "balloons.svg",
+    logo: "logo.png",
+    zoomLogo: "zoom-logo.png",
+    birthdayHeader: "balloons.jpg",
   },
 
   services: [
