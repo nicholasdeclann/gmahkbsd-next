@@ -69,6 +69,16 @@ function cropToContent(
   // No content found — return the original untouched.
   if (maxX < minX || maxY < minY) return source;
 
+  // Expand the detected box outward by a small safety margin so a faint,
+  // antialiased outer border (which may fall just below the detection
+  // threshold at the very edge) is never shaved off. The extra pixels are
+  // white/near-white and blend into the padding.
+  const SAFETY = 3;
+  minX = Math.max(0, minX - SAFETY);
+  minY = Math.max(0, minY - SAFETY);
+  maxX = Math.min(width - 1, maxX + SAFETY);
+  maxY = Math.min(height - 1, maxY + SAFETY);
+
   const contentW = maxX - minX + 1;
   const contentH = maxY - minY + 1;
 
