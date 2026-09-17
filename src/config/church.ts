@@ -73,10 +73,13 @@ export interface ChurchConfig {
   sheets: {
     /**
      * Worship schedule (jadwal pelayanan) — the sheet that lists who serves
-     * in which role for each Saturday.
+     * in which role for each Saturday. A new spreadsheet is used each quarter,
+     * so update both `sheetId` and `gid` (the participants tab) accordingly.
      */
     schedule: {
       sheetId: string;
+      /** gid of the participants tab within the quarter's spreadsheet. */
+      gid: string;
     };
     /**
      * Kertas Acara / Lagu Sion sheet — holds the worship order details and
@@ -188,7 +191,8 @@ export const churchConfig: ChurchConfig = {
 
   sheets: {
     schedule: {
-      sheetId: "1P4tHksUSd-cYVcU-mYQYvutL-c1S-V2Nj1hlb-yR28w",
+      sheetId: "1w8vGDDRyVWuxm44WY1nxPS7REU_XGCYN09IB5or8bJY",
+      gid: "636950867",
     },
     liturgy: {
       sheetId: "1uW-CwZxGJ9Jfqv78pUc-4iE9fqgrV17eV9Ws_FEE5Ns",
