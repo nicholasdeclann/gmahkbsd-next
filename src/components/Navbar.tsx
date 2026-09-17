@@ -14,6 +14,8 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { churchConfig } from "@/config/church";
+import { imageAsset } from "@/lib/asset";
 
 function Navbar() {
   const pathname = usePathname();
@@ -36,13 +38,13 @@ function Navbar() {
         <Box sx={styles.logoContainer} component={Link} href="/">
           <Box
             component="img"
-            src="/gmahkbsd-next/assets/images/logo.png"
-            alt="GMAHK BSD Logo"
+            src={imageAsset(churchConfig.assets.logo)}
+            alt={`${churchConfig.name} Logo`}
             sx={styles.logoImage}
           />
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Typography variant="h6" sx={styles.logo}>
-              GMAHK BSD
+              {churchConfig.shortName}
             </Typography>
             {isKertasAcaraPage && (
               <Typography variant="h6" sx={styles.subtitle}>

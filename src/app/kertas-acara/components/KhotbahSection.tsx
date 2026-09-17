@@ -1,6 +1,9 @@
 import { Box, Typography, List, ListItem, Collapse, IconButton } from "@mui/material";
 import { ExpandMore, ExpandLess } from "@mui/icons-material";
 import { formatLaguSion } from "../utils";
+import { churchConfig } from "@/config/church";
+
+const { fixedHymns } = churchConfig.kertasAcara;
 
 interface KhotbahSectionProps {
   khotbahData: any;
@@ -83,7 +86,7 @@ export default function KhotbahSection({
         {showSongs && renderListItem(
           "lagu-partisipan-khotbah",
           "Lagu Partisipan Khotbah",
-          formatLaguSion("421", laguSionMap),
+          formatLaguSion(fixedHymns.laguPartisipanKhotbah, laguSionMap),
           undefined,
           true,
         )}
@@ -114,7 +117,7 @@ export default function KhotbahSection({
         {showSongs && renderListItem(
           "lagu-sambutan-1",
           "Lagu Sambutan",
-          formatLaguSion("21", laguSionMap),
+          formatLaguSion(fixedHymns.laguSambutan1, laguSionMap),
           undefined,
           true,
         )}
@@ -155,7 +158,7 @@ export default function KhotbahSection({
         {showSongs && renderListItem(
           "lagu-sambutan-khotbah",
           "Lagu Sambutan Khotbah",
-          formatLaguSion("524", laguSionMap),
+          formatLaguSion(fixedHymns.laguSambutanKhotbah, laguSionMap),
           undefined,
           true,
         )}
@@ -177,7 +180,7 @@ export default function KhotbahSection({
         {showSongs && renderListItem(
           "lagu-sambutan-2",
           "Lagu Sambutan",
-          formatLaguSion("168", laguSionMap),
+          formatLaguSion(fixedHymns.laguSambutan2, laguSionMap),
           undefined,
           true,
         )}

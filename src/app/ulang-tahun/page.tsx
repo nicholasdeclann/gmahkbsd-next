@@ -13,6 +13,8 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { SentimentDissatisfied, ErrorOutline } from "@mui/icons-material";
 import GlassCard from "@/app/ulang-tahun/components/GlassCard";
+import { churchConfig } from "@/config/church";
+import { imageAsset } from "@/lib/asset";
 import {
   type BirthdayPerson,
   SHEET_URL,
@@ -111,7 +113,7 @@ function UlangTahunPage() {
             {/* Full-width Header Image */}
             <Box sx={styles.headerImageContainer}>
               <Image
-                src="/gmahkbsd-next/assets/images/balloons.jpg"
+                src={imageAsset(churchConfig.assets.birthdayHeader)}
                 alt="Birthday Balloons"
                 width={1200}
                 height={200}

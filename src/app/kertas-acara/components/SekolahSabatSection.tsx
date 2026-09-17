@@ -1,6 +1,7 @@
 import { Box, Typography, List, ListItem, Collapse, IconButton } from "@mui/material";
 import { ExpandMore, ExpandLess } from "@mui/icons-material";
 import { formatLaguSion } from "../utils";
+import { churchConfig } from "@/config/church";
 
 interface SekolahSabatSectionProps {
   ssData: any;
@@ -88,7 +89,7 @@ export default function SekolahSabatSection({
           true,
         )}
         {doronganItem?.person && renderListItem("Doa Penutup", doronganItem.person)}
-        {showSongs && renderListItem("Pengumuman", "Dept. Komunikasi, Ketua Jemaat")}
+        {showSongs && renderListItem("Pengumuman", churchConfig.kertasAcara.pengumumanRole)}
       </List>
       </Collapse>
     </Box>

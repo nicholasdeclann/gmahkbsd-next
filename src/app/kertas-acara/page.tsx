@@ -22,6 +22,9 @@ import DiakoniaSection from "@/app/kertas-acara/components/DiakoniaSection";
 import { SHEET_URL, KERTAS_ACARA_URL, LAGU_SION_URL } from "./constants";
 import { getThisWeeksSaturday, formatDate, getSaturdayOfMonth } from "./utils";
 import { LaguSionMap, ParticipantData, ParticipantItem, Row } from "./types";
+import { churchConfig } from "@/config/church";
+
+const { parsing } = churchConfig.kertasAcara;
 
 function KertasAcaraContent() {
   const searchParams = useSearchParams();
@@ -162,29 +165,31 @@ function KertasAcaraContent() {
 
       const role = row.c[0]?.v || "";
       const person = row.c[columnIndex]?.v || "";
+      const roleLower = role.toLowerCase();
 
       if (
-        role.toLowerCase().includes("penyedia potluck") ||
-        role.toLowerCase().includes("koordinator")
+        parsing.skipRoleKeywords.some((kw) =>
+          roleLower.includes(kw.toLowerCase()),
+        )
       )
         continue;
 
-      if (role.includes("DEWASA")) {
+      if (role.includes(parsing.ssSectionMarker)) {
         currentSection = "ssDewasa";
         continue;
-      } else if (role.includes("KHOTBAH")) {
+      } else if (role.includes(parsing.khotbahSectionMarker)) {
         currentSection = "khotbah";
         continue;
       } else if (
-        role.toLowerCase().includes("diakon") ||
-        role.toLowerCase().includes("diakones") ||
-        role.toLowerCase().includes("bwa")
+        parsing.diakoniaKeywords.some((kw) =>
+          roleLower.includes(kw.toLowerCase()),
+        )
       ) {
         currentSection = "diakonia";
       } else if (
-        role.toLowerCase().includes("pelayanan musik") ||
-        role.toLowerCase().includes("pianist") ||
-        role.toLowerCase().includes("keyboardist")
+        parsing.pelayananKeywords.some((kw) =>
+          roleLower.includes(kw.toLowerCase()),
+        )
       ) {
         currentSection = "pelayanan";
       }
@@ -193,28 +198,20 @@ function KertasAcaraContent() {
 
       let displayRole = role;
       if (
-        role.toLowerCase().includes("dor") &&
-        (role.toLowerCase().includes("pp") ||
-          role.toLowerCase().includes("rt") ||
-          role.toLowerCase().includes("kesehatan"))
+        roleLower.includes(parsing.dorongan.matchKeyword.toLowerCase()) &&
+        parsing.dorongan.subKeywords.some((kw) =>
+          roleLower.includes(kw.toLowerCase()),
+        )
       ) {
-        if (
-          saturdayNumber === 1 ||
-          saturdayNumber === 3 ||
-          saturdayNumber === 5
-        ) {
-          displayRole = "Dorongan PP";
-        } else if (saturdayNumber === 2) {
-          displayRole = "Rumah Tangga";
-        } else if (saturdayNumber === 4) {
-          displayRole = "Kesehatan";
+        const rotated = parsing.dorongan.rotation[saturdayNumber];
+        if (rotated) {
+          displayRole = rotated;
         }
       }
 
-      const isMultiPersonRole =
-        role.toLowerCase().includes("diakon persembahan") ||
-        role.toLowerCase().includes("diakones") ||
-        role.toLowerCase().includes("bwa");
+      const isMultiPersonRole = parsing.multiPersonKeywords.some((kw) =>
+        roleLower.includes(kw.toLowerCase()),
+      );
 
       let person2 = "";
       if (isMultiPersonRole && i + 1 < cachedRows.length) {

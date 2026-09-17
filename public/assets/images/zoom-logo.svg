@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="134" viewBox="0 0 400 134" role="img" aria-label="Online meeting placeholder">
+  <rect width="400" height="134" rx="16" fill="#2e6ce8"/>
+  <g fill="#ffffff">
+    <rect x="70" y="42" width="130" height="50" rx="12"/>
+    <path d="M210 55 l40 -18 v60 l-40 -18 z"/>
+  </g>
+  <text x="200" y="120" font-family="Arial, Helvetica, sans-serif" font-size="18" font-weight="700" fill="#ffffff" text-anchor="middle">ONLINE MEETING</text>
+</svg>

@@ -14,6 +14,8 @@ import { Instagram, LocationOn } from "@mui/icons-material";
 import Script from "next/script";
 import { useState, useEffect } from "react";
 import { styles } from "./styles";
+import { churchConfig } from "@/config/church";
+import { imageAsset } from "@/lib/asset";
 
 function Home() {
   const [showSplash, setShowSplash] = useState(false);
@@ -51,8 +53,8 @@ function Home() {
         <Box sx={styles.splashScreen}>
           <Box
             component="img"
-            src="/gmahkbsd-next/assets/images/logo.png"
-            alt="GMAHK BSD Logo"
+            src={imageAsset(churchConfig.assets.logo)}
+            alt={`${churchConfig.name} Logo`}
             sx={styles.splashLogo}
           />
         </Box>
@@ -71,12 +73,11 @@ function Home() {
 
           <Container maxWidth="lg" sx={styles.contentContainer}>
             <Typography variant="h1" component="h1" sx={styles.title}>
-              Selamat Datang di GMAHK BSD
+              {churchConfig.welcomeHeading}
             </Typography>
 
             <Typography variant="h5" sx={styles.subtitle}>
-              Bergabunglah dengan kami dalam perjalanan iman, komunitas, dan
-              pelayanan.
+              {churchConfig.welcomeSubtitle}
             </Typography>
 
             {/* Cards Container - Zoom and Instagram side by side on desktop */}
@@ -86,7 +87,7 @@ function Home() {
                 <CardContent sx={styles.worshipContent}>
                   <Box sx={styles.zoomLogoContainer}>
                     <Image
-                      src="/gmahkbsd-next/assets/images/zoom-logo.png"
+                      src={imageAsset(churchConfig.assets.zoomLogo)}
                       alt="Zoom Logo"
                       width={120}
                       height={120}
@@ -98,37 +99,31 @@ function Home() {
                     />
                   </Box>
                   <Box sx={styles.worshipTextContent}>
-                    <Box sx={styles.scheduleBox}>
-                      <Typography variant="body1" sx={styles.scheduleItem}>
-                        <strong>Rabu Malam & Vesper (Online)</strong>
-                      </Typography>
-                      <Typography variant="body2" sx={styles.scheduleTime}>
-                        07.00 WIB
-                      </Typography>
-                    </Box>
-
-                    <Box sx={styles.scheduleBox}>
-                      <Typography variant="body1" sx={styles.scheduleItem}>
-                        <strong>Kebaktian Sabat (Hybrid)</strong>
-                      </Typography>
-                      <Typography variant="body2" sx={styles.scheduleTime}>
-                        09.00 WIB
-                      </Typography>
-                    </Box>
+                    {churchConfig.services.map((service) => (
+                      <Box key={service.name} sx={styles.scheduleBox}>
+                        <Typography variant="body1" sx={styles.scheduleItem}>
+                          <strong>{service.name}</strong>
+                        </Typography>
+                        <Typography variant="body2" sx={styles.scheduleTime}>
+                          {service.time}
+                        </Typography>
+                      </Box>
+                    ))}
 
                     <Box sx={styles.zoomInfoBox}>
                       <Box sx={styles.zoomInfoText}>
                         <Typography variant="body2" sx={styles.zoomInfo}>
-                          Zoom ID: <strong>987 654 1988</strong>
+                          Zoom ID: <strong>{churchConfig.zoom.id}</strong>
                         </Typography>
                         <Typography variant="body2" sx={styles.zoomInfo}>
-                          Password: <strong>1988</strong>
+                          Password:{" "}
+                          <strong>{churchConfig.zoom.password}</strong>
                         </Typography>
                       </Box>
                       <Button
                         variant="contained"
                         size="medium"
-                        href="https://us02web.zoom.us/j/9876541988?pwd=L21vRW5sV3RpZmI3d2lHOVNUWGJldz09"
+                        href={churchConfig.zoom.url}
                         target="_blank"
                         rel="noopener noreferrer"
                         sx={styles.zoomButton}
@@ -145,8 +140,8 @@ function Home() {
                 <CardContent sx={styles.instagramCardContent}>
                   <Box sx={styles.instagramProfilePicture}>
                     <Image
-                      src="/gmahkbsd-next/assets/images/logo.png"
-                      alt="GMAHK BSD Logo"
+                      src={imageAsset(churchConfig.assets.logo)}
+                      alt={`${churchConfig.name} Logo`}
                       width={100}
                       height={100}
                       style={{
@@ -167,12 +162,12 @@ function Home() {
                       variant="contained"
                       size="large"
                       startIcon={<Instagram />}
-                      href="https://www.instagram.com/gmahkbsd/"
+                      href={churchConfig.instagram.url}
                       target="_blank"
                       rel="noopener noreferrer"
                       sx={styles.followButton}
                     >
-                      @gmahkbsd
+                      {churchConfig.instagram.handle}
                     </Button>
                   </Box>
                 </CardContent>
@@ -191,7 +186,7 @@ function Home() {
               </Box>
               <Box sx={styles.mapContainer}>
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d540.1432901599097!2d106.68286777096924!3d-6.303682256829734!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69e52cb2eef9f1%3A0xec9eb7343cb6b8cd!2sGMAHK%20Bumi%20Serpong%20Damai!5e0!3m2!1sen!2sid!4v1770132548503!5m2!1sen!2sid"
+                  src={churchConfig.mapsEmbedUrl}
                   style={{
                     border: 0,
                     borderRadius: "12px",

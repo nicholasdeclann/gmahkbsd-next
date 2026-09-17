@@ -30,7 +30,12 @@ jobs:
         run: npm ci
 
       - name: Build with Next.js
+        # GitHub Pages project sites are served under /<repo-name>, so the
+        # base path is derived automatically from the repository name.
+        # This means forks work with zero configuration.
         run: npm run build
+        env:
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

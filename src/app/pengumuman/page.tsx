@@ -2,6 +2,7 @@
 
 import { Box, Container, Typography, Grow } from "@mui/material";
 import { useState, useEffect } from "react";
+import { churchConfig } from "@/config/church";
 
 function Pengumuman() {
   const [show, setShow] = useState(false);
@@ -43,7 +44,7 @@ function Pengumuman() {
                 padding: 0,
                 margin: 0,
               }}
-              src="https://www.canva.com/design/DAG-9nAgcSE/Ri8PyLxmRovXS8iWkST9aQ/view?embed"
+              src={churchConfig.pengumumanEmbedUrl}
               allowFullScreen
               allow="fullscreen"
             />

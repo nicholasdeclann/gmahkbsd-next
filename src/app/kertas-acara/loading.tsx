@@ -1,4 +1,5 @@
 import { Box, Container, Typography, CircularProgress } from "@mui/material";
+import { churchConfig } from "@/config/church";
 
 export default function Loading() {
   return (
@@ -8,7 +9,7 @@ export default function Loading() {
       <Container maxWidth="md" sx={styles.contentContainer}>
         <Box sx={styles.header}>
           <Typography variant="h1" sx={styles.title}>
-            Kertas Acara GMAHK BSD
+            Kertas Acara {churchConfig.name}
           </Typography>
 
           <Box sx={styles.loadingBox}>

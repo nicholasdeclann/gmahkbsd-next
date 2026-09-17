@@ -7,12 +7,13 @@ import theme from "./theme";
 import Navbar from "@/components/Navbar";
 import "./globals.css";
 import { Box, Typography } from "@mui/material";
+import { churchConfig } from "@/config/church";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "GMAHK BSD",
-  description: "A simple homepage built with Next.js and TypeScript",
+  title: churchConfig.name,
+  description: churchConfig.description,
 };
 
 export default function RootLayout({
@@ -30,8 +31,8 @@ export default function RootLayout({
             {children}
             <Box component="footer" sx={styles.footer}>
               <Typography variant="body2" sx={styles.footerText}>
-                &copy; {new Date().getFullYear()} GMAHK BSD. All rights
-                reserved.
+                &copy; {new Date().getFullYear()} {churchConfig.name}. All
+                rights reserved.
               </Typography>
             </Box>
           </ThemeProvider>

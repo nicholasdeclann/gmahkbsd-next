@@ -1,3 +1,5 @@
+import { churchConfig } from "@/config/church";
+
 export const getThisWeeksSaturday = (columnOffset: number) => {
   const today = new Date();
   const dayOfWeek = today.getDay();
@@ -53,5 +55,5 @@ export const formatLaguSion = (
   laguSionMap: Record<string, string>,
 ) => {
   if (!laguNum || !laguSionMap[laguNum]) return "";
-  return `LSEL ${laguNum} | ${laguSionMap[laguNum]}`;
+  return `${churchConfig.kertasAcara.hymnalPrefix} ${laguNum} | ${laguSionMap[laguNum]}`;
 };
