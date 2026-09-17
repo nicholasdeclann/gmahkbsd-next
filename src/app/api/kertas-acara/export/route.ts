@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import { churchConfig } from "@/config/church";
 import { buildSheetExportUrl } from "@/lib/kertasAcaraExport";
 
-// This route is only used in the Vercel (non-static-export) deployment. It
-// proxies Google Sheets' native PDF export so the browser can fetch it without
-// hitting cross-origin restrictions. Static-export builds (GitHub Pages) skip
-// the API entirely and download the PDF via a direct link instead.
+// This route proxies Google Sheets' native PDF export so the browser can fetch
+// it without hitting cross-origin restrictions. It runs only on Vercel; the
+// static-export build (GitHub Pages) removes the `api` directory entirely
+// before building, and the client falls back to a direct Google PDF link.
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const url = buildSheetExportUrl(churchConfig.kertasAcara.export);
 

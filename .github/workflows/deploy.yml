@@ -30,6 +30,11 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Remove server-only API routes (unsupported by static export)
+        # `output: export` cannot include route handlers. The download button
+        # falls back to a direct Google Sheets PDF link when the API is absent.
+        run: rm -rf src/app/api
+
       - name: Build with Next.js
         # GitHub Pages project sites are served under /<repo-name>, so the
         # base path is derived automatically from the repository name.
