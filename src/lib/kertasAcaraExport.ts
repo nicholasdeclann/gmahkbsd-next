@@ -25,10 +25,12 @@ export function buildSheetExportUrl({
     sheetnames: "false",
     pagenumbers: "false",
     scale: "2", // "Fit to width"
-    top_margin: "0.25",
-    bottom_margin: "0.25",
-    left_margin: "0.25",
-    right_margin: "0.25",
+    // Zero margins so the exported content is as tight as Google allows; any
+    // residual whitespace is trimmed client-side by an exact pixel crop.
+    top_margin: "0",
+    bottom_margin: "0",
+    left_margin: "0",
+    right_margin: "0",
   });
 
   return `https://docs.google.com/spreadsheets/d/${sheetId}/export?${params.toString()}`;

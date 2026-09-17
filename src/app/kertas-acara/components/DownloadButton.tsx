@@ -11,6 +11,61 @@ interface DownloadButtonProps {
   dateLabel?: string;
 }
 
+/**
+ * Crop a canvas to the exact bounding box of its non-white content, returning
+ * a new tightly-cropped canvas (zero padding). A pixel counts as "content" if
+ * any RGB channel is below `threshold`, which tolerates JPEG-style near-white
+ * antialiasing without trimming faint cell borders.
+ */
+function cropToContent(
+  source: HTMLCanvasElement,
+  context: CanvasRenderingContext2D,
+  threshold = 250,
+): HTMLCanvasElement {
+  const { width, height } = source;
+  const { data } = context.getImageData(0, 0, width, height);
+
+  const isContent = (x: number, y: number): boolean => {
+    const i = (y * width + x) * 4;
+    return (
+      data[i] < threshold ||
+      data[i + 1] < threshold ||
+      data[i + 2] < threshold
+    );
+  };
+
+  let minX = width;
+  let minY = height;
+  let maxX = -1;
+  let maxY = -1;
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (isContent(x, y)) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+
+  // No content found — return the original untouched.
+  if (maxX < minX || maxY < minY) return source;
+
+  const cropW = maxX - minX + 1;
+  const cropH = maxY - minY + 1;
+
+  const cropped = document.createElement("canvas");
+  cropped.width = cropW;
+  cropped.height = cropH;
+  const cropCtx = cropped.getContext("2d");
+  if (!cropCtx) return source;
+
+  cropCtx.drawImage(source, minX, minY, cropW, cropH, 0, 0, cropW, cropH);
+  return cropped;
+}
+
 export default function DownloadButton({ dateLabel }: DownloadButtonProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
@@ -72,8 +127,11 @@ export default function DownloadButton({ dateLabel }: DownloadButtonProps) {
 
       await page.render({ canvas, canvasContext: context, viewport }).promise;
 
+      // Tightly crop to the non-white content (exact bounding box, 0 padding).
+      const cropped = cropToContent(canvas, context);
+
       const blob: Blob | null = await new Promise((resolve) =>
-        canvas.toBlob((b) => resolve(b), "image/jpeg", 0.95),
+        cropped.toBlob((b) => resolve(b), "image/jpeg", 0.95),
       );
       if (!blob) throw new Error("Failed to create image");
 
