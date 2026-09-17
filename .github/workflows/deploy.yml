@@ -12,7 +12,7 @@ permissions:
 
 concurrency:
   group: "pages"
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   build:
@@ -24,7 +24,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
@@ -33,9 +34,11 @@ jobs:
         # GitHub Pages project sites are served under /<repo-name>, so the
         # base path is derived automatically from the repository name.
         # This means forks work with zero configuration.
+        # STATIC_EXPORT enables `output: export` (required by GitHub Pages).
         run: npm run build
         env:
           NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
+          STATIC_EXPORT: "true"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

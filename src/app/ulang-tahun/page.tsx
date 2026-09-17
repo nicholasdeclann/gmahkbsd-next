@@ -11,10 +11,12 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import { SentimentDissatisfied, ErrorOutline } from "@mui/icons-material";
+import SentimentDissatisfied from "@mui/icons-material/SentimentDissatisfied";
+import ErrorOutline from "@mui/icons-material/ErrorOutline";
 import GlassCard from "@/app/ulang-tahun/components/GlassCard";
 import { churchConfig } from "@/config/church";
 import { imageAsset } from "@/lib/asset";
+import { fetchTextCached, CACHE_TTL } from "@/lib/sheetCache";
 import {
   type BirthdayPerson,
   SHEET_URLS,
@@ -42,8 +44,7 @@ function UlangTahunPage() {
     // Fetch every birthday tab in parallel and merge the results.
     Promise.all(
       SHEET_URLS.map((url) =>
-        fetch(url, { cache: "no-store" })
-          .then((res) => res.text())
+        fetchTextCached(url, CACHE_TTL.birthdays)
           .then((text) => {
             const json = JSON.parse(text.substring(47, text.length - 2));
             return (json.table?.rows ?? []) as {

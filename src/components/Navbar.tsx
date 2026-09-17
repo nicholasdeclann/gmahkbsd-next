@@ -12,6 +12,7 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { churchConfig } from "@/config/church";
@@ -36,11 +37,13 @@ function Navbar() {
     <AppBar position="sticky" elevation={0} sx={styles.appBar}>
       <Toolbar>
         <Box sx={styles.logoContainer} component={Link} href="/">
-          <Box
-            component="img"
+          <Image
             src={imageAsset(churchConfig.assets.logo)}
             alt={`${churchConfig.name} Logo`}
-            sx={styles.logoImage}
+            width={40}
+            height={40}
+            priority
+            style={{ objectFit: "contain" }}
           />
           <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
             <Typography variant="h6" sx={styles.logo}>
@@ -191,11 +194,6 @@ const styles = {
     alignItems: "center",
     gap: 1.5,
     textDecoration: "none",
-  },
-  logoImage: {
-    width: 40,
-    height: 40,
-    objectFit: "contain",
   },
   logo: {
     color: "#2e6ce8",

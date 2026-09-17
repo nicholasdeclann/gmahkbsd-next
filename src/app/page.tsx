@@ -10,8 +10,8 @@ import {
   Fade,
 } from "@mui/material";
 import Image from "next/image";
-import { Instagram, LocationOn } from "@mui/icons-material";
-import Script from "next/script";
+import Instagram from "@mui/icons-material/Instagram";
+import LocationOn from "@mui/icons-material/LocationOn";
 import { useState, useEffect } from "react";
 import { styles } from "./styles";
 import { churchConfig } from "@/config/church";
@@ -51,11 +51,13 @@ function Home() {
       {/* Splash Screen */}
       <Fade in={showSplash} timeout={400}>
         <Box sx={styles.splashScreen}>
-          <Box
-            component="img"
+          <Image
             src={imageAsset(churchConfig.assets.logo)}
             alt={`${churchConfig.name} Logo`}
-            sx={styles.splashLogo}
+            width={300}
+            height={300}
+            priority
+            style={{ width: "min(60vw, 300px)", height: "auto" }}
           />
         </Box>
       </Fade>
@@ -64,12 +66,6 @@ function Home() {
       <Fade in={showContent} timeout={800}>
         <Box sx={{ width: "100%" }}>
           <Box sx={styles.gradientBackground} />
-
-          {/* PublicAlbum Script */}
-          <Script
-            src="https://cdn.jsdelivr.net/npm/publicalbum@latest/embed-ui.min.js"
-            strategy="afterInteractive"
-          />
 
           <Container maxWidth="lg" sx={styles.contentContainer}>
             <Typography variant="h1" component="h1" sx={styles.title}>

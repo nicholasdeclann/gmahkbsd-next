@@ -1,3 +1,12 @@
+// Shared animated-gradient keyframes, reused by the title and buttons.
+const gradientKeyframes = {
+  "@keyframes gradient": {
+    "0%": { backgroundPosition: "0% 50%" },
+    "50%": { backgroundPosition: "100% 50%" },
+    "100%": { backgroundPosition: "0% 50%" },
+  },
+};
+
 export const styles = {
   mainContainer: {
     minHeight: "100vh",
@@ -18,10 +27,6 @@ export const styles = {
     justifyContent: "center",
     bgcolor: "white",
     zIndex: 9999,
-  },
-  splashLogo: {
-    width: { xs: "200px", sm: "250px", md: "300px" },
-    height: "auto",
   },
   gradientBackground: {
     position: "absolute",
@@ -99,17 +104,7 @@ export const styles = {
     mb: { xs: 2, sm: 3 },
     mt: 4,
     lineHeight: 1.2,
-    "@keyframes gradient": {
-      "0%": {
-        backgroundPosition: "0% 50%",
-      },
-      "50%": {
-        backgroundPosition: "100% 50%",
-      },
-      "100%": {
-        backgroundPosition: "0% 50%",
-      },
-    },
+    ...gradientKeyframes,
   },
   subtitle: {
     fontSize: { xs: "0.95rem", sm: "1.05rem", md: "1.15rem" },
@@ -209,17 +204,7 @@ export const styles = {
     boxShadow: "0 4px 14px 0 rgba(46, 108, 232, 0.4)",
     textTransform: "none",
     whiteSpace: "nowrap",
-    "@keyframes gradient": {
-      "0%": {
-        backgroundPosition: "0% 50%",
-      },
-      "50%": {
-        backgroundPosition: "100% 50%",
-      },
-      "100%": {
-        backgroundPosition: "0% 50%",
-      },
-    },
+    ...gradientKeyframes,
     "&:hover": {
       background: "linear-gradient(45deg, #2558c0, #4a7de6, #2558c0)",
       backgroundSize: "200% 200%",
@@ -287,17 +272,7 @@ export const styles = {
     mt: 2,
     textTransform: "none",
     width: { xs: "100%", sm: "auto" },
-    "@keyframes gradient": {
-      "0%": {
-        backgroundPosition: "0% 50%",
-      },
-      "50%": {
-        backgroundPosition: "100% 50%",
-      },
-      "100%": {
-        backgroundPosition: "0% 50%",
-      },
-    },
+    ...gradientKeyframes,
     "&:hover": {
       background: "linear-gradient(45deg, #2558c0, #4a7de6, #2558c0)",
       backgroundSize: "200% 200%",
@@ -385,31 +360,6 @@ export const styles = {
       borderWidth: 2,
       bgcolor: "rgba(46, 108, 232, 0.05)",
     },
-  },
-  footer: {
-    py: { xs: 2.5, sm: 3 },
-    px: 2,
-    textAlign: "center",
-    color: "#666",
-    position: "relative",
-    zIndex: 1,
-  },
-  footerText: {
-    fontSize: { xs: "0.8rem", sm: "0.85rem" },
-  },
-  instagramSubtitle: {
-    fontSize: { xs: "0.9rem", sm: "1rem" },
-    color: "#2e6ce8",
-    fontWeight: 600,
-    mb: 3,
-  },
-  instagramEmbed: {
-    width: "100%",
-    maxWidth: "600px",
-    margin: "0 auto",
-    borderRadius: 3,
-    overflow: "hidden",
-    mb: { xs: 6, sm: 8 },
   },
   mapSection: {
     width: "100%",

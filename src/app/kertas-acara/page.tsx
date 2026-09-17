@@ -11,7 +11,9 @@ import {
   Fade,
   Grow,
 } from "@mui/material";
-import { ChevronRight, ChevronLeft, Search } from "@mui/icons-material";
+import ChevronRight from "@mui/icons-material/ChevronRight";
+import ChevronLeft from "@mui/icons-material/ChevronLeft";
+import Search from "@mui/icons-material/Search";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";
@@ -23,6 +25,7 @@ import { SHEET_URL, KERTAS_ACARA_URL, LAGU_SION_URL } from "./constants";
 import { getThisWeeksSaturday, formatDate, getSaturdayOfMonth } from "./utils";
 import { LaguSionMap, ParticipantData, ParticipantItem, Row } from "./types";
 import { churchConfig } from "@/config/church";
+import { fetchTextCached, CACHE_TTL } from "@/lib/sheetCache";
 
 const { parsing } = churchConfig.kertasAcara;
 
@@ -64,9 +67,9 @@ function KertasAcaraContent() {
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch(LAGU_SION_URL, { cache: "no-store" }).then((res) => res.text()),
-      fetch(KERTAS_ACARA_URL, { cache: "no-store" }).then((res) => res.text()),
-      fetch(SHEET_URL, { cache: "no-store" }).then((res) => res.text()),
+      fetchTextCached(LAGU_SION_URL, CACHE_TTL.liturgy),
+      fetchTextCached(KERTAS_ACARA_URL, CACHE_TTL.liturgy),
+      fetchTextCached(SHEET_URL, CACHE_TTL.schedule),
     ])
       .then(([laguSionText, kertasAcaraText, sheetText]) => {
         const laguSionJson = JSON.parse(
@@ -446,12 +449,6 @@ const styles = {
     textAlign: "center",
     mb: { xs: 3, md: 4 },
   },
-  title: {
-    fontSize: { xs: "1.5rem", sm: "1.75rem" },
-    fontWeight: 700,
-    color: "#1a1a1a",
-    mb: 3,
-  },
   dateNavigation: {
     display: "flex",
     justifyContent: "space-between",
@@ -462,18 +459,6 @@ const styles = {
   dateContainer: {
     flex: "1 1 auto",
     minWidth: 0,
-  },
-  activeButton: {
-    fontSize: { xs: "1.2rem", sm: "0.9rem" },
-    textTransform: "none",
-    bgcolor: "#2e6ce8",
-    color: "white",
-    px: { xs: 1, sm: 2 },
-    py: { xs: 0.5, sm: 1 },
-    minWidth: { xs: "36px", sm: "64px" },
-    "&:hover": {
-      bgcolor: "#1e5cd4",
-    },
   },
   inactiveButton: {
     fontSize: { xs: "0.85rem", sm: "0.85rem" },
@@ -489,11 +474,6 @@ const styles = {
       bgcolor: "rgba(46, 108, 232, 0.05)",
     },
   },
-  scheduleDate: {
-    fontSize: { xs: "0.95rem", sm: "1.1rem", md: "1.25rem" },
-    color: "#4a4a4a",
-    mb: 0,
-  },
   scheduleDateLeft: {
     fontSize: { xs: "0.95rem", sm: "1.1rem", md: "1.25rem" },
     fontWeight: 700,
@@ -507,10 +487,6 @@ const styles = {
     color: "#4a4a4a",
     mb: 0,
     textAlign: "right",
-  },
-  lastUpdated: {
-    fontSize: "0.75rem",
-    color: "#6c757d",
   },
   searchContainer: {
     mb: { xs: 3, md: 4 },
