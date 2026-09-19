@@ -69,6 +69,16 @@ export interface ChurchConfig {
   /** Announcements: Canva design embed URL for the pengumuman page. */
   pengumumanEmbedUrl: string;
 
+  /**
+   * Admin-managed weekly prayer list card shown on the homepage. This feature
+   * requires a server (Vercel) + a Postgres database; on static hosts the card
+   * hides itself automatically. Set `enabled: false` to opt out entirely.
+   */
+  prayerList: {
+    enabled: boolean;
+    title: string;
+  };
+
   /** Google Sheets data sources. */
   sheets: {
     /**
@@ -207,6 +217,11 @@ export const churchConfig: ChurchConfig = {
 
   pengumumanEmbedUrl:
     "https://www.canva.com/design/DAG-9nAgcSE/Ri8PyLxmRovXS8iWkST9aQ/view?embed",
+
+  prayerList: {
+    enabled: true,
+    title: "Pokok Doa Minggu Ini",
+  },
 
   sheets: {
     schedule: {

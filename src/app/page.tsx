@@ -16,6 +16,7 @@ import { useState, useEffect } from "react";
 import { styles } from "./styles";
 import { churchConfig } from "@/config/church";
 import { imageAsset } from "@/lib/asset";
+import PrayerListCard from "@/components/PrayerListCard";
 
 function Home() {
   const [showSplash, setShowSplash] = useState(false);
@@ -196,6 +197,8 @@ function Home() {
               </Box>
             </Box>
           </Container>
+
+          <PrayerListCard />
         </Box>
       </Fade>
     </Box>
