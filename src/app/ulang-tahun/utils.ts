@@ -96,10 +96,36 @@ const parseMonth = (monthValue: unknown): number | null => {
   return index >= 0 ? index : null;
 };
 
+// Parse day + month from a "Tanggal" string in column B. Handles both:
+//   "01-01-1975"       (day-numericMonth-year)
+//   "19-Februari-1948" (day-monthName-year)
+// Separators may be "-", "/", or spaces. The year is ignored.
+const parseTanggal = (
+  tanggalValue: unknown,
+): { day: number; month: number } | null => {
+  if (tanggalValue === null || tanggalValue === undefined) return null;
+
+  const raw = String(tanggalValue).trim();
+  if (!raw) return null;
+
+  const parts = raw.split(/[-/\s]+/).filter(Boolean);
+  if (parts.length < 2) return null;
+
+  const day = Number(parts[0]);
+  const month = parseMonth(parts[1]);
+
+  if (!Number.isInteger(day) || day < 1 || day > 31) return null;
+  if (month === null) return null;
+
+  return { day, month };
+};
+
 /**
- * Parse a birthday row from the new sheet format. Columns:
- *   A (0) = Nama, B (1) = Tanggal, C (2) = Hari (day), D (3) = Bulan (month name)
- * The birth year is intentionally ignored — only month and day are used.
+ * Parse a birthday row. Columns:
+ *   A (0) = Nama, B (1) = Tanggal, C (2) = Hari (day), D (3) = Bulan (month)
+ * Prefers the explicit Hari/Bulan columns; when they are empty, falls back to
+ * parsing the Tanggal string (column B), which some tabs use instead. The
+ * birth year is intentionally ignored — only month and day are used.
  */
 export const parseBirthdayRow = (
   cells: ({ v?: unknown } | null)[],
@@ -110,10 +136,18 @@ export const parseBirthdayRow = (
   const day = Number(cells[2]?.v);
   const month = parseMonth(cells[3]?.v);
 
-  if (!Number.isInteger(day) || day < 1 || day > 31) return null;
-  if (month === null) return null;
+  // Primary source: explicit Hari (C) + Bulan (D) columns.
+  if (Number.isInteger(day) && day >= 1 && day <= 31 && month !== null) {
+    return { nama, birthday: { day, month } };
+  }
 
-  return { nama, birthday: { day, month } };
+  // Fallback: parse the Tanggal string (column B).
+  const fromTanggal = parseTanggal(cells[1]?.v);
+  if (fromTanggal) {
+    return { nama, birthday: fromTanggal };
+  }
+
+  return null;
 };
 
 // Check if a birthday (month + day only) falls within the current week
