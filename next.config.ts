@@ -15,9 +15,16 @@ const nextConfig: NextConfig = {
   basePath,
   poweredByHeader: false,
   images: {
-    // Next.js image optimization requires a server, which a static export
-    // does not have. On Vercel this stays enabled for WebP/AVIF + srcsets.
     unoptimized: isStaticExport,
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "drive.google.com",
+      },
+    ],
+  },
+  env: {
+    NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000",
   },
   experimental: {
     optimizePackageImports: [

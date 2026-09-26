@@ -1,5 +1,8 @@
-import { Box } from "@mui/material";
+"use client";
+
+import { Box, Container } from "@mui/material";
 import { churchConfig } from "@/config/church";
+import PhotoGallery from "@/components/PhotoGallery";
 
 export default function Pengumuman() {
   return (
@@ -24,6 +27,13 @@ export default function Pengumuman() {
             allow="fullscreen"
           />
         </Box>
+      </Box>
+
+      {/* Photo Gallery */}
+      <Box sx={styles.galleryContainer}>
+        <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
+          <PhotoGallery />
+        </Container>
       </Box>
     </Box>
   );
@@ -54,5 +64,10 @@ const styles = {
     paddingTop: "56.25%",
     boxShadow: "0 2px 8px 0 rgba(63,69,81,0.16)",
     overflow: "hidden",
+  },
+  galleryContainer: {
+    width: "100%",
+    flex: 1,
+    py: { xs: 4, sm: 6 },
   },
 };

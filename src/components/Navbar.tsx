@@ -11,12 +11,16 @@ import {
   MenuItem,
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { churchConfig } from "@/config/church";
 import { imageAsset } from "@/lib/asset";
+
+const PASTOR_PHONE = "+62895337627700";
+const WHATSAPP_URL = `https://wa.me/${PASTOR_PHONE}`;
 
 function Navbar() {
   const pathname = usePathname();
@@ -31,6 +35,18 @@ function Navbar() {
 
   const handleMenuClose = () => {
     setAnchorEl(null);
+  };
+
+  const connectDrive = async () => {
+    try {
+      const res = await fetch("/api/drive/auth/login");
+      if (res.ok) {
+        const data = await res.json();
+        window.location.href = data.authUrl;
+      }
+    } catch {
+      console.error("Failed to initiate Drive auth");
+    }
   };
 
   return (
@@ -109,6 +125,40 @@ function Navbar() {
           >
             Pengumuman
           </Button>
+          {/* Pastor Contact */}
+          <Button
+            component="a"
+            href={WHATSAPP_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            startIcon={<WhatsAppIcon />}
+            sx={{
+              ...styles.button,
+              background: "rgba(37, 211, 102, 0.08)",
+              color: "#25D366",
+              "&:hover": {
+                bgcolor: "rgba(37, 211, 102, 0.15)",
+                color: "#20bd60",
+              },
+            }}
+          >
+            Pastor
+          </Button>
+          {/* Connect Google Drive */}
+          <Button
+            onClick={connectDrive}
+            sx={{
+              ...styles.button,
+              color: "#2e6ce8",
+              fontWeight: 600,
+              "&:hover": {
+                bgcolor: "rgba(46, 108, 232, 0.1)",
+                color: "#2558c0",
+              },
+            }}
+          >
+            Connect Drive
+          </Button>
         </Box>
 
         {/* Mobile Hamburger Menu */}
@@ -172,6 +222,41 @@ function Navbar() {
               }}
             >
               Pengumuman
+            </MenuItem>
+            {/* Pastor Contact */}
+            <MenuItem
+              component="a"
+              href={WHATSAPP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleMenuClose}
+              sx={{
+                ...styles.menuItem,
+                color: "#25D366",
+                fontWeight: 600,
+                "&:hover": {
+                  bgcolor: "rgba(37, 211, 102, 0.08)",
+                  color: "#20bd60",
+                },
+              }}
+            >
+              <WhatsAppIcon sx={{ fontSize: "0.875rem", mr: 1 }} />
+              Pastor
+            </MenuItem>
+            {/* Connect Google Drive */}
+            <MenuItem
+              onClick={() => { handleMenuClose(); connectDrive(); }}
+              sx={{
+                ...styles.menuItem,
+                color: "#2e6ce8",
+                fontWeight: 600,
+                "&:hover": {
+                  bgcolor: "rgba(46, 108, 232, 0.08)",
+                  color: "#2558c0",
+                },
+              }}
+            >
+              Connect Drive
             </MenuItem>
           </Menu>
         </Box>

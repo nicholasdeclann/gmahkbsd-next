@@ -29,6 +29,10 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+# shell scripts (temporary)
+*.bat
+*.ps1
+
 # env files
 .env*.local
 .env

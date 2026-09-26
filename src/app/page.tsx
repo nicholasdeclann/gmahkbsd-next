@@ -68,7 +68,7 @@ function Home() {
         <Box sx={{ width: "100%" }}>
           <Box sx={styles.gradientBackground} />
 
-          <Container maxWidth="lg" sx={styles.contentContainer}>
+          <Container maxWidth="lg" sx={styles.contentContainer} id="welcome">
             <Typography variant="h1" component="h1" sx={styles.title}>
               {churchConfig.welcomeHeading}
             </Typography>
@@ -174,7 +174,7 @@ function Home() {
 
           {/* Google Maps Section - Outside Container for full width */}
           <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
-            <Box sx={styles.mapSection}>
+            <Box sx={styles.mapSection} id="maps">
               <Box sx={styles.mapTitleContainer}>
                 <LocationOn sx={styles.mapIcon} />
                 <Typography variant="h4" sx={styles.mapTitle}>
@@ -198,7 +198,9 @@ function Home() {
             </Box>
           </Container>
 
-          <PrayerListCard />
+          <Box id="prayer">
+            <PrayerListCard />
+          </Box>
         </Box>
       </Fade>
     </Box>
