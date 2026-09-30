@@ -24,6 +24,10 @@ export async function GET(req: NextRequest) {
     const { tokens } = await oauth2Client.getToken(code);
     const accessToken = tokens.access_token;
 
+    if (!accessToken) {
+      return NextResponse.redirect(redirectUrl);
+    }
+
     const store = await cookies();
     store.set("google_drive_token", accessToken, {
       httpOnly: true,

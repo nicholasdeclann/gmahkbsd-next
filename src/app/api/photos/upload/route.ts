@@ -42,7 +42,13 @@ export async function POST(req: NextRequest) {
     let targetFolderId = await getDepartmentFolderId(department, accessToken);
     if (!targetFolderId) {
       // Fallback to main folder if subfolder not found
-      targetFolderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+      targetFolderId = process.env.GOOGLE_DRIVE_FOLDER_ID ?? null;
+    }
+    if (!targetFolderId) {
+      return NextResponse.json(
+        { error: "Google Drive folder is not configured" },
+        { status: 500 }
+      );
     }
 
     // Upload file to Google Drive using a readable stream
@@ -57,13 +63,19 @@ export async function POST(req: NextRequest) {
     const response = await driveService.files.create({
       requestBody: {
         name: file.name,
-        parents: [targetFolderId!],
+        parents: [targetFolderId],
       },
       media,
       fields: "id, name, mimeType, createdTime",
     });
 
     const driveFileId = response.data.id;
+    if (!driveFileId) {
+      return NextResponse.json(
+        { error: "Google Drive did not return a file ID" },
+        { status: 502 }
+      );
+    }
 
     // Save to database
     const photo = await createPhoto(
