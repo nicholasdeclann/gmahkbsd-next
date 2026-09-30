@@ -225,7 +225,7 @@ export const churchConfig: ChurchConfig = {
 
   sheets: {
     schedule: {
-      sheetId: "1w8vGDDRyVWuxm44WY1nxPS7REU_XGCYN09IB5or8bJY",
+      sheetId: "1CZvwWSQj3bWvzfeT1_l1rbXjZ8qF-eQJT52ua2KzuEE",
       gid: "636950867",
     },
     liturgy: {
