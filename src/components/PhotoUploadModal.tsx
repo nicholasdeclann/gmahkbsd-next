@@ -22,6 +22,18 @@ export default function PhotoUploadModal({ onClose, onUploaded }: PhotoUploadMod
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
+  const [needsDrive, setNeedsDrive] = useState(false);
+
+  const connectDrive = async () => {
+    try {
+      const res = await fetch("/api/drive/auth/login");
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      window.location.href = data.authUrl;
+    } catch {
+      setError("Gagal memulai koneksi Google Drive. Coba lagi.");
+    }
+  };
 
   const handleUpload = async () => {
     if (!file) {
@@ -31,6 +43,7 @@ export default function PhotoUploadModal({ onClose, onUploaded }: PhotoUploadMod
 
     setUploading(true);
     setError("");
+    setNeedsDrive(false);
 
     try {
       const formData = new FormData();
@@ -42,8 +55,23 @@ export default function PhotoUploadModal({ onClose, onUploaded }: PhotoUploadMod
         body: formData,
       });
 
+      if (res.status === 401) {
+        const data = await res.json().catch(() => ({}));
+        if (data.code === "ADMIN_REQUIRED") {
+          // Not logged in as admin — send them to the login page, then back here.
+          window.location.href = "/admin/login?next=/pengumuman";
+          return;
+        }
+        if (data.code === "DRIVE_NOT_CONNECTED") {
+          setNeedsDrive(true);
+          setError("Google Drive belum terhubung.");
+          return;
+        }
+        throw new Error(data.error || "Upload failed");
+      }
+
       if (!res.ok) {
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         throw new Error(data.error || "Upload failed");
       }
 
@@ -99,13 +127,29 @@ export default function PhotoUploadModal({ onClose, onUploaded }: PhotoUploadMod
           )}
 
           {error && (
-            <Typography variant="body2" sx={{ mt: 2, color: "error.main" }}>
-              {error}
-            </Typography>
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="body2" sx={{ color: "error.main" }}>
+                {error}
+              </Typography>
+              {needsDrive && (
+                <Typography variant="caption" sx={{ display: "block", color: "#666", mt: 0.5 }}>
+                  Klik tombol di bawah untuk menghubungkan akun Google, lalu
+                  pilih foto lagi.
+                </Typography>
+              )}
+            </Box>
           )}
         </Box>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2 }}>
+        {needsDrive && (
+          <Button
+            onClick={connectDrive}
+            sx={{ color: "#2e6ce8", fontWeight: 600, mr: "auto" }}
+          >
+            Connect Drive
+          </Button>
+        )}
         <Button onClick={onClose} sx={{ color: "#666" }}>
           Cancel
         </Button>

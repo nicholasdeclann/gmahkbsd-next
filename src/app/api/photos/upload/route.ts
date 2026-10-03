@@ -8,7 +8,10 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   if (!(await isAuthenticated())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json(
+      { error: "Unauthorized", code: "ADMIN_REQUIRED" },
+      { status: 401 }
+    );
   }
 
   try {
@@ -33,7 +36,7 @@ export async function POST(req: NextRequest) {
     const accessToken = await getAccessToken();
     if (!accessToken) {
       return NextResponse.json(
-        { error: "Google Drive not connected" },
+        { error: "Google Drive not connected", code: "DRIVE_NOT_CONNECTED" },
         { status: 401 }
       );
     }
