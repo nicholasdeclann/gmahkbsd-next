@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAccessToken, getDriveService } from "@/lib/drive";
 import { getPhotos } from "@/lib/db";
 
 export const dynamic = "force-dynamic";

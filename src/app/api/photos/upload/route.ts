@@ -39,10 +39,19 @@ export async function POST(req: NextRequest) {
     }
 
     // Find the department subfolder (e.g., "Sekolah Sabat")
-    let targetFolderId = await getDepartmentFolderId(department, accessToken);
+    let targetFolderId: string | null = await getDepartmentFolderId(
+      department,
+      accessToken
+    );
     if (!targetFolderId) {
       // Fallback to main folder if subfolder not found
-      targetFolderId = process.env.GOOGLE_DRIVE_FOLDER_ID;
+      targetFolderId = process.env.GOOGLE_DRIVE_FOLDER_ID ?? null;
+    }
+    if (!targetFolderId) {
+      return NextResponse.json(
+        { error: "GOOGLE_DRIVE_FOLDER_ID is not configured" },
+        { status: 500 }
+      );
     }
 
     // Upload file to Google Drive using a readable stream
@@ -64,6 +73,13 @@ export async function POST(req: NextRequest) {
     });
 
     const driveFileId = response.data.id;
+
+    if (!driveFileId) {
+      return NextResponse.json(
+        { error: "Google Drive did not return a file ID" },
+        { status: 500 }
+      );
+    }
 
     // Save to database
     const photo = await createPhoto(
