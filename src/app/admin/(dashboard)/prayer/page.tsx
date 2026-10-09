@@ -8,23 +8,24 @@ import {
   Typography,
   TextField,
   Button,
-  IconButton,
   List,
   ListItem,
   Alert,
   CircularProgress,
+  Checkbox,
+  FormControlLabel,
 } from "@mui/material";
-import Delete from "@mui/icons-material/Delete";
-import Edit from "@mui/icons-material/Edit";
+import { churchWeekStart } from "@/lib/kertasAcaraForm";
 
 interface PrayerItem {
   id: number;
   name: string;
   note: string | null;
+  note_public: boolean;
   created_at: string;
 }
 
-export default function AdminPage() {
+export default function PrayerAdminPage() {
   const router = useRouter();
   const [items, setItems] = useState<PrayerItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,6 +33,8 @@ export default function AdminPage() {
 
   const [name, setName] = useState("");
   const [note, setNote] = useState("");
+  const [notePublic, setNotePublic] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const load = useCallback(async () => {
@@ -60,61 +63,68 @@ export default function AdminPage() {
   const resetForm = () => {
     setName("");
     setNote("");
+    setNotePublic(false);
     setEditingId(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
+    if (saving) return;
+    setSaving(true);
+    setError("");
+    try {
     const url = editingId ? `/api/prayer/${editingId}` : "/api/prayer";
     const method = editingId ? "PUT" : "POST";
     const res = await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, note }),
+      body: JSON.stringify({ name, note, note_public: notePublic }),
     });
-    if (res.status === 401) return router.push("/admin/login");
+    if (res.status === 401) { setError("Sesi telah berakhir. Masuk kembali dari dashboard di tab baru. Isian Anda tetap tersedia."); return; }
     if (res.ok) {
       resetForm();
       load();
     } else {
       setError("Gagal menyimpan");
     }
+    } catch { setError("Gagal menyimpan. Isian Anda tetap tersedia."); }
+    finally { setSaving(false); }
   };
 
   const startEdit = (item: PrayerItem) => {
     setEditingId(item.id);
     setName(item.name);
     setNote(item.note ?? "");
+    setNotePublic(item.note_public);
   };
 
   const remove = async (id: number) => {
+    if (!window.confirm("Hapus nama ini dari daftar doa?")) return;
+    try {
     const res = await fetch(`/api/prayer/${id}`, { method: "DELETE" });
     if (res.status === 401) return router.push("/admin/login");
     if (res.ok) load();
+    else setError("Gagal menghapus nama.");
+    } catch { setError("Gagal menghapus nama. Coba lagi."); }
   };
 
   const clearOld = async () => {
+    if (!window.confirm("Hapus semua entri sebelum minggu ini? Tindakan ini tidak dapat dibatalkan.")) return;
+    try {
     const res = await fetch("/api/prayer/manage", { method: "DELETE" });
     if (res.status === 401) return router.push("/admin/login");
     if (res.ok) load();
-  };
-
-  const logout = async () => {
-    await fetch("/api/admin/logout", { method: "POST" });
-    router.push("/admin/login");
-    router.refresh();
+    else setError("Gagal menghapus entri lama.");
+    } catch { setError("Gagal menghapus entri lama. Coba lagi."); }
   };
 
   return (
-    <Container maxWidth="md" sx={{ py: { xs: 4, sm: 6 } }}>
+    <Container maxWidth="md" disableGutters>
       <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700 }}>
+        <Typography component="h1" variant="h4" sx={{ fontWeight: 750 }}>
           Pokok Doa Minggu Ini
         </Typography>
-        <Button onClick={logout} size="small" color="inherit">
-          Keluar
-        </Button>
       </Box>
 
       {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -122,25 +132,31 @@ export default function AdminPage() {
       <Box
         component="form"
         onSubmit={handleSubmit}
-        sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 1.5, mb: 3 }}
+        sx={{ display: "flex", flexDirection: "column", gap: 2.5, mb: 3, bgcolor: "white", p: 3, border: "1px solid #dce4ed", borderRadius: 3 }}
       >
         <TextField
           label="Nama"
           value={name}
+          disabled={saving}
+          slotProps={{ htmlInput: { maxLength: 200 } }}
           onChange={(e) => setName(e.target.value)}
-          size="small"
           fullWidth
           required
         />
         <TextField
           label="Catatan (opsional)"
           value={note}
+          disabled={saving}
+          multiline
+          minRows={2}
+          slotProps={{ htmlInput: { maxLength: 2000 } }}
           onChange={(e) => setNote(e.target.value)}
-          size="small"
           fullWidth
         />
-        <Button type="submit" variant="contained" sx={{ whiteSpace: "nowrap" }}>
-          {editingId ? "Simpan" : "Tambah"}
+        <FormControlLabel control={<Checkbox checked={notePublic} onChange={event => setNotePublic(event.target.checked)} disabled={saving} />} label="Tampilkan catatan di website" />
+        <Typography variant="body2" color="text.secondary">Nama ditampilkan di website untuk minggu ini. Catatan hanya ditampilkan jika dicentang.</Typography>
+        <Button type="submit" variant="contained" disabled={saving} sx={{ alignSelf: "flex-start" }}>
+          {saving ? "Menyimpan…" : editingId ? "Simpan Perubahan" : "Tambah Nama"}
         </Button>
         {editingId && (
           <Button onClick={resetForm} color="inherit" sx={{ whiteSpace: "nowrap" }}>
@@ -163,12 +179,7 @@ export default function AdminPage() {
           {items.map((item) => {
             const isOld =
               new Date(item.created_at) <
-              (() => {
-                const s = new Date();
-                s.setDate(s.getDate() - s.getDay());
-                s.setHours(0, 0, 0, 0);
-                return s;
-              })();
+              new Date(churchWeekStart());
             return (
               <ListItem
                 key={item.id}
@@ -177,17 +188,10 @@ export default function AdminPage() {
                   borderRadius: 1,
                   mb: 1,
                   opacity: isOld ? 0.55 : 1,
+                  flexDirection: "column",
+                  alignItems: "stretch",
+                  bgcolor: "white",
                 }}
-                secondaryAction={
-                  <>
-                    <IconButton edge="end" onClick={() => startEdit(item)} size="small">
-                      <Edit fontSize="small" />
-                    </IconButton>
-                    <IconButton edge="end" onClick={() => remove(item.id)} size="small">
-                      <Delete fontSize="small" />
-                    </IconButton>
-                  </>
-                }
               >
                 <Box>
                   <Typography sx={{ fontWeight: 600 }}>
@@ -200,9 +204,13 @@ export default function AdminPage() {
                   </Typography>
                   {item.note && (
                     <Typography sx={{ fontSize: "0.85rem", color: "#6c757d" }}>
-                      {item.note}
+                      {item.note} {!item.note_public && "(hanya untuk pengelola)"}
                     </Typography>
                   )}
+                </Box>
+                <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
+                  <Button onClick={() => startEdit(item)} disabled={saving}>Edit</Button>
+                  <Button onClick={() => void remove(item.id)} color="error" disabled={saving}>Hapus</Button>
                 </Box>
               </ListItem>
             );

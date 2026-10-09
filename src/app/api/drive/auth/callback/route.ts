@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { createOAuthClient } from "@/lib/drive";
+import { createOAuthClient, DRIVE_STATE_COOKIE, saveDriveCredentials } from "@/lib/drive";
+import { isAuthenticated } from "@/lib/adminAuth";
+import { timingSafeEqual } from "node:crypto";
 
 export const dynamic = "force-dynamic";
 
@@ -9,13 +11,24 @@ export async function GET(req: NextRequest) {
   const code = searchParams.get("code");
   const error = searchParams.get("error");
 
-  const redirectUrl = new URL("/pengumuman", req.url);
+  const redirectUrl = new URL("/admin/settings", req.url);
+  const store = await cookies();
+  const expected = store.get(DRIVE_STATE_COOKIE)?.value ?? "";
+  store.delete(DRIVE_STATE_COOKIE);
+  const state = searchParams.get("state") ?? "";
+  const validState = /^[a-f0-9]{64}$/.test(expected) && /^[a-f0-9]{64}$/.test(state) && timingSafeEqual(Buffer.from(expected), Buffer.from(state));
+  if (!(await isAuthenticated()) || !validState) {
+    redirectUrl.searchParams.set("drive", "error");
+    return NextResponse.redirect(redirectUrl);
+  }
 
   if (error) {
+    redirectUrl.searchParams.set("drive", "error");
     return NextResponse.redirect(redirectUrl);
   }
 
   if (!code) {
+    redirectUrl.searchParams.set("drive", "error");
     return NextResponse.redirect(redirectUrl);
   }
 
@@ -24,22 +37,18 @@ export async function GET(req: NextRequest) {
     const { tokens } = await oauth2Client.getToken(code);
     const accessToken = tokens.access_token;
 
-    if (!accessToken) {
+    if (!accessToken || !tokens.refresh_token) {
+      redirectUrl.searchParams.set("drive", "error");
       return NextResponse.redirect(redirectUrl);
     }
 
-    const store = await cookies();
-    store.set("google_drive_token", accessToken, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60 * 24 * 7,
-    });
+    await saveDriveCredentials(tokens);
+    store.delete("google_drive_token");
+    redirectUrl.searchParams.set("drive", "connected");
 
     return NextResponse.redirect(redirectUrl);
   } catch (err: any) {
-    console.error("OAuth callback error:", err.message || err);
+    redirectUrl.searchParams.set("drive", "error");
     return NextResponse.redirect(redirectUrl);
   }
 }

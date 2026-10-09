@@ -37,17 +37,7 @@ function Navbar() {
     setAnchorEl(null);
   };
 
-  const connectDrive = async () => {
-    try {
-      const res = await fetch("/api/drive/auth/login");
-      if (res.ok) {
-        const data = await res.json();
-        window.location.href = data.authUrl;
-      }
-    } catch {
-      console.error("Failed to initiate Drive auth");
-    }
-  };
+  if (pathname.startsWith("/admin")) return null;
 
   return (
     <AppBar position="sticky" elevation={0} sx={styles.appBar}>
@@ -144,21 +134,6 @@ function Navbar() {
           >
             Pastor
           </Button>
-          {/* Connect Google Drive */}
-          <Button
-            onClick={connectDrive}
-            sx={{
-              ...styles.button,
-              color: "#2e6ce8",
-              fontWeight: 600,
-              "&:hover": {
-                bgcolor: "rgba(46, 108, 232, 0.1)",
-                color: "#2558c0",
-              },
-            }}
-          >
-            Connect Drive
-          </Button>
         </Box>
 
         {/* Mobile Hamburger Menu */}
@@ -242,21 +217,6 @@ function Navbar() {
             >
               <WhatsAppIcon sx={{ fontSize: "0.875rem", mr: 1 }} />
               Pastor
-            </MenuItem>
-            {/* Connect Google Drive */}
-            <MenuItem
-              onClick={() => { handleMenuClose(); connectDrive(); }}
-              sx={{
-                ...styles.menuItem,
-                color: "#2e6ce8",
-                fontWeight: 600,
-                "&:hover": {
-                  bgcolor: "rgba(46, 108, 232, 0.08)",
-                  color: "#2558c0",
-                },
-              }}
-            >
-              Connect Drive
             </MenuItem>
           </Menu>
         </Box>

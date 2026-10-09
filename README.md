@@ -1,5 +1,12 @@
 # Church Website Template
 
+> **Current church deployment: Vercel.** Staff dashboard development now lives
+> at `/admin` with a shared password, weekly Kertas Acara editing, prayer-note
+> visibility, and photo management. See [DASHBOARD_SETUP.md](./DASHBOARD_SETUP.md)
+> for local practice mode and Google configuration. No live data migration or
+> deployment has been performed. The original static-template instructions below
+> do not apply to the dashboard: it requires Next.js server routes.
+
 A modern, responsive church website template built with Next.js 15, TypeScript,
 and MUI. Designed to be **forked and customized by any church** with minimal
 effort — most churches only need to edit a single configuration file.

@@ -5,24 +5,32 @@ const COOKIE_NAME = "admin_session";
 const MAX_AGE_SECONDS = 60 * 60 * 24 * 7; // 7 days
 
 function secret(): string {
-  return process.env.ADMIN_SECRET ?? "";
+  const value = process.env.ADMIN_SECRET ?? "";
+  return value.length >= 32 ? value : "";
+}
+
+export function isAdminConfigured(): boolean {
+  return Boolean(secret() && process.env.ADMIN_PASSWORD);
+}
+
+function signature(issuedAt: string): string {
+  return createHmac("sha256", secret()).update(`${issuedAt}:${process.env.ADMIN_PASSWORD ?? ""}`).digest("hex");
 }
 
 /** Create a signed session token: "<issuedAt>.<hmac>". */
 export function createSessionToken(): string {
+  if (!isAdminConfigured()) throw new Error("Admin authentication is not configured");
   const issuedAt = String(Date.now());
-  const sig = createHmac("sha256", secret()).update(issuedAt).digest("hex");
+  const sig = signature(issuedAt);
   return `${issuedAt}.${sig}`;
 }
 
 function verifyToken(token: string | undefined): boolean {
-  if (!token || !secret()) return false;
-  const [issuedAt, sig] = token.split(".");
-  if (!issuedAt || !sig) return false;
+  if (!token || !isAdminConfigured()) return false;
+  const [issuedAt, sig, extra] = token.split(".");
+  if (!issuedAt || !sig || extra !== undefined || !/^\d+$/.test(issuedAt) || !/^[a-f0-9]{64}$/.test(sig)) return false;
 
-  const expected = createHmac("sha256", secret())
-    .update(issuedAt)
-    .digest("hex");
+  const expected = signature(issuedAt);
   try {
     const a = Buffer.from(sig, "hex");
     const b = Buffer.from(expected, "hex");
@@ -53,4 +61,8 @@ export function checkPassword(password: string): boolean {
 export const ADMIN_COOKIE = {
   name: COOKIE_NAME,
   maxAge: MAX_AGE_SECONDS,
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: "lax" as const,
+  path: "/",
 };

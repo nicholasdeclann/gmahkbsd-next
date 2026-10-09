@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/work/
 /.pnp
 .pnp.*
 .yarn/*
@@ -36,6 +37,7 @@ yarn-error.log*
 # env files
 .env*.local
 .env
+.env*.local.tmp
 
 # vercel
 .vercel
@@ -43,3 +45,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+.env*
+!.env.example

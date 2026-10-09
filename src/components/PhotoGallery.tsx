@@ -1,137 +1,87 @@
 "use client";
-
-import { useEffect, useState } from "react";
-import { Box, Typography, CircularProgress, Button } from "@mui/material";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, Box, Typography, CircularProgress, Button, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
+import Image from "next/image";
 import PhotoCard from "./PhotoCard";
 import PhotoUploadModal from "./PhotoUploadModal";
 import PhotoEditModal from "./PhotoEditModal";
+import AnnouncementShare from "./AnnouncementShare";
+import type { AnnouncementItem } from "@/lib/announcementTypes";
 
-export default function PhotoGallery() {
-  const [photos, setPhotos] = useState<Array<{
-    id: number;
-    drive_file_id: string;
-    department: string;
-    caption: string | null;
-    uploaded_by: string | null;
-    created_at: string;
-  }>>([]);
+export default function PhotoGallery({ editable = false }: { editable?: boolean }) {
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const [photos, setPhotos] = useState<AnnouncementItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [configured, setConfigured] = useState(true);
   const [showUpload, setShowUpload] = useState(false);
-  const [editingPhoto, setEditingPhoto] = useState<{
-    id: number;
-    caption: string | null;
-  } | null>(null);
+  const [editingPhoto, setEditingPhoto] = useState<AnnouncementItem | null>(null);
+  const [preview, setPreview] = useState<AnnouncementItem | null>(null);
+  const [missingPost, setMissingPost] = useState(false);
 
-  useEffect(() => {
-    fetchPhotos();
-  }, []);
-
-  const fetchPhotos = async () => {
+  const fetchPhotos = useCallback(async (signal?: AbortSignal) => {
+    setLoading(true); setError("");
     try {
-      const res = await fetch("/api/photos?department=Sekolah Sabat");
-      const data = await res.json();
-      if (data.photos) setPhotos(data.photos);
+      const res = await fetch("/api/photos", { cache: "no-store", signal });
+      if (!res.ok) throw new Error();
+      const data: { photos: AnnouncementItem[]; configured: boolean } = await res.json();
+      if (signal?.aborted) return;
+      setPhotos(data.photos); setConfigured(data.configured);
+      if (!editable) {
+        const id = new URL(window.location.href).searchParams.get("post");
+        if (id) { const post = data.photos.find(p => p.id === id); setPreview(post ?? null); setMissingPost(!post); }
+      }
     } catch {
-      console.error("Failed to fetch photos");
-    } finally {
-      setLoading(false);
-    }
-  };
+      if (!signal?.aborted) setError("Pengumuman belum dapat dimuat. Silakan coba lagi.");
+    } finally { if (!signal?.aborted) setLoading(false); }
+  }, [editable]);
 
-  const handleCaptionSaved = (updatedPhoto: any) => {
-    setPhotos((prev) =>
-      prev.map((p) => (p.id === updatedPhoto.id ? updatedPhoto : p))
-    );
-    setEditingPhoto(null);
-  };
+  useEffect(() => { const controller = new AbortController(); void fetchPhotos(controller.signal); return () => controller.abort(); }, [fetchPhotos]);
 
-  const handlePhotoUploaded = (newPhoto: any) => {
-    setPhotos((prev) => [newPhoto, ...prev]);
-    setShowUpload(false);
-  };
-
-  if (loading) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-        <CircularProgress />
-      </Box>
-    );
+  function captionSaved(updated: AnnouncementItem) {
+    setPhotos(prev => prev.map(p => p.id === updated.id ? updated : p));
+    setEditingPhoto(null); setSuccess("Keterangan pengumuman telah diperbarui.");
+  }
+  function uploaded(post: AnnouncementItem) {
+    setPhotos(prev => [post, ...prev]); setShowUpload(false);
+    setSuccess("Pengumuman telah diterbitkan. Jemaat dapat melihatnya di halaman Pengumuman.");
   }
 
-  return (
-    <>
-      <Box sx={{ width: "100%", mb: 3 }}>
-        <Typography variant="h5" sx={{ fontWeight: 700, mb: 2 }}>
-          Galeri Foto Sekolah Sabat
-        </Typography>
+  return <>
+    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 2, mb: 3 }}>
+      <Box>
+        <Typography component="h2" variant="h5" sx={{ fontWeight: 700, mb: 1 }}>Papan Pengumuman Jemaat</Typography>
+        <Typography color="text.secondary">Informasi dan kegiatan dari seluruh departemen gereja.</Typography>
       </Box>
-
-      {/* Photo Grid */}
-      <Box
-        sx={{
-          display: "grid",
-          gridTemplateColumns: {
-            xs: "repeat(2, 1fr)",
-            sm: "repeat(3, 1fr)",
-            md: "repeat(3, 1fr)",
-            lg: "repeat(4, 1fr)",
-          },
-          gap: 2,
-          mb: 3,
-        }}
-      >
-        {photos.length === 0 ? (
-          <Typography sx={{ color: "#999", py: 4, textAlign: "center", gridColumn: "1 / -1" }}>
-            Belum ada foto. Upload foto pertama!
-          </Typography>
-        ) : (
-          photos.map((photo) => (
-            <PhotoCard
-              key={photo.id}
-              photo={photo}
-              onEdit={(id: number, caption: string | null) =>
-                setEditingPhoto({ id, caption })
-              }
-            />
-          ))
-        )}
-      </Box>
-
-      {/* Upload Button */}
-      <Button
-        variant="contained"
-        onClick={() => setShowUpload(true)}
-        sx={{
-          background: "linear-gradient(45deg, #25D366, #128C7E)",
-          color: "white",
-          textTransform: "none",
-          px: 4,
-          py: 1.5,
-          "&:hover": {
-            background: "linear-gradient(45deg, #20bd60, #0f7a66)",
-          },
-        }}
-      >
-        Upload Foto
-      </Button>
-
-      {/* Upload Modal */}
-      {showUpload && (
-        <PhotoUploadModal
-          onClose={() => setShowUpload(false)}
-          onUploaded={handlePhotoUploaded}
-        />
-      )}
-
-      {/* Edit Modal */}
-      {editingPhoto && (
-        <PhotoEditModal
-          photoId={editingPhoto.id}
-          currentCaption={editingPhoto.caption}
-          onClose={() => setEditingPhoto(null)}
-          onSaved={handleCaptionSaved}
-        />
-      )}
-    </>
-  );
+      {editable ? <Button variant="contained" onClick={() => setShowUpload(true)}>Tambah Pengumuman</Button> : <AnnouncementShare board />}
+    </Box>
+    {success && <Alert severity="success" onClose={() => setSuccess("")} sx={{ mb: 2 }}>{success}</Alert>}
+    {error && <Alert severity="error" sx={{ mb: 2 }} action={<Button onClick={() => void fetchPhotos()}>Coba Lagi</Button>}>{error}</Alert>}
+    {missingPost && <Alert severity="info" sx={{ mb: 2 }}>Pengumuman pada tautan ini belum tersedia. Lihat pengumuman lainnya di bawah.</Alert>}
+    {editable && !configured && <Alert severity="info" sx={{ mb: 2 }} action={<Button href="/admin/settings">Pengaturan</Button>}>Hubungkan folder pengumuman di Google Drive sebelum menerbitkan gambar.</Alert>}
+    {loading ? <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}><CircularProgress aria-label="Memuat pengumuman" /></Box> :
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: editable ? "repeat(2, 1fr)" : "repeat(3, 1fr)" }, gap: 3 }}>
+        {!photos.length && !error && <Box sx={{ p: 4, textAlign: "center", gridColumn: "1 / -1", bgcolor: "#f5f8fb", borderRadius: 3 }}>
+          <Typography color="text.secondary">Belum ada pengumuman tambahan.</Typography>
+          {editable && <Typography color="text.secondary" sx={{ mt: 1 }}>Tambahkan gambar dan keterangan untuk dibaca jemaat.</Typography>}
+        </Box>}
+        {photos.map(photo => <PhotoCard key={photo.id} photo={photo} onOpen={() => setPreview(photo)} onEdit={editable ? () => setEditingPhoto(photo) : undefined} />)}
+      </Box>}
+    {editable && showUpload && <PhotoUploadModal onClose={() => setShowUpload(false)} onUploaded={uploaded} />}
+    {editable && editingPhoto && <PhotoEditModal photoId={editingPhoto.id} currentCaption={editingPhoto.caption} onClose={() => setEditingPhoto(null)} onSaved={captionSaved} />}
+    <Dialog open={Boolean(preview)} onClose={() => setPreview(null)} maxWidth="md" fullWidth aria-labelledby="announcement-preview-title">
+      <DialogTitle id="announcement-preview-title">Pengumuman {preview?.department}</DialogTitle>
+      <DialogContent>
+        {preview && <>
+          <Image src={preview.image_url} alt={preview.caption || "Pengumuman " + preview.department} width={1200} height={1600} unoptimized
+            style={{ width: "100%", height: "auto", maxHeight: "75vh", objectFit: "contain" }} />
+          {preview.caption && <Typography sx={{ mt: 2, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{preview.caption}</Typography>}
+        </>}
+      </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        {preview && <AnnouncementShare id={preview.id} caption={preview.caption} />}
+        <Button variant="outlined" onClick={() => setPreview(null)}>Tutup</Button>
+      </DialogActions>
+    </Dialog>
+  </>;
 }

@@ -34,7 +34,7 @@ export default function AdminLoginPage() {
       // Return to the page that sent them here (e.g. /pengumuman?next=...),
       // but only accept same-site paths to avoid an open redirect.
       const next = new URLSearchParams(window.location.search).get("next");
-      const target = next && next.startsWith("/") && !next.startsWith("//")
+      const target = next && /^\/admin(?:\/|$)/.test(next) && !next.includes("\\") && !next.startsWith("/admin/login")
         ? next
         : "/admin";
       router.push(target);
@@ -49,8 +49,9 @@ export default function AdminLoginPage() {
   return (
     <Container maxWidth="xs" sx={{ py: { xs: 8, sm: 12 } }}>
       <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, textAlign: "center" }}>
-        Admin Login
+        Dashboard Gereja
       </Typography>
+      <Typography color="text.secondary" sx={{ textAlign: "center", mb: 3 }}>Masukkan kata sandi yang diberikan oleh pengelola gereja.</Typography>
       <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {error && <Alert severity="error">{error}</Alert>}
         <TextField
@@ -59,6 +60,8 @@ export default function AdminLoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           autoFocus
+          autoComplete="current-password"
+          required
           fullWidth
         />
         <Button type="submit" variant="contained" disabled={loading || !password}>

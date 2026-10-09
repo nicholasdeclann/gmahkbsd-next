@@ -1,102 +1,29 @@
 import { NextRequest, NextResponse } from "next/server";
-import { Readable } from "stream";
-import { isAuthenticated } from "@/lib/adminAuth";
-import { getAccessToken, getDriveService, getDepartmentFolderId } from "@/lib/drive";
-import { createPhoto } from "@/lib/db";
+import { adminRequestError } from "@/lib/adminRequest";
+import { announcementDetails, ANNOUNCEMENT_IMAGE_TYPES, ANNOUNCEMENT_MAX_BYTES } from "@/lib/announcementTypes";
+import { AnnouncementError, publishAnnouncement } from "@/lib/announcements";
 
 export const dynamic = "force-dynamic";
-
 export async function POST(req: NextRequest) {
-  if (!(await isAuthenticated())) {
-    return NextResponse.json(
-      { error: "Unauthorized", code: "ADMIN_REQUIRED" },
-      { status: 401 }
-    );
-  }
-
+  const authError = await adminRequestError(req);
+  if (authError) return authError;
   try {
-    const formData = await req.formData();
-    const file = formData.get("file") as File | null;
-    const department = (formData.get("department") as string) || "Sekolah Sabat";
-
-    if (!file) {
-      return NextResponse.json({ error: "File is required" }, { status: 400 });
+    if (Number(req.headers.get("content-length")) > ANNOUNCEMENT_MAX_BYTES + 100_000) {
+      return NextResponse.json({ error: "Ukuran gambar maksimal 4 MB." }, { status: 413 });
     }
-
-    // Limit file size to 10MB
-    const maxSize = 10 * 1024 * 1024;
-    if (file.size > maxSize) {
-      return NextResponse.json(
-        { error: "File size exceeds 10MB limit" },
-        { status: 400 }
-      );
-    }
-
-    // Get access token from cookie
-    const accessToken = await getAccessToken();
-    if (!accessToken) {
-      return NextResponse.json(
-        { error: "Google Drive not connected", code: "DRIVE_NOT_CONNECTED" },
-        { status: 401 }
-      );
-    }
-
-    // Find the department subfolder (e.g., "Sekolah Sabat")
-    let targetFolderId: string | null = await getDepartmentFolderId(
-      department,
-      accessToken
-    );
-    if (!targetFolderId) {
-      // Fallback to main folder if subfolder not found
-      targetFolderId = process.env.GOOGLE_DRIVE_FOLDER_ID ?? null;
-    }
-    if (!targetFolderId) {
-      return NextResponse.json(
-        { error: "GOOGLE_DRIVE_FOLDER_ID is not configured" },
-        { status: 500 }
-      );
-    }
-
-    // Upload file to Google Drive using a readable stream
-    const driveService = getDriveService(accessToken);
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const stream = Readable.from(buffer);
-    const media = {
-      mimeType: file.type,
-      body: stream,
-    };
-
-    const response = await driveService.files.create({
-      requestBody: {
-        name: file.name,
-        parents: [targetFolderId!],
-      },
-      media,
-      fields: "id, name, mimeType, createdTime",
-    });
-
-    const driveFileId = response.data.id;
-
-    if (!driveFileId) {
-      return NextResponse.json(
-        { error: "Google Drive did not return a file ID" },
-        { status: 500 }
-      );
-    }
-
-    // Save to database
-    const photo = await createPhoto(
-      driveFileId,
-      department,
-      "admin"
-    );
-
+    const form = await req.formData();
+    const file = form.get("file");
+    if (!(file instanceof File) || !file.size) return NextResponse.json({ error: "Pilih gambar pengumuman terlebih dahulu." }, { status: 400 });
+    if (!ANNOUNCEMENT_IMAGE_TYPES.includes(file.type)) return NextResponse.json({ error: "Gunakan gambar JPG, PNG, atau WebP." }, { status: 400 });
+    if (file.size > ANNOUNCEMENT_MAX_BYTES) return NextResponse.json({ error: "Ukuran gambar maksimal 4 MB." }, { status: 413 });
+    let details;
+    try { details = announcementDetails(form.get("department"), form.get("caption")); }
+    catch (error) { return NextResponse.json({ error: (error as Error).message }, { status: 400 }); }
+    const photo = await publishAnnouncement(file, details.department, details.caption);
     return NextResponse.json({ photo }, { status: 201 });
-  } catch (err: any) {
-    console.error("Upload error:", err);
-    return NextResponse.json(
-      { error: "Failed to upload photo" },
-      { status: 500 }
-    );
+  } catch (error) {
+    if (error instanceof AnnouncementError) return NextResponse.json({ error: error.message, code: error.code }, { status: error.status });
+    console.error("Announcement publishing failed");
+    return NextResponse.json({ error: "Pengumuman belum berhasil diterbitkan. Periksa koneksi Drive di Pengaturan lalu coba lagi." }, { status: 502 });
   }
 }

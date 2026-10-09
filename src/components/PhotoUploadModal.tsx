@@ -1,171 +1,74 @@
 "use client";
+import { useEffect, useState } from "react";
+import { Alert, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField, Box, Typography } from "@mui/material";
+import Image from "next/image";
+import { announcementDetails, ANNOUNCEMENT_IMAGE_TYPES, ANNOUNCEMENT_MAX_BYTES, type AnnouncementItem } from "@/lib/announcementTypes";
 
-import { useState } from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Box,
-  Typography,
-} from "@mui/material";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-
-interface PhotoUploadModalProps {
-  onClose: () => void;
-  onUploaded: (photo: any) => void;
-}
-
-export default function PhotoUploadModal({ onClose, onUploaded }: PhotoUploadModalProps) {
+export default function PhotoUploadModal({ onClose, onUploaded }: { onClose: () => void; onUploaded: (photo: AnnouncementItem) => void }) {
   const [file, setFile] = useState<File | null>(null);
+  const [preview, setPreview] = useState("");
+  const [department, setDepartment] = useState("");
+  const [caption, setCaption] = useState("");
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [needsDrive, setNeedsDrive] = useState(false);
+  useEffect(() => {
+    if (!file) { setPreview(""); return; }
+    const url = URL.createObjectURL(file); setPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [file]);
 
-  const connectDrive = async () => {
+  async function handleUpload() {
+    if (!file) { setError("Pilih gambar pengumuman terlebih dahulu."); return; }
+    if (!ANNOUNCEMENT_IMAGE_TYPES.includes(file.type)) { setError("Gunakan gambar JPG, PNG, atau WebP."); return; }
+    if (file.size > ANNOUNCEMENT_MAX_BYTES) { setError("Ukuran gambar maksimal 4 MB."); return; }
+    let details;
+    try { details = announcementDetails(department, caption); }
+    catch (error) { setError((error as Error).message); return; }
+    setUploading(true); setError(""); setNeedsDrive(false);
     try {
-      const res = await fetch("/api/drive/auth/login");
-      if (!res.ok) throw new Error();
-      const data = await res.json();
-      window.location.href = data.authUrl;
-    } catch {
-      setError("Gagal memulai koneksi Google Drive. Coba lagi.");
-    }
-  };
-
-  const handleUpload = async () => {
-    if (!file) {
-      setError("Please select a file");
-      return;
-    }
-
-    setUploading(true);
-    setError("");
-    setNeedsDrive(false);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("department", "Sekolah Sabat");
-
-      const res = await fetch("/api/photos/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (res.status === 401) {
-        const data = await res.json().catch(() => ({}));
-        if (data.code === "ADMIN_REQUIRED") {
-          // Not logged in as admin — send them to the login page, then back here.
-          window.location.href = "/admin/login?next=/pengumuman";
-          return;
-        }
-        if (data.code === "DRIVE_NOT_CONNECTED") {
-          setNeedsDrive(true);
-          setError("Google Drive belum terhubung.");
-          return;
-        }
-        throw new Error(data.error || "Upload failed");
+      const form = new FormData();
+      form.append("file", file); form.append("department", details.department); form.append("caption", details.caption || "");
+      const response = await fetch("/api/photos/upload", { method: "POST", body: form });
+      const data = await response.json().catch(() => ({}));
+      if (response.status === 401 && data.code === "ADMIN_REQUIRED") {
+        window.location.href = "/admin/login?next=/admin/photos"; return;
       }
-
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Upload failed");
+      if (!response.ok) {
+        setNeedsDrive(data.code === "DRIVE_NOT_CONNECTED" || response.status === 503);
+        throw new Error(data.error || "Pengumuman belum berhasil diterbitkan.");
       }
-
-      const data = await res.json();
       onUploaded(data.photo);
-    } catch (err: any) {
-      setError(err.message || "Failed to upload");
-    } finally {
-      setUploading(false);
-    }
-  };
+    } catch (error) { setError(error instanceof Error ? error.message : "Pengumuman belum berhasil diterbitkan."); }
+    finally { setUploading(false); }
+  }
 
-  return (
-    <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ fontWeight: 700 }}>Upload Foto</DialogTitle>
-      <DialogContent>
-        <Box sx={{ py: 2 }}>
-          <Typography variant="body2" sx={{ color: "#666", mb: 2 }}>
-            Department: <strong>Sekolah Sabat</strong>
-          </Typography>
-
-          <Box
-            sx={{
-              border: "2px dashed rgba(46, 108, 232, 0.3)",
-              borderRadius: 2,
-              p: 4,
-              textAlign: "center",
-              cursor: "pointer",
-              "&:hover": { borderColor: "#2e6ce8" },
-            }}
-            onClick={() => document.getElementById("file-input")?.click()}
-          >
-            <CloudUploadIcon sx={{ fontSize: 48, color: "#2e6ce8", mb: 1 }} />
-            <Typography variant="body2" sx={{ color: "#666" }}>
-              Click to select image
-            </Typography>
-            <Typography variant="caption" sx={{ color: "#999" }}>
-              Max 10MB — JPG, PNG, WebP
-            </Typography>
-            <input
-              id="file-input"
-              type="file"
-              accept="image/*"
-              hidden
-              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-            />
-          </Box>
-
-          {file && (
-            <Typography variant="body2" sx={{ mt: 2, color: "#2e6ce8" }}>
-              Selected: {file.name}
-            </Typography>
-          )}
-
-          {error && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="body2" sx={{ color: "error.main" }}>
-                {error}
-              </Typography>
-              {needsDrive && (
-                <Typography variant="caption" sx={{ display: "block", color: "#666", mt: 0.5 }}>
-                  Klik tombol di bawah untuk menghubungkan akun Google, lalu
-                  pilih foto lagi.
-                </Typography>
-              )}
-            </Box>
-          )}
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2 }}>
-        {needsDrive && (
-          <Button
-            onClick={connectDrive}
-            sx={{ color: "#2e6ce8", fontWeight: 600, mr: "auto" }}
-          >
-            Connect Drive
-          </Button>
-        )}
-        <Button onClick={onClose} sx={{ color: "#666" }}>
-          Cancel
-        </Button>
-        <Button
-          variant="contained"
-          onClick={handleUpload}
-          disabled={!file || uploading}
-          sx={{
-            background: "linear-gradient(45deg, #25D366, #128C7E)",
-            color: "white",
-            textTransform: "none",
-          }}
-        >
-          {uploading ? "Uploading..." : "Upload"}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
+  return <Dialog open onClose={uploading ? undefined : onClose} maxWidth="sm" fullWidth aria-labelledby="new-announcement-title">
+    <DialogTitle id="new-announcement-title">Tambah Pengumuman</DialogTitle>
+    <DialogContent>
+      <Typography color="text.secondary" sx={{ mb: 3 }}>Pengumuman yang diterbitkan langsung dapat dilihat dan dibagikan oleh jemaat.</Typography>
+      <Box component="label" sx={{ display: "block", mb: 3 }}>
+        <Typography sx={{ fontWeight: 600, mb: 1 }}>Gambar Pengumuman</Typography>
+        <input type="file" aria-label="Gambar Pengumuman" accept="image/jpeg,image/png,image/webp" disabled={uploading}
+          style={{ width: "100%", fontSize: "1rem" }} onChange={event => { setFile(event.target.files?.[0] || null); setError(""); }} />
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>JPG, PNG, atau WebP · maksimal 4 MB</Typography>
+      </Box>
+      {preview && <Image src={preview} alt="Pratinjau gambar pengumuman" width={600} height={450} unoptimized style={{ width: "100%", height: 220, objectFit: "contain", marginBottom: 24 }} />}
+      <TextField label="Departemen (opsional)" fullWidth value={department} onChange={event => setDepartment(event.target.value)}
+        disabled={uploading} placeholder="Contoh: Pemuda, Pelayanan Wanita, Sekolah Sabat"
+        helperText="Kosongkan untuk pengumuman umum. Semua departemen dapat mengirim." sx={{ mb: 3 }} />
+      <TextField label="Keterangan (opsional)" fullWidth multiline minRows={3} value={caption}
+        onChange={event => setCaption(event.target.value)} disabled={uploading}
+        helperText="Tuliskan informasi kegiatan, tanggal, atau kontak yang boleh dibaca jemaat."
+        slotProps={{ htmlInput: { maxLength: 2000 } }} />
+      {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+    </DialogContent>
+    <DialogActions sx={{ px: 3, pb: 3, gap: 1, flexWrap: "wrap" }}>
+      {needsDrive && <Button href="/admin/settings">Buka Pengaturan</Button>}
+      <Button onClick={onClose} disabled={uploading}>Batal</Button>
+      <Button variant="contained" onClick={() => void handleUpload()} disabled={!file || uploading}>
+        {uploading ? "Menerbitkan…" : "Terbitkan Pengumuman"}
+      </Button>
+    </DialogActions>
+  </Dialog>;
 }

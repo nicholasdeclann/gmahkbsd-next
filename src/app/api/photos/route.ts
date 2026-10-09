@@ -1,21 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getPhotos } from "@/lib/db";
+import { listAnnouncements, announcementStorageConfigured } from "@/lib/announcements";
+import { isLocalDemo } from "@/lib/localDemo";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
-    const department = searchParams.get("department") || "Sekolah Sabat";
-
-    // Get photos from database (with captions)
-    const photos = await getPhotos(department);
-
-    return NextResponse.json({ photos });
+    const department = searchParams.get("department") || undefined;
+    const photos = await listAnnouncements(department);
+    return NextResponse.json({ photos, configured: announcementStorageConfigured(), mode: isLocalDemo() ? "demo" : "drive" }, { headers: { "Cache-Control": "no-store" } });
   } catch {
     return NextResponse.json(
-      { error: "Failed to load photos" },
-      { status: 500 }
+      { error: "Pengumuman belum dapat dimuat. Silakan coba lagi." },
+      { status: 502 }
     );
   }
 }

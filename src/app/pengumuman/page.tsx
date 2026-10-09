@@ -1,16 +1,25 @@
-"use client";
-
-import { Box, Container } from "@mui/material";
+import type { Metadata } from "next";
+import { Box, Container, Typography } from "@mui/material";
 import { churchConfig } from "@/config/church";
 import PhotoGallery from "@/components/PhotoGallery";
+
+export const metadata: Metadata = {
+  title: "Pengumuman Jemaat | GMAHK BSD",
+  description: "Informasi, kegiatan, dan pengumuman dari seluruh departemen GMAHK BSD.",
+  openGraph: { title: "Papan Pengumuman Jemaat — GMAHK BSD", description: "Informasi dan kegiatan dari seluruh departemen gereja.", type: "website" },
+};
 
 export default function Pengumuman() {
   return (
     <Box sx={styles.mainContainer}>
+      <Container maxWidth="lg" sx={{ py: 3 }}>
+        <Typography component="h1" variant="h4" sx={{ fontWeight: 700 }}>Pengumuman Jemaat</Typography>
+      </Container>
       {/* Canva Carousel - Full Width */}
       <Box sx={styles.canvaContainer}>
         <Box sx={styles.aspectBox}>
           <iframe
+            title="Pengumuman mingguan GMAHK BSD dari Canva"
             loading="lazy"
             style={{
               position: "absolute",

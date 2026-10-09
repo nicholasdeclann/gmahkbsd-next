@@ -1,102 +1,34 @@
 "use client";
-
 import { useState } from "react";
-import {
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions,
-  Button,
-  TextField,
-  Box,
-  Typography,
-} from "@mui/material";
+import { Alert, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from "@mui/material";
+import type { AnnouncementItem } from "@/lib/announcementTypes";
 
-interface PhotoEditModalProps {
-  photoId: number;
-  currentCaption: string | null;
-  onClose: () => void;
-  onSaved: (updatedPhoto: any) => void;
-}
-
-export default function PhotoEditModal({
-  photoId,
-  currentCaption,
-  onClose,
-  onSaved,
-}: PhotoEditModalProps) {
+export default function PhotoEditModal({ photoId, currentCaption, onClose, onSaved }: {
+  photoId: string; currentCaption: string | null; onClose: () => void; onSaved: (photo: AnnouncementItem) => void;
+}) {
   const [caption, setCaption] = useState(currentCaption || "");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-
-  const handleSave = async () => {
-    setSaving(true);
-    setError("");
-
+  async function save() {
+    setSaving(true); setError("");
     try {
-      const res = await fetch(`/api/photos/${photoId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ caption: caption || null }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Failed to update");
-      }
-
-      const data = await res.json();
+      const response = await fetch("/api/photos/" + encodeURIComponent(photoId), { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ caption }) });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Keterangan belum berhasil disimpan.");
       onSaved(data.photo);
-    } catch (err: any) {
-      setError(err.message || "Failed to update");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
-      <DialogTitle sx={{ fontWeight: 700 }}>Edit Caption</DialogTitle>
-      <DialogContent>
-        <Box sx={{ py: 2 }}>
-          <Typography variant="caption" sx={{ color: "#999" }}>
-            Photo ID: {photoId}
-          </Typography>
-          <TextField
-            fullWidth
-            multiline
-            rows={3}
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
-            placeholder="Enter caption..."
-            sx={{ mt: 2 }}
-            variant="outlined"
-            size="small"
-          />
-          {error && (
-            <Typography variant="body2" sx={{ mt: 1, color: "error.main" }}>
-              {error}
-            </Typography>
-          )}
-        </Box>
-      </DialogContent>
-      <DialogActions sx={{ px: 3, pb: 2 }}>
-        <Button onClick={onClose} sx={{ color: "#666" }}>
-          Cancel
-        </Button>
-        <Button
-          variant="contained"
-          onClick={handleSave}
-          disabled={saving}
-          sx={{
-            background: "linear-gradient(45deg, #2e6ce8, #5a8df5)",
-            color: "white",
-            textTransform: "none",
-          }}
-        >
-          {saving ? "Saving..." : "Save"}
-        </Button>
-      </DialogActions>
-    </Dialog>
-  );
+    } catch (error) { setError(error instanceof Error ? error.message : "Keterangan belum berhasil disimpan."); }
+    finally { setSaving(false); }
+  }
+  return <Dialog open onClose={saving ? undefined : onClose} maxWidth="sm" fullWidth aria-labelledby="edit-announcement-title">
+    <DialogTitle id="edit-announcement-title">Ubah Keterangan Pengumuman</DialogTitle>
+    <DialogContent>
+      <TextField label="Keterangan" fullWidth multiline minRows={4} value={caption} onChange={event => setCaption(event.target.value)}
+        disabled={saving} slotProps={{ htmlInput: { maxLength: 2000 } }} sx={{ mt: 1 }} helperText="Perubahan langsung ditampilkan kepada jemaat." />
+      {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>}
+    </DialogContent>
+    <DialogActions sx={{ px: 3, pb: 3 }}>
+      <Button onClick={onClose} disabled={saving}>Batal</Button>
+      <Button variant="contained" onClick={() => void save()} disabled={saving || caption === (currentCaption || "")}>{saving ? "Menyimpan…" : "Simpan Perubahan"}</Button>
+    </DialogActions>
+  </Dialog>;
 }

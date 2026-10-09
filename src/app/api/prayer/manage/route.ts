@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { deleteOldItems, getAllItems } from "@/lib/db";
 import { isAuthenticated } from "@/lib/adminAuth";
+import { adminRequestError } from "@/lib/adminRequest";
 
 export const dynamic = "force-dynamic";
 
@@ -18,10 +19,9 @@ export async function GET() {
 }
 
 // Purge all items created before the current week.
-export async function DELETE() {
-  if (!(await isAuthenticated())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+export async function DELETE(request: Request) {
+  const authError = await adminRequestError(request);
+  if (authError) return authError;
   try {
     const removed = await deleteOldItems();
     return NextResponse.json({ removed });

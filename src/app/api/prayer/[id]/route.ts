@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateItem, deleteItem } from "@/lib/db";
-import { isAuthenticated } from "@/lib/adminAuth";
+import { adminRequestError } from "@/lib/adminRequest";
 
 export const dynamic = "force-dynamic";
 
@@ -8,9 +8,8 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  if (!(await isAuthenticated())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authError = await adminRequestError(req);
+  if (authError) return authError;
   const { id } = await params;
   const numId = Number(id);
   if (!Number.isInteger(numId)) {
@@ -23,10 +22,10 @@ export async function PUT(
       typeof body.note === "string" && body.note.trim()
         ? body.note.trim()
         : null;
-    if (!name) {
+    if (!name || name.length > 200 || (note?.length ?? 0) > 2000) {
       return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
-    const item = await updateItem(numId, name, note);
+    const item = await updateItem(numId, name, note, body.note_public === true);
     if (!item) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }
@@ -37,12 +36,11 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  if (!(await isAuthenticated())) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authError = await adminRequestError(req);
+  if (authError) return authError;
   const { id } = await params;
   const numId = Number(id);
   if (!Number.isInteger(numId)) {

@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:dashboard": "node --experimental-strip-types scripts/dashboard-smoke.mjs",
+    "test:announcements": "node --experimental-strip-types scripts/announcement-smoke.mjs",
+    "connect:sheets": "node --experimental-strip-types scripts/connect-sheets.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
