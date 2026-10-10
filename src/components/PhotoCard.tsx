@@ -4,7 +4,7 @@ import Image from "next/image";
 import AnnouncementShare from "./AnnouncementShare";
 import type { AnnouncementItem } from "@/lib/announcementTypes";
 
-export default function PhotoCard({ photo, onEdit, onOpen }: { photo: AnnouncementItem; onEdit?: () => void; onOpen: () => void }) {
+export default function PhotoCard({ photo, onEdit, onDelete, onOpen }: { photo: AnnouncementItem; onEdit?: () => void; onDelete?: () => void; onOpen: () => void }) {
   return <Card component="article" id={"pengumuman-" + photo.id} variant="outlined" sx={{ borderRadius: 3, overflow: "hidden", scrollMarginTop: 100 }}>
     <CardActionArea onClick={onOpen} aria-label={"Lihat pengumuman " + (photo.caption || photo.department)}>
       <Box sx={{ position: "relative", aspectRatio: "4 / 3", bgcolor: "#f2f5f8" }}>
@@ -22,6 +22,7 @@ export default function PhotoCard({ photo, onEdit, onOpen }: { photo: Announceme
         <Button onClick={onOpen}>Lihat Gambar</Button>
         <AnnouncementShare id={photo.id} caption={photo.caption} />
         {onEdit && <Button onClick={onEdit}>Ubah Keterangan</Button>}
+        {onDelete && <Button color="error" onClick={onDelete}>Hapus</Button>}
       </Box>
     </CardContent>
   </Card>;

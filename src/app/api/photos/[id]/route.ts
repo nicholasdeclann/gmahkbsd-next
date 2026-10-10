@@ -1,9 +1,25 @@
 import { NextRequest, NextResponse } from "next/server";
-import { editAnnouncement, AnnouncementError } from "@/lib/announcements";
+import { editAnnouncement, deleteAnnouncement, AnnouncementError } from "@/lib/announcements";
 import { announcementDetails } from "@/lib/announcementTypes";
 import { adminRequestError } from "@/lib/adminRequest";
 
 export const dynamic = "force-dynamic";
+
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const authError = await adminRequestError(req);
+  if (authError) return authError;
+  try {
+    const { id } = await params;
+    if (!/^[a-zA-Z0-9_-]{1,200}$/.test(id)) return NextResponse.json({ error: "Pengumuman tidak valid." }, { status: 400 });
+    await deleteAnnouncement(id);
+    return NextResponse.json({ deleted: true });
+  } catch (error) {
+    if (error instanceof AnnouncementError) return NextResponse.json({ error: error.message, code: error.code }, { status: error.status });
+    const status = (error as { response?: { status?: number } })?.response?.status;
+    if (status === 404) return NextResponse.json({ error: "Pengumuman tidak ditemukan." }, { status: 404 });
+    return NextResponse.json({ error: "Pengumuman belum berhasil dihapus. Pastikan akun gereja memiliki izin menghapus file, lalu coba lagi." }, { status: 502 });
+  }
+}
 
 export async function PATCH(
   req: NextRequest,

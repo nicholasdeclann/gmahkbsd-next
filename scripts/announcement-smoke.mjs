@@ -42,6 +42,13 @@ try {
   check("Staff can edit announcement", edit.status, 200);
   check("Public sees saved description", (await (await fetch(`${base}/api/photos`)).json()).photos.find(p => p.id === ids[0]).caption, "Keterangan latihan diperbarui");
   check("Unknown image cannot expose files", (await fetch(`${base}/api/photos/local-not-a-real-file/image`)).status, 404);
+  const deleteUrl = `${base}/api/photos/${ids[0]}`;
+  check("Unauthenticated delete protected", (await fetch(deleteUrl, { method: "DELETE", headers: { Origin: base } })).status, 401);
+  check("Cross-origin delete blocked", (await fetch(deleteUrl, { method: "DELETE", headers: { Origin: "https://example.invalid", Cookie: cookie } })).status, 403);
+  check("Staff can delete announcement", (await fetch(deleteUrl, { method: "DELETE", headers: { Origin: base, Cookie: cookie } })).status, 200);
+  check("Deleted announcement absent from public board", (await (await fetch(`${base}/api/photos`)).json()).photos.some(p => p.id === ids[0]), false);
+  check("Deleted image inaccessible", (await fetch(`${base}/api/photos/${ids[0]}/image`)).status, 404);
+  check("Repeated delete reports missing announcement", (await fetch(deleteUrl, { method: "DELETE", headers: { Origin: base, Cookie: cookie } })).status, 404);
 } finally {
   const target = new URL("../work/dashboard-demo.json", import.meta.url);
   const data = JSON.parse(await readFile(target, "utf8"));
@@ -50,7 +57,7 @@ try {
   await writeFile(temp, JSON.stringify(data, null, 2)); await rename(temp, target);
   for (const id of ids) {
     assert.match(id, /^local-[a-f0-9-]{36}$/);
-    await unlink(new URL(`../work/announcements/${id}`, import.meta.url));
+    await unlink(new URL(`../work/announcements/${id}`, import.meta.url)).catch(error => { if (error.code !== "ENOENT") throw error; });
   }
 }
 console.log(`${checks} checks passed. Only disposable local announcement fixtures were created.`);

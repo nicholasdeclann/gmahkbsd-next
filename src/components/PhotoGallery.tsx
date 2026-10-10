@@ -18,6 +18,24 @@ export default function PhotoGallery({ editable = false }: { editable?: boolean 
   const [editingPhoto, setEditingPhoto] = useState<AnnouncementItem | null>(null);
   const [preview, setPreview] = useState<AnnouncementItem | null>(null);
   const [missingPost, setMissingPost] = useState(false);
+  const [deletingPhoto, setDeletingPhoto] = useState<AnnouncementItem | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
+
+  async function confirmDelete() {
+    if (!deletingPhoto || deleting) return;
+    setDeleting(true); setDeleteError(""); setSuccess("");
+    try {
+      const response = await fetch("/api/photos/" + encodeURIComponent(deletingPhoto.id), { method: "DELETE" });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Pengumuman belum berhasil dihapus.");
+      setPhotos(prev => prev.filter(p => p.id !== deletingPhoto.id));
+      if (preview?.id === deletingPhoto.id) setPreview(null);
+      setDeletingPhoto(null);
+      setSuccess("Pengumuman telah dihapus. Gambar dipindahkan ke sampah Google Drive.");
+    } catch (error) { setDeleteError(error instanceof Error ? error.message : "Pengumuman belum berhasil dihapus."); }
+    finally { setDeleting(false); }
+  }
 
   const fetchPhotos = useCallback(async (signal?: AbortSignal) => {
     setLoading(true); setError("");
@@ -65,10 +83,23 @@ export default function PhotoGallery({ editable = false }: { editable?: boolean 
           <Typography color="text.secondary">Belum ada pengumuman tambahan.</Typography>
           {editable && <Typography color="text.secondary" sx={{ mt: 1 }}>Tambahkan gambar dan keterangan untuk dibaca jemaat.</Typography>}
         </Box>}
-        {photos.map(photo => <PhotoCard key={photo.id} photo={photo} onOpen={() => setPreview(photo)} onEdit={editable ? () => setEditingPhoto(photo) : undefined} />)}
+        {photos.map(photo => <PhotoCard key={photo.id} photo={photo} onOpen={() => setPreview(photo)} onEdit={editable ? () => setEditingPhoto(photo) : undefined}
+          onDelete={editable && !/^\d+$/.test(photo.id) ? () => { setDeleteError(""); setDeletingPhoto(photo); } : undefined} />)}
       </Box>}
     {editable && showUpload && <PhotoUploadModal onClose={() => setShowUpload(false)} onUploaded={uploaded} />}
     {editable && editingPhoto && <PhotoEditModal photoId={editingPhoto.id} currentCaption={editingPhoto.caption} onClose={() => setEditingPhoto(null)} onSaved={captionSaved} />}
+    {editable && <Dialog open={Boolean(deletingPhoto)} onClose={deleting ? undefined : () => setDeletingPhoto(null)} maxWidth="sm" fullWidth aria-labelledby="delete-announcement-title">
+      <DialogTitle id="delete-announcement-title">Hapus Pengumuman?</DialogTitle>
+      <DialogContent>
+        <Typography sx={{ mb: 2, whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>{deletingPhoto?.caption || `Pengumuman ${deletingPhoto?.department || ""}`}</Typography>
+        <Typography>Pengumuman akan hilang dari papan jemaat. File gambarnya dipindahkan ke sampah Google Drive dan dapat dipulihkan dari sana.</Typography>
+        {deleteError && <Alert severity="error" sx={{ mt: 2 }}>{deleteError}</Alert>}
+      </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 3 }}>
+        <Button onClick={() => setDeletingPhoto(null)} disabled={deleting}>Batal</Button>
+        <Button variant="contained" color="error" onClick={() => void confirmDelete()} disabled={deleting}>{deleting ? "Menghapus…" : "Hapus Pengumuman"}</Button>
+      </DialogActions>
+    </Dialog>}
     <Dialog open={Boolean(preview)} onClose={() => setPreview(null)} maxWidth="md" fullWidth aria-labelledby="announcement-preview-title">
       <DialogTitle id="announcement-preview-title">Pengumuman {preview?.department}</DialogTitle>
       <DialogContent>

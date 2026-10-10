@@ -43,10 +43,10 @@ export async function readDemo(): Promise<DemoData> {
 }
 
 /** Serialize local saves and replace the JSON file atomically. Never used on Vercel. */
-export function updateDemo<T>(update: (data: DemoData) => T): Promise<T> {
+export function updateDemo<T>(update: (data: DemoData) => T | Promise<T>): Promise<T> {
   const operation = pending.then(async () => {
     const data = await readDemo();
-    const result = update(data);
+    const result = await update(data);
     await mkdir(directory, { recursive: true });
     const temporary = `${filename}.tmp`;
     await writeFile(temporary, JSON.stringify(data, null, 2), "utf8");

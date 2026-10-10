@@ -132,3 +132,22 @@ export async function announcementImage(id: string) {
   const result = await drive.files.get({ fileId: id, alt: "media", supportsAllDrives: true }, { responseType: "arraybuffer" });
   return { bytes: Buffer.from(result.data as unknown as ArrayBuffer), mime: file.mimeType! };
 }
+
+export async function deleteAnnouncement(id: string): Promise<void> {
+  if (isLocalDemo()) {
+    if (!/^local-[a-f0-9-]{36}$/.test(id)) throw new AnnouncementError("Pengumuman tidak ditemukan.", 404);
+    await updateDemo(async data => {
+      const post = data.announcements.find(p => p.id === id);
+      if (!post) throw new AnnouncementError("Pengumuman tidak ditemukan.", 404);
+      await unlink(path.join(directory, id)).catch(error => { if (error.code !== "ENOENT") throw error; });
+      data.announcements = data.announcements.filter(p => p.id !== id);
+    });
+    return;
+  }
+  const token = await getAccessToken();
+  if (!token) throw new AnnouncementError("Google Drive belum terhubung. Buka Pengaturan.", 401, "DRIVE_NOT_CONNECTED");
+  const drive = getDriveService(token);
+  await checkedFile(drive, id);
+  // Trashing the file removes both the board entry and its image in one operation.
+  await drive.files.update({ fileId: id, requestBody: { trashed: true }, supportsAllDrives: true });
+}
