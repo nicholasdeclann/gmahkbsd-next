@@ -4,6 +4,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, readFile, writeFile, unlink } from "node:fs/promises";
 import path from "node:path";
 import { getAccessToken, getDriveService } from "./drive";
+import { isFileInDriveFolder } from "./driveFolder";
 import { isLocalDemo, readDemo, updateDemo } from "./localDemo";
 import { getPhotos, updatePhotoCaption } from "./db";
 import { ANNOUNCEMENT_IMAGE_TYPES, ANNOUNCEMENT_MAX_BYTES, type AnnouncementItem } from "./announcementTypes";
@@ -42,10 +43,11 @@ async function checkedFile(drive: drive_v3.Drive, id: string) {
   if (!validDriveId(id)) throw new AnnouncementError("Pengumuman tidak ditemukan.", 404);
   const response = await drive.files.get({ fileId: id, fields: "id,description,properties,createdTime,parents,mimeType,size,trashed", supportsAllDrives: true });
   const file = response.data;
-  if (file.trashed || !file.parents?.includes(folderId()) || file.properties?.kind !== marker
+  if (file.trashed || file.properties?.kind !== marker
     || !ANNOUNCEMENT_IMAGE_TYPES.includes(file.mimeType ?? "") || Number(file.size) > ANNOUNCEMENT_MAX_BYTES) {
     throw new AnnouncementError("Pengumuman tidak ditemukan.", 404);
   }
+  if (!(await isFileInDriveFolder(drive, id, file.parents, folderId()))) throw new AnnouncementError("Pengumuman tidak ditemukan.", 404);
   return file;
 }
 

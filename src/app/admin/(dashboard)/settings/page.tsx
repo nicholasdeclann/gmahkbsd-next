@@ -1,5 +1,5 @@
 import { Alert, Paper, Typography } from "@mui/material";
-import { driveOAuthConfigured, getAccessToken, getDriveService } from "@/lib/drive";
+import { driveOAuthConfigured, getAccessToken } from "@/lib/drive";
 import { isLocalDemo, isWeeklyDemo } from "@/lib/localDemo";
 import DriveSettings from "@/components/admin/DriveSettings";
 
@@ -9,11 +9,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
   let connected = false;
   if (!demo && driveOAuthConfigured()) {
     try {
-      const token = await getAccessToken();
-      if (token) {
-        const folder = await getDriveService(token).files.get({ fileId: process.env.GOOGLE_DRIVE_FOLDER_ID!, fields: "id,capabilities(canAddChildren)" });
-        connected = folder.data.capabilities?.canAddChildren === true;
-      }
+      connected = Boolean(await getAccessToken());
     } catch { connected = false; }
   }
   return <>
