@@ -35,7 +35,7 @@ export default function DashboardShell({ children, demo, weeklyDemo }: { childre
         {pathname !== "/admin" && <Button component={Link} href="/admin" sx={{ mb: 2 }}>← Kembali ke Dashboard</Button>}
         {demo && <Alert severity="info" sx={{ mb: 3 }}>{weeklyDemo
           ? "Mode latihan lokal. Data yang disimpan di sini tidak mengubah spreadsheet atau website gereja."
-          : "Kertas Acara menggunakan Google Sheets gereja. Pokok doa dan papan pengumuman masih dalam mode latihan lokal."}</Alert>}
+          : "Kertas Acara dan Pokok Doa menggunakan Google Sheets gereja. Papan pengumuman masih dalam mode latihan lokal."}</Alert>}
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         {children}
         <Box component="footer" sx={{ mt: 5, pt: 3, borderTop: "1px solid #dfe5ed" }}>

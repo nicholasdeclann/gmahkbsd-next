@@ -61,7 +61,7 @@ export default function PrayerListCard() {
             <List sx={{ p: 0 }}>
               {items.map((item) => (
                 <ListItem key={item.id} sx={styles.item}>
-                  <Typography sx={styles.name}>{item.name}</Typography>
+                  <Typography sx={styles.name}>{item.id}. {item.name}</Typography>
                   {item.note && (
                     <Typography sx={styles.note}>{item.note}</Typography>
                   )}

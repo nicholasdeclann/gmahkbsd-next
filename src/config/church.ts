@@ -71,7 +71,7 @@ export interface ChurchConfig {
 
   /**
    * Admin-managed weekly prayer list card shown on the homepage. This feature
-   * requires a server (Vercel) + a Postgres database; on static hosts the card
+   * requires a server (Vercel) + Google Sheets; on static hosts the card
    * hides itself automatically. Set `enabled: false` to opt out entirely.
    */
   prayerList: {

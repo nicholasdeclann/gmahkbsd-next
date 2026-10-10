@@ -3,7 +3,7 @@ import { Box, Card, CardActionArea, CardContent, Typography } from "@mui/materia
 
 const tasks = [
   { title: "Kertas Acara", description: "Isi judul khotbah, ayat, dan lagu untuk Sabat.", href: "/admin/kertas-acara" },
-  { title: "Pokok Doa", description: "Tambah dan perbarui nama dalam daftar doa.", href: "/admin/prayer" },
+  { title: "Pokok Doa", description: "Isi empat nama mingguan dan alasan doa untuk website.", href: "/admin/prayer" },
   { title: "Pengumuman", description: "Terbitkan gambar dan informasi dari seluruh departemen untuk jemaat.", href: "/admin/photos" },
 ];
 export default function DashboardPage() {

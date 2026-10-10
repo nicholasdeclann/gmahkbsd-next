@@ -35,7 +35,6 @@ check("Session is HttpOnly", login.headers.get("set-cookie").includes("HttpOnly"
 check("Tampered session rejected", (await api("/api/admin/kertas-acara", { session: `${cookie.slice(0, -1)}x` })).status, 401);
 const initial = await (await api("/api/admin/kertas-acara")).json();
 assert.equal(initial.mode, "demo", "Refusing to write outside local demo mode");
-let prayerId;
 let changedWeekly = false;
 try {
   check("Cross-origin save rejected", (await api("/api/admin/kertas-acara", { method: "PUT", body: { revision: initial.revision, values: initial.values }, origin: "https://example.invalid" })).status, 403);
@@ -47,23 +46,15 @@ try {
   check("Weekly save", save.status, 200); changedWeekly = true;
   check("Weekly save persisted", (await (await api("/api/admin/kertas-acara")).json()).values, values);
   check("Stale save rejected", (await api("/api/admin/kertas-acara", { method: "PUT", body: { revision: initial.revision, values: initial.values } })).status, 409);
-  const prayer = await api("/api/prayer", { method: "POST", body: { name: "Local test name", note: "Private test note" } });
-  check("Prayer create", prayer.status, 201);
-  prayerId = (await prayer.json()).item.id;
-  let publicPrayer = (await (await api("/api/prayer", { authenticated: false })).json()).items.find(item => item.id === prayerId);
-  check("Private note omitted from public response", publicPrayer.note, null);
-  check("Public response has no admin metadata", Object.keys(publicPrayer).sort(), ["id", "name", "note"]);
-  check("Private note retained for admin", (await (await api("/api/prayer/manage")).json()).items.find(item => item.id === prayerId).note, "Private test note");
-  check("Prayer update", (await api(`/api/prayer/${prayerId}`, { method: "PUT", body: { name: "Local test name", note: "Public test note", note_public: true } })).status, 200);
-  publicPrayer = (await (await api("/api/prayer", { authenticated: false })).json()).items.find(item => item.id === prayerId);
-  check("Public note opt-in", publicPrayer.note, "Public test note");
+  const prayers = await (await api("/api/prayer/manage")).json();
+  check("Prayer dashboard has four fixed slots", prayers.slots.length, 4);
+  check("Unlimited prayer creation disabled", (await api("/api/prayer", { method: "POST", body: { name: "Local test name" } })).status, 409);
   const missingImage = new FormData();
   check("Announcement requires an image", (await fetch(`${base}/api/photos/upload`, { method: "POST", headers: { Origin: base, Cookie: cookie }, body: missingImage })).status, 400);
   const callback = await api("/api/drive/auth/callback?code=invalid&state=invalid");
   check("Invalid OAuth state returns to settings", new URL(callback.headers.get("location")).pathname, "/admin/settings");
   check("Invalid OAuth state reported", new URL(callback.headers.get("location")).searchParams.get("drive"), "error");
 } finally {
-  if (prayerId) check("Test prayer cleanup", (await api(`/api/prayer/${prayerId}`, { method: "DELETE" })).status, 200);
   if (changedWeekly) {
     const current = await (await api("/api/admin/kertas-acara")).json();
     check("Restore original weekly values", (await api("/api/admin/kertas-acara", { method: "PUT", body: { revision: current.revision, values: initial.values } })).status, 200);

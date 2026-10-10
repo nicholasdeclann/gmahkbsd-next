@@ -95,13 +95,9 @@ refuses to publish unless the server reports local demo mode.
 
 ## Existing data and later phases
 
-Outside demo mode, prayer and optional legacy photo metadata use the existing
-Postgres adapter. New announcement metadata lives in Drive. No live data was migrated.
-Prayer schema initialization adds
-`note_public` defaulting to false; existing notes remain stored but become private
-until explicitly enabled. Public prayer responses omit private notes and admin
-metadata. Weekly boundaries use Asia/Jakarta. Review note visibility before
-deploying this change. The Sheets migration is still a separate phase.
+Prayer management uses the Sheets/Drive flow described below. Only optional legacy
+photo metadata still uses the Postgres adapter. Existing database records are not
+deleted. Public prayer responses omit private reasons and management metadata.
 
 Canva announcements are preserved. Public pages no longer show Drive connection,
 upload, or caption-edit controls. The caption API now checks the admin session.
@@ -109,3 +105,17 @@ Downloads, editable church information, quarterly source switching, and shared
 persistent Drive-token management remain later phases. The dashboard requires
 Next.js server hosting (Vercel); the legacy GitHub Pages static workflow does
 not support it. No deployment or live workbook writes are part of local setup.
+
+## Pokok Doa: four weekly slots
+
+Prayer management now uses Google Sheets and Drive, without Postgres. The dashboard reads the service date from Kertas Acara C2 and the four names from B50:B53. Saving replaces those four cells only, writing `1. Name` through `4. Name`; blank slots clear their cells without shifting other slots or changing formatting. Existing spreadsheet names are retained and can still be edited directly in Sheets. Formula cells disable dashboard writes.
+
+Reasons are stored separately in a private church-owned JSON file identified by `GOOGLE_PRAYER_NOTES_FILE_ID`, tagged `kind=gmahkbsd-prayer-notes`, and shared only with the dashboard service account as Editor. Keep this file outside the public announcement folder and never enable public/link or domain sharing. The service account accesses it directly, so prayer management does not depend on staff OAuth browser sessions. The file is initialized as `{ "version": 1, "date": "", "slots": [...] }`, with exactly four `{ "name": "", "note": "", "note_public": false }` entries.
+
+Private reasons are returned only by the protected management endpoint. Public reasons require explicit opt-in and a matching name, slot, and service date. Direct spreadsheet name changes or a changed service date detach old reasons. The homepage shows names only for the current Sunday–Saturday week in Jakarta. Staff replace the four slots each week; there is no fifth entry or automatic deletion of spreadsheet names.
+
+The protected `PUT /api/prayer/manage` accepts `{ revision, slots }`; stale revisions return 409. Earlier unlimited-add and per-entry mutation endpoints now return 409 after authentication rather than accessing a database. Existing legacy database records are left untouched, but are no longer displayed. No production database was configured during migration.
+
+Sheets and Drive cannot share one transaction: reasons are saved first, then the four name cells, followed by verification. If either service fails, the form retains the draft and reports an error. Reload and review the latest values before retrying. Conflicts are checked immediately before saving but Google Sheets does not provide an atomic compare-and-swap for these two services.
+
+Validation: `npm run test:prayer` covers slot limits, protected saves, public-note privacy, empty slots, and stale revisions. Run against a local practice server on port 3001, or set `DASHBOARD_TEST_URL`. Never run the smoke test against production.

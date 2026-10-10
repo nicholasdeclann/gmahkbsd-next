@@ -1,226 +1,63 @@
 "use client";
-
 import { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import {
-  Box,
-  Container,
-  Typography,
-  TextField,
-  Button,
-  List,
-  ListItem,
-  Alert,
-  CircularProgress,
-  Checkbox,
-  FormControlLabel,
-} from "@mui/material";
-import { churchWeekStart } from "@/lib/kertasAcaraForm";
-
-interface PrayerItem {
-  id: number;
-  name: string;
-  note: string | null;
-  note_public: boolean;
-  created_at: string;
-}
+import { Box, Typography, TextField, Button, Alert, CircularProgress, Checkbox, FormControlLabel } from "@mui/material";
+import { emptyPrayerSlots, type PrayerSlot, type PrayerSnapshot } from "@/lib/prayerTypes";
+import { formatChurchDate } from "@/lib/kertasAcaraForm";
 
 export default function PrayerAdminPage() {
-  const router = useRouter();
-  const [items, setItems] = useState<PrayerItem[]>([]);
+  const [snapshot, setSnapshot] = useState<PrayerSnapshot | null>(null);
+  const [slots, setSlots] = useState<PrayerSlot[]>(emptyPrayerSlots);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  const [name, setName] = useState("");
-  const [note, setNote] = useState("");
-  const [notePublic, setNotePublic] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [editingId, setEditingId] = useState<number | null>(null);
-
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+  const dirty = Boolean(snapshot && JSON.stringify(snapshot.slots) !== JSON.stringify(slots));
   const load = useCallback(async () => {
-    setLoading(true);
-    setError("");
+    setLoading(true); setError(""); setSuccess("");
     try {
-      const res = await fetch("/api/prayer/manage", { cache: "no-store" });
-      if (res.status === 401) {
-        router.push("/admin/login");
-        return;
-      }
-      if (!res.ok) throw new Error("Gagal memuat");
-      const data = await res.json();
-      setItems(data.items ?? []);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Gagal memuat");
-    } finally {
-      setLoading(false);
-    }
-  }, [router]);
-
+      const response = await fetch("/api/prayer/manage", { cache: "no-store" }); const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Daftar doa belum dapat dimuat.");
+      setSnapshot(data); setSlots(data.slots);
+    } catch (error) { setError(error instanceof Error ? error.message : "Daftar doa belum dapat dimuat."); }
+    finally { setLoading(false); }
+  }, []);
+  useEffect(() => { void load(); }, [load]);
   useEffect(() => {
-    load();
-  }, [load]);
-
-  const resetForm = () => {
-    setName("");
-    setNote("");
-    setNotePublic(false);
-    setEditingId(null);
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-    if (saving) return;
-    setSaving(true);
-    setError("");
+    if (!dirty) return;
+    const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); };
+    window.addEventListener("beforeunload", warn); return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
+  function update(index: number, change: Partial<PrayerSlot>) {
+    setSuccess(""); setSlots(previous => previous.map((slot, i) => i === index ? { ...slot, ...change } : slot));
+  }
+  async function save(event: React.FormEvent) {
+    event.preventDefault(); if (!snapshot || saving) return;
+    setSaving(true); setError(""); setSuccess("");
     try {
-    const url = editingId ? `/api/prayer/${editingId}` : "/api/prayer";
-    const method = editingId ? "PUT" : "POST";
-    const res = await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, note, note_public: notePublic }),
-    });
-    if (res.status === 401) { setError("Sesi telah berakhir. Masuk kembali dari dashboard di tab baru. Isian Anda tetap tersedia."); return; }
-    if (res.ok) {
-      resetForm();
-      load();
-    } else {
-      setError("Gagal menyimpan");
-    }
-    } catch { setError("Gagal menyimpan. Isian Anda tetap tersedia."); }
+      const response = await fetch("/api/prayer/manage", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ revision: snapshot.revision, slots }) });
+      const data = await response.json(); if (!response.ok) throw new Error(data.error || "Nama belum berhasil disimpan.");
+      setSnapshot(data); setSlots(data.slots); setSuccess("Empat slot doa telah disimpan ke Kertas Acara. Alasan doa hanya disimpan untuk website.");
+    } catch (error) { setError(error instanceof Error ? error.message : "Nama belum berhasil disimpan. Isian Anda tetap tersedia."); }
     finally { setSaving(false); }
-  };
-
-  const startEdit = (item: PrayerItem) => {
-    setEditingId(item.id);
-    setName(item.name);
-    setNote(item.note ?? "");
-    setNotePublic(item.note_public);
-  };
-
-  const remove = async (id: number) => {
-    if (!window.confirm("Hapus nama ini dari daftar doa?")) return;
-    try {
-    const res = await fetch(`/api/prayer/${id}`, { method: "DELETE" });
-    if (res.status === 401) return router.push("/admin/login");
-    if (res.ok) load();
-    else setError("Gagal menghapus nama.");
-    } catch { setError("Gagal menghapus nama. Coba lagi."); }
-  };
-
-  const clearOld = async () => {
-    if (!window.confirm("Hapus semua entri sebelum minggu ini? Tindakan ini tidak dapat dibatalkan.")) return;
-    try {
-    const res = await fetch("/api/prayer/manage", { method: "DELETE" });
-    if (res.status === 401) return router.push("/admin/login");
-    if (res.ok) load();
-    else setError("Gagal menghapus entri lama.");
-    } catch { setError("Gagal menghapus entri lama. Coba lagi."); }
-  };
-
-  return (
-    <Container maxWidth="md" disableGutters>
-      <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 3 }}>
-        <Typography component="h1" variant="h4" sx={{ fontWeight: 750 }}>
-          Pokok Doa Minggu Ini
-        </Typography>
-      </Box>
-
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{ display: "flex", flexDirection: "column", gap: 2.5, mb: 3, bgcolor: "white", p: 3, border: "1px solid #dce4ed", borderRadius: 3 }}
-      >
-        <TextField
-          label="Nama"
-          value={name}
-          disabled={saving}
-          slotProps={{ htmlInput: { maxLength: 200 } }}
-          onChange={(e) => setName(e.target.value)}
-          fullWidth
-          required
-        />
-        <TextField
-          label="Catatan (opsional)"
-          value={note}
-          disabled={saving}
-          multiline
-          minRows={2}
-          slotProps={{ htmlInput: { maxLength: 2000 } }}
-          onChange={(e) => setNote(e.target.value)}
-          fullWidth
-        />
-        <FormControlLabel control={<Checkbox checked={notePublic} onChange={event => setNotePublic(event.target.checked)} disabled={saving} />} label="Tampilkan catatan di website" />
-        <Typography variant="body2" color="text.secondary">Nama ditampilkan di website untuk minggu ini. Catatan hanya ditampilkan jika dicentang.</Typography>
-        <Button type="submit" variant="contained" disabled={saving} sx={{ alignSelf: "flex-start" }}>
-          {saving ? "Menyimpan…" : editingId ? "Simpan Perubahan" : "Tambah Nama"}
-        </Button>
-        {editingId && (
-          <Button onClick={resetForm} color="inherit" sx={{ whiteSpace: "nowrap" }}>
-            Batal
-          </Button>
-        )}
-      </Box>
-
-      {loading ? (
-        <Box sx={{ textAlign: "center", py: 4 }}>
-          <CircularProgress size={28} />
-        </Box>
-      ) : (
-        <List>
-          {items.length === 0 && (
-            <Typography sx={{ color: "#6c757d", py: 2 }}>
-              Belum ada data.
-            </Typography>
-          )}
-          {items.map((item) => {
-            const isOld =
-              new Date(item.created_at) <
-              new Date(churchWeekStart());
-            return (
-              <ListItem
-                key={item.id}
-                sx={{
-                  border: "1px solid #e0e0e0",
-                  borderRadius: 1,
-                  mb: 1,
-                  opacity: isOld ? 0.55 : 1,
-                  flexDirection: "column",
-                  alignItems: "stretch",
-                  bgcolor: "white",
-                }}
-              >
-                <Box>
-                  <Typography sx={{ fontWeight: 600 }}>
-                    {item.name}
-                    {isOld && (
-                      <Typography component="span" sx={{ fontSize: "0.7rem", color: "#999", ml: 1 }}>
-                        (minggu lalu)
-                      </Typography>
-                    )}
-                  </Typography>
-                  {item.note && (
-                    <Typography sx={{ fontSize: "0.85rem", color: "#6c757d" }}>
-                      {item.note} {!item.note_public && "(hanya untuk pengelola)"}
-                    </Typography>
-                  )}
-                </Box>
-                <Box sx={{ display: "flex", gap: 1, mt: 1 }}>
-                  <Button onClick={() => startEdit(item)} disabled={saving}>Edit</Button>
-                  <Button onClick={() => void remove(item.id)} color="error" disabled={saving}>Hapus</Button>
-                </Box>
-              </ListItem>
-            );
-          })}
-        </List>
-      )}
-
-      <Button onClick={clearOld} color="error" size="small" sx={{ mt: 2 }}>
-        Hapus entri minggu lalu
-      </Button>
-    </Container>
-  );
+  }
+  return <Box sx={{ maxWidth: 760 }}>
+    <Typography component="h1" variant="h4" sx={{ fontWeight: 750, mb: 1 }}>Pokok Doa</Typography>
+    <Typography color="text.secondary" sx={{ mb: 3 }}>Empat nama untuk setiap minggu, sesuai urutan pada Kertas Acara. Ganti nama di sini untuk minggu berikutnya. Slot boleh dikosongkan.</Typography>
+    {snapshot?.date && <Typography sx={{ mb: 2, fontWeight: 600 }}>Tanggal Kertas Acara: {formatChurchDate(snapshot.date)}</Typography>}
+    {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+    {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+    {snapshot && !snapshot.canWrite && <Alert severity="info" sx={{ mb: 2 }}>Penyimpanan belum diaktifkan atau sel nama berisi rumus. Hubungi pengelola website.</Alert>}
+    {snapshot && !snapshot.notesConfigured && <Alert severity="info" sx={{ mb: 2 }}>Nama dapat disimpan. Penyimpanan alasan doa belum diatur oleh pengelola website.</Alert>}
+    {loading ? <CircularProgress aria-label="Memuat pokok doa" /> : snapshot && <Box component="form" onSubmit={save}>
+      {slots.map((slot, index) => <Box key={index} sx={{ bgcolor: "white", p: { xs: 2, sm: 3 }, border: "1px solid #dce4ed", borderRadius: 3, mb: 2 }}>
+        <Typography component="h2" variant="h6" sx={{ mb: 2 }}>Nama {index + 1}</Typography>
+        <TextField fullWidth label={`Nama ${index + 1}`} value={slot.name} disabled={saving || !snapshot.canWrite} onChange={event => update(index, { name: event.target.value })} slotProps={{ htmlInput: { maxLength: 200 } }} helperText={`Disimpan sebagai “${index + 1}. Nama” pada Kertas Acara.`} />
+        <TextField fullWidth multiline minRows={2} label="Alasan doa (opsional)" value={slot.note} disabled={saving || !snapshot.canWrite || !snapshot.notesConfigured} onChange={event => update(index, { note: event.target.value })} slotProps={{ htmlInput: { maxLength: 2000 } }} sx={{ mt: 2 }} helperText="Tidak dicantumkan di Kertas Acara." />
+        <FormControlLabel control={<Checkbox checked={slot.note_public} disabled={saving || !snapshot.canWrite || !snapshot.notesConfigured} onChange={event => update(index, { note_public: event.target.checked })} />} label="Tampilkan alasan doa di website" />
+      </Box>)}
+      <Typography color="text.secondary" sx={{ mb: 2 }}>Nama muncul di website pada minggu tanggal Kertas Acara. Alasan doa yang tidak dicentang hanya terlihat oleh pengelola.</Typography>
+      <Button type="submit" variant="contained" size="large" disabled={saving || !snapshot.canWrite || !dirty}>{saving ? "Menyimpan…" : "Simpan Pokok Doa"}</Button>
+    </Box>}
+    <Button sx={{ mt: 2, ml: 1 }} disabled={saving || loading} onClick={() => { if (!dirty || window.confirm("Muat ulang dan ganti isian yang belum disimpan dengan data terbaru?")) void load(); }}>Muat Ulang</Button>
+  </Box>;
 }

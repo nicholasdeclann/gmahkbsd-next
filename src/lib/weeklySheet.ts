@@ -12,7 +12,7 @@ function revision(values: WeeklyValues): string {
   return createHash("sha256").update(JSON.stringify(values)).digest("hex");
 }
 
-function sheetsClient() {
+export function sheetsClient() {
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
   if (!raw) throw new WeeklySheetError("Koneksi Google Sheets belum diatur. Hubungi pengelola website.", 503);
   try {
