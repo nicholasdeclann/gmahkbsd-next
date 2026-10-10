@@ -8,12 +8,17 @@ import Navbar from "@/components/Navbar";
 import "./globals.css";
 import { Box, Typography } from "@mui/material";
 import { churchConfig } from "@/config/church";
+import { imageAsset } from "@/lib/asset";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: churchConfig.name,
   description: churchConfig.description,
+  icons: {
+    icon: { url: imageAsset(churchConfig.assets.logo), type: "image/png" },
+    apple: imageAsset(churchConfig.assets.logo),
+  },
 };
 
 export default function RootLayout({
