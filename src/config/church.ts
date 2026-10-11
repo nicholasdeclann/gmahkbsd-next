@@ -18,6 +18,7 @@
 export interface ServiceSchedule {
   /** Display name of the service, e.g. "Kebaktian Sabat (Hybrid)" */
   name: string;
+  day: string;
   /** Display time of the service, e.g. "09.00 WIB" */
   time: string;
 }
@@ -34,6 +35,14 @@ export interface ChurchConfig {
   welcomeHeading: string;
   /** Homepage hero subtitle text. */
   welcomeSubtitle: string;
+
+  /** Church history and statements displayed on the homepage. */
+  about: {
+    introduction: string;
+    vision: string;
+    mission: string;
+  };
+  address: string;
 
   /** Asset filenames located in `public/assets/images/`. */
   assets: {
@@ -184,11 +193,18 @@ export interface ChurchConfig {
 export const churchConfig: ChurchConfig = {
   name: "GMAHK BSD",
   shortName: "GMAHK BSD",
-  description: "A simple homepage built with Next.js and TypeScript",
+  description: "Selamat datang di GMAHK Bumi Serpong Damai. Informasi ibadah, pelayanan, pengumuman, dan kabar keluarga jemaat.",
 
   welcomeHeading: "Selamat Datang di GMAHK BSD",
   welcomeSubtitle:
     "Bergabunglah dengan kami dalam perjalanan iman, komunitas, dan pelayanan.",
+
+  about: {
+    introduction: "GMAHK Bumi Serpong Damai (BSD) merupakan Gereja Masehi Advent Hari Ketujuh yang berlokasi di daerah BSD, Tangerang Selatan. Didirikan pada tanggal 14 Februari 1988, GMAHK Bumi Serpong Damai terus melayani perbaktian dan pelayanan terhadap Anggota Jemaat & Tamu.",
+    vision: "Menjadi sebuah jemaat yang nyaman bagi persekutuan anggota, mendukung pertumbuhan kerohanian dan melatih anggota untuk menyampaikan kabar sukacita kepada lingkungan di sekitarnya",
+    mission: "Menyampaikan Pekabaran Tiga Malaikat kepada semua orang, khususnya di daerah BSD dan sekitarnya melalui pengabaran Injil (pelayanan ke luar), meningkatkan pertumbuhan kerohanian (pelayanan perbaktian) dan persekutuan jemaat (pelayanan ke dalam)",
+  },
+  address: "Jln Rawa Buntu blok RD 2 no. 10 Sektor 1.2 Bumi Serpong Damai, Rawa Buntu, Kota Tangerang Selatan, Banten 15310",
 
   assets: {
     logo: "logo.png",
@@ -197,8 +213,9 @@ export const churchConfig: ChurchConfig = {
   },
 
   services: [
-    { name: "Rabu Malam & Vesper (Online)", time: "07.00 WIB" },
-    { name: "Kebaktian Sabat (Hybrid)", time: "09.00 WIB" },
+    { name: "Kebaktian Sabat (Hybrid)", day: "Sabtu", time: "09.00–12.00 WIB" },
+    { name: "Rabu Malam (Online)", day: "Rabu", time: "19.00–20.00 WIB" },
+    { name: "Vesper (Online)", day: "Jumat", time: "19.00–20.00 WIB" },
   ],
 
   zoom: {

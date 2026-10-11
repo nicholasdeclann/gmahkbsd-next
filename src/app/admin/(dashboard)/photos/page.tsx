@@ -7,7 +7,7 @@ export default function PhotosAdminPage() {
   const canvaUrl = new URL(churchConfig.pengumumanEmbedUrl);
   canvaUrl.searchParams.delete("embed");
   return <>
-    <Typography component="h1" variant="h4" sx={{ fontWeight: 750, mb: 1 }}>Pengumuman</Typography>
+    <Typography component="h1" variant="h4" sx={{ fontWeight: 350, mb: 1 }}>Pengumuman</Typography>
     <Typography color="text.secondary" sx={{ mb: 3 }}>Terbitkan informasi dari departemen mana pun untuk dibaca jemaat. Pengumuman Canva tetap tersedia.</Typography>
     <Button component="a" href={canvaUrl.toString()} target="_blank" rel="noopener noreferrer" variant="outlined">Buka Pengumuman di Canva ↗</Button>
     <Button component="a" href="/pengumuman" target="_blank" rel="noopener noreferrer" sx={{ ml: 1 }}>Lihat Papan Pengumuman ↗</Button>

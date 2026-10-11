@@ -4,11 +4,11 @@ import {
   List,
   ListItem,
   Collapse,
-  IconButton,
+  ButtonBase,
 } from "@mui/material";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import ExpandLess from "@mui/icons-material/ExpandLess";
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 
 interface CollapsibleSectionProps {
   title: string;
@@ -18,9 +18,9 @@ interface CollapsibleSectionProps {
 }
 
 /**
- * Shared glass-card wrapper for the Kertas Acara sections. Owns the expandable
+ * Shared section wrapper for the Kertas Acara sections. Owns the expandable
  * chrome (title bar, expand/collapse icon, animated collapse) and the common
- * card styling so the individual sections only provide their list content.
+ * list styling so the individual sections only provide their list content.
  */
 export default function CollapsibleSection({
   title,
@@ -28,30 +28,24 @@ export default function CollapsibleSection({
   onToggle,
   children,
 }: CollapsibleSectionProps) {
+  const contentId = useId();
   return (
-    <Box
-      sx={{
-        ...styles.section,
-        bgcolor: isExpanded ? "rgba(255, 255, 255, 0.7)" : "transparent",
-        border: isExpanded ? "1px solid rgba(255, 255, 255, 0.3)" : "none",
-        boxShadow: isExpanded
-          ? "0 4px 16px 0 rgba(46, 108, 232, 0.1)"
-          : "none",
-      }}
-    >
-      <Box
+    <Box sx={styles.section}>
+      <Box component="h2" sx={{ m: 0 }}>
+      <ButtonBase
+        aria-expanded={isExpanded}
+        aria-controls={contentId}
         sx={{
           ...styles.sectionTitleContainer,
-          borderBottom: isExpanded ? "1px solid #dee2e6" : "none",
+          borderBottom: isExpanded ? "1px solid var(--site-border)" : "none",
         }}
         onClick={onToggle}
       >
-        <Typography sx={styles.sectionTitle}>{title}</Typography>
-        <IconButton size="small" sx={styles.expandIcon}>
-          {isExpanded ? <ExpandLess /> : <ExpandMore />}
-        </IconButton>
+        <Typography component="span" sx={styles.sectionTitle}>{title}</Typography>
+        {isExpanded ? <ExpandLess sx={styles.expandIcon} /> : <ExpandMore sx={styles.expandIcon} />}
+      </ButtonBase>
       </Box>
-      <Collapse in={isExpanded}>
+      <Collapse in={isExpanded} id={contentId}>
         <List sx={styles.list}>{children}</List>
       </Collapse>
     </Box>
@@ -89,75 +83,75 @@ export function renderListItem(options: {
 
 export const styles = {
   section: {
-    bgcolor: "rgba(255, 255, 255, 0.7)",
-    backdropFilter: "blur(10px)",
-    borderRadius: 2,
-    border: "1px solid rgba(255, 255, 255, 0.3)",
-    boxShadow: "0 4px 16px 0 rgba(46, 108, 232, 0.1)",
+    bgcolor: "transparent",
+    borderRadius: 0,
+    borderTop: "1px solid var(--site-border)",
+    boxShadow: "none",
     overflow: "hidden",
   },
   sectionTitleContainer: {
     display: "flex",
+    width: "100%",
+    minHeight: 64,
     justifyContent: "space-between",
     alignItems: "center",
     py: 2,
-    px: { xs: 2, sm: 3 },
+    px: 0,
     cursor: "pointer",
     "&:hover": {
-      bgcolor: "rgba(46, 108, 232, 0.05)",
+      bgcolor: "var(--site-soft)",
     },
   },
   sectionTitle: {
-    fontSize: { xs: "0.85rem", sm: "0.95rem", md: "1rem" },
-    fontWeight: 700,
-    color: "#2e6ce8",
+    fontSize: { xs: "1.5rem", sm: "1.8rem" },
+    fontWeight: 400,
+    color: "var(--site-text)",
   },
   expandIcon: {
-    color: "#2e6ce8",
+    color: "var(--site-blue)",
   },
   list: {
     p: 0,
   },
   listItem: {
     py: { xs: 1.5, sm: 2 },
-    px: { xs: 2, sm: 3 },
-    borderBottom: "1px solid rgba(222, 226, 230, 0.5)",
+    px: 0,
+    borderBottom: "1px solid var(--site-border)",
     "&:last-child": {
       borderBottom: "none",
     },
   },
   listItemContent: {
-    display: "flex",
-    justifyContent: "space-between",
+    display: "grid",
+    gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" },
     alignItems: "flex-start",
     width: "100%",
-    gap: 2,
+    gap: { xs: 0.75, sm: 1.5 },
   },
   listLabel: {
-    fontSize: { xs: "0.75rem", sm: "0.85rem", md: "0.9rem" },
-    fontWeight: 600,
-    color: "#6c757d",
-    flex: "0 0 auto",
-    maxWidth: "45%",
+    fontSize: "1rem",
+    fontWeight: 450,
+    color: "var(--site-muted)",
+    gridColumn: 1,
     wordBreak: "break-word",
   },
   listValue: {
-    fontSize: { xs: "0.75rem", sm: "0.85rem", md: "0.9rem" },
-    color: "#111827",
-    textAlign: "right",
-    flex: "0 0 auto",
-    maxWidth: "45%",
+    fontSize: "1.05rem",
+    color: "var(--site-text)",
+    textAlign: { xs: "left", sm: "right" },
+    gridColumn: { xs: 1, sm: 2 },
+    gridRow: { xs: 2, sm: 1 },
     wordBreak: "break-word",
   },
   middleValue: {
-    fontSize: { xs: "0.7rem", sm: "0.8rem", md: "0.85rem" },
-    color: "#6c757d",
-    fontStyle: "italic",
-    textAlign: "center",
-    flex: "1 1 auto",
+    fontSize: "1rem",
+    color: "var(--site-muted)",
+    textAlign: "left",
+    gridColumn: "1 / -1",
+    gridRow: { xs: 3, sm: 2 },
     wordBreak: "break-word",
   },
   laguText: {
-    color: "#2e6ce8",
+    color: "var(--site-blue)",
   },
 };

@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
-import { ThemeProvider } from "@mui/material/styles";
-import CssBaseline from "@mui/material/CssBaseline";
-import theme from "./theme";
-import Navbar from "@/components/Navbar";
+import SiteProvider from "@/components/SiteProvider";
 import "./globals.css";
-import { Box, Typography } from "@mui/material";
 import { churchConfig } from "@/config/church";
 import { imageAsset } from "@/lib/asset";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: churchConfig.name,
@@ -28,35 +24,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id">
-      <body className={inter.className}>
+      <body className={`${inter.className} ${inter.variable}`}>
         <AppRouterCacheProvider>
-          <ThemeProvider theme={theme}>
-            <CssBaseline />
-            <Navbar />
-            {children}
-            <Box component="footer" sx={styles.footer}>
-              <Typography variant="body2" sx={styles.footerText}>
-                &copy; {new Date().getFullYear()} {churchConfig.name}. All
-                rights reserved.
-              </Typography>
-            </Box>
-          </ThemeProvider>
+          <SiteProvider>{children}</SiteProvider>
         </AppRouterCacheProvider>
       </body>
     </html>
   );
 }
-
-const styles = {
-  footer: {
-    py: { xs: 2.5, sm: 3 },
-    px: 2,
-    textAlign: "center",
-    color: "#666",
-    position: "relative",
-    zIndex: 1,
-  },
-  footerText: {
-    fontSize: { xs: "0.8rem", sm: "0.85rem" },
-  },
-};

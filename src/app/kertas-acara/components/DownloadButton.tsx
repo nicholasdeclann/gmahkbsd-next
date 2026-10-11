@@ -215,24 +215,23 @@ const styles = {
   container: {
     display: "flex",
     flexDirection: "column",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: 1.5,
-    mt: { xs: 4, md: 5 },
   },
   button: {
     textTransform: "none",
-    fontWeight: 600,
-    fontSize: { xs: "0.9rem", sm: "0.95rem" },
+    fontWeight: 500,
+    fontSize: { xs: "1rem", sm: "1rem" },
     px: 3,
     py: 1.25,
-    borderRadius: 2,
-    bgcolor: "#2e6ce8",
+    borderRadius: 1,
+    bgcolor: "primary.main",
     "&:hover": {
-      bgcolor: "#1e5cd4",
+      bgcolor: "primary.dark",
     },
   },
   errorText: {
-    fontSize: "0.85rem",
-    color: "#d32f2f",
+    fontSize: "1rem",
+    color: "error.main",
   },
 };

@@ -4,16 +4,13 @@ import {
   Box,
   Container,
   Typography,
-  CardContent,
   CircularProgress,
   Fade,
-  Grow,
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import SentimentDissatisfied from "@mui/icons-material/SentimentDissatisfied";
 import ErrorOutline from "@mui/icons-material/ErrorOutline";
-import GlassCard from "@/app/ulang-tahun/components/GlassCard";
 import { churchConfig } from "@/config/church";
 import { imageAsset } from "@/lib/asset";
 import { fetchTextCached, CACHE_TTL } from "@/lib/sheetCache";
@@ -52,14 +49,16 @@ function UlangTahunPage() {
             }[];
           })
           // Ignore a single failing/empty tab rather than failing the page.
-          .catch(() => []),
+          .catch(() => null),
       ),
     )
       .then((tabRows) => {
+        if (tabRows.every(rows => rows === null)) throw new Error("Birthday sheets unavailable");
         const seen = new Set<string>();
         const birthdayList: BirthdayPerson[] = [];
 
         for (const rows of tabRows) {
+          if (!rows) continue;
           for (const row of rows) {
             if (!row.c) continue;
 
@@ -107,10 +106,10 @@ function UlangTahunPage() {
     <Box sx={styles.mainContainer}>
       {loading ? (
         <Box sx={styles.loadingContainer}>
-          <CircularProgress size={60} sx={{ color: "#2e6ce8" }} />
+          <CircularProgress size={60} sx={{ color: "var(--site-blue)" }} />
         </Box>
       ) : (
-        <Fade in={!loading} timeout={800}>
+        <Fade in={!loading} timeout={0}>
           <Box sx={{ width: "100%" }}>
             {/* Festive Background Effects */}
             <Box sx={styles.festiveBackground1} />
@@ -138,12 +137,12 @@ function UlangTahunPage() {
 
             <Container maxWidth="lg" sx={styles.contentContainer}>
               <Box sx={styles.headerSection}>
-                <Typography variant="h3" sx={styles.title}>
+                <Typography component="h1" variant="h3" sx={styles.title}>
                   Ulang Tahun
                 </Typography>
                 {weekRange && (
                   <>
-                    <Typography variant="h6" sx={styles.countText}>
+                    <Typography component="p" variant="h6" sx={styles.countText}>
                       {error ? (
                         "Gagal memuat data"
                       ) : birthdays.length === 0 ? (
@@ -187,17 +186,9 @@ function UlangTahunPage() {
 
               {!error && birthdays.length > 0 && (
                 <Box sx={styles.cardsGrid}>
-                  {birthdays.map((person, index) => (
-                    <Grow
-                      key={index}
-                      in={!loading}
-                      timeout={500 + index * 100}
-                      style={{ transformOrigin: "center center" }}
-                    >
-                      <Box>
-                        <GlassCard>
-                          <CardContent>
-                            <Typography variant="h6" sx={styles.cardName}>
+                  {birthdays.map(person => (
+                      <Box component="article" key={`${person.nama}-${person.birthday.month}-${person.birthday.day}`} sx={{ borderTop: "1px solid var(--site-border)", py: 3 }}>
+                            <Typography component="h2" variant="h6" sx={styles.cardName}>
                               {person.nama}
                             </Typography>
                             <Box sx={styles.cardDateBox}>
@@ -206,10 +197,7 @@ function UlangTahunPage() {
                                 {formatDateShort(person.birthdayDate)}
                               </Typography>
                             </Box>
-                          </CardContent>
-                        </GlassCard>
                       </Box>
-                    </Grow>
                   ))}
                 </Box>
               )}
@@ -226,7 +214,7 @@ export default UlangTahunPage;
 const styles = {
   mainContainer: {
     minHeight: "100vh",
-    bgcolor: "white",
+    bgcolor: "var(--site-bg)",
     position: "relative",
     overflow: "hidden",
   },
@@ -358,7 +346,7 @@ const styles = {
     left: 0,
     right: 0,
     height: "50%",
-    background: "linear-gradient(to bottom, transparent 0%, white 100%)",
+    background: "linear-gradient(to bottom, transparent 0%, var(--site-bg) 100%)",
     pointerEvents: "none",
   },
   contentContainer: {
@@ -372,8 +360,9 @@ const styles = {
     mb: { xs: 4, sm: 6 },
   },
   title: {
-    fontSize: { xs: "1.5rem", sm: "2rem", md: "2.5rem" },
-    fontWeight: 700,
+    fontSize: { xs: "2.5rem", sm: "3rem", md: "3.6rem" },
+    fontWeight: 350,
+    letterSpacing: "-.035em",
     background:
       "linear-gradient(45deg, #ff6b35, #ff8c42, #ffa552, #ff8c42, #ff6b35)",
     backgroundSize: "200% 200%",
@@ -397,12 +386,12 @@ const styles = {
   countText: {
     fontSize: { xs: "1rem", sm: "1.15rem" },
     fontWeight: 500,
-    color: "#333",
+    color: "var(--site-text)",
     mb: 1,
   },
   weekRangeText: {
-    fontSize: { xs: "0.9rem", sm: "1rem" },
-    color: "#666",
+    fontSize: { xs: "1rem", sm: "1rem" },
+    color: "var(--site-muted)",
   },
   centerBox: {
     display: "flex",
@@ -413,8 +402,8 @@ const styles = {
     gap: 2,
   },
   messageText: {
-    color: "#666",
-    fontSize: { xs: "0.95rem", sm: "1rem" },
+    color: "var(--site-muted)",
+    fontSize: { xs: "1rem", sm: "1rem" },
   },
   icon: {
     fontSize: { xs: "3rem", sm: "3.5rem" },
@@ -430,9 +419,9 @@ const styles = {
     gap: { xs: 2, sm: 3 },
   },
   cardName: {
-    fontSize: { xs: "1.1rem", sm: "1.15rem" },
-    fontWeight: 600,
-    color: "#2e6ce8",
+    fontSize: { xs: "1.25rem", sm: "1.35rem" },
+    fontWeight: 450,
+    color: "var(--site-blue)",
     mb: 1,
   },
   cardDateBox: {
@@ -442,10 +431,10 @@ const styles = {
   },
   cakeIcon: {
     fontSize: "1.1rem",
-    color: "#666",
+    color: "var(--site-muted)",
   },
   cardDate: {
-    fontSize: { xs: "0.9rem", sm: "0.95rem" },
-    color: "#666",
+    fontSize: { xs: "1rem", sm: "1rem" },
+    color: "var(--site-muted)",
   },
 };

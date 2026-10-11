@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Alert, Autocomplete, Box, Button, CircularProgress, MenuItem, Paper, TextField, Typography } from "@mui/material";
+import { Alert, Autocomplete, Box, Button, CircularProgress, MenuItem, TextField, Typography } from "@mui/material";
 import { formatChurchDate, type WeeklySnapshot, type WeeklyValues } from "@/lib/kertasAcaraForm";
 
 export default function WeeklyForm() {
@@ -53,25 +53,25 @@ export default function WeeklyForm() {
     finally { setSaving(false); }
   }
   return <>
-    <Typography component="h1" variant="h4" sx={{ fontWeight: 750, mb: 1 }}>Kertas Acara</Typography>
+    <Typography component="h1" variant="h4" sx={{ fontWeight: 350, mb: 1 }}>Kertas Acara</Typography>
     <Typography color="text.secondary" sx={{ mb: 3 }}>Perbarui detail khotbah dan lagu untuk ibadah Sabat.</Typography>
     {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
     {success && <Alert severity="success" role="status" sx={{ mb: 2 }}>{success}</Alert>}
     {loading ? <Box role="status" sx={{ py: 5, display: "flex", gap: 2 }}><CircularProgress size={24} /> Memuat formulir…</Box> : values && snapshot ?
       <Box component="form" onSubmit={save}>
         {!snapshot.canWrite && <Alert severity="warning" sx={{ mb: 3 }}>Formulir dapat dilihat. Penyimpanan ke Google Sheets belum diaktifkan oleh pengelola.</Alert>}
-        <Paper variant="outlined" sx={{ p: { xs: 2.5, sm: 4 }, borderRadius: 3, mb: 3 }}>
+        <Box sx={{ pt: 3, borderTop: "1px solid var(--site-border)", mb: 4 }}>
           <TextField select label="Tanggal Sabat" value={values.date} onChange={event => change("date", event.target.value)} fullWidth disabled={saving || !snapshot.canWrite} helperText="Waktu Indonesia Barat (Jakarta)">
             {snapshot.dates.map(date => <MenuItem key={date} value={date}>{formatChurchDate(date)}</MenuItem>)}
           </TextField>
-          <Typography component="h2" variant="h6" sx={{ mt: 4, mb: 2, fontWeight: 700 }}>Detail Khotbah</Typography>
+          <Typography component="h2" variant="h6" sx={{ mt: 4, mb: 2, fontWeight: 400 }}>Detail Khotbah</Typography>
           <Box sx={{ display: "grid", gap: 2.5 }}>
             <TextField label="Judul Khotbah" value={values.sermonTitle} onChange={event => change("sermonTitle", event.target.value)} fullWidth disabled={saving || !snapshot.canWrite} slotProps={{ htmlInput: { maxLength: 2000 } }} />
             <TextField label="Ayat Inti" placeholder="Contoh: Yohanes 3:16" value={values.mainVerse} onChange={event => change("mainVerse", event.target.value)} fullWidth disabled={saving || !snapshot.canWrite} slotProps={{ htmlInput: { maxLength: 2000 } }} />
             <TextField label="Ayat Bersahutan" value={values.responsiveReading} onChange={event => change("responsiveReading", event.target.value)} fullWidth multiline minRows={2} disabled={saving || !snapshot.canWrite} slotProps={{ htmlInput: { maxLength: 2000 } }} />
           </Box>
           {([{ title: "Lagu Kebaktian", fields: ["openingHymn", "closingHymn"] }, { title: "Lagu Sekolah Sabat", fields: ["ssOpeningHymn", "ssClosingHymn"] }] as const).map(group => <Box key={group.title} sx={{ mt: 4 }}>
-            <Typography component="h2" variant="h6" sx={{ mb: 2, fontWeight: 700 }}>{group.title}</Typography>
+            <Typography component="h2" variant="h6" sx={{ mb: 2, fontWeight: 400 }}>{group.title}</Typography>
             <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2.5 }}>
               {group.fields.map((key, index) => <Autocomplete key={key} options={snapshot.hymns} value={snapshot.hymns.find(hymn => hymn.number === values[key]) ?? (values[key] ? { number: values[key], title: "Nomor dari spreadsheet" } : null)}
                 getOptionLabel={hymn => `${hymn.number} — ${hymn.title}`} isOptionEqualToValue={(a, b) => a.number === b.number}
@@ -80,7 +80,7 @@ export default function WeeklyForm() {
                 renderInput={params => <TextField {...params} label={index === 0 ? "Lagu Pembuka" : "Lagu Penutup"} helperText="Cari nomor atau judul lagu" />} />)}
             </Box>
           </Box>)}
-        </Paper>
+        </Box>
         <Typography color="text.secondary" sx={{ mb: 2 }}>{snapshot.mode === "demo" ? "Mode latihan: perubahan hanya disimpan secara lokal." : "Menyimpan akan langsung memperbarui Kertas Acara yang digunakan website."}</Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
           <Button type="submit" variant="contained" size="large" disabled={!dirty || saving || !snapshot.canWrite}>{saving ? "Menyimpan…" : "Simpan Perubahan"}</Button>

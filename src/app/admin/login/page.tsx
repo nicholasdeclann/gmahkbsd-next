@@ -10,6 +10,7 @@ import {
   Button,
   Alert,
 } from "@mui/material";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -48,7 +49,8 @@ export default function AdminLoginPage() {
 
   return (
     <Container maxWidth="xs" sx={{ py: { xs: 8, sm: 12 } }}>
-      <Typography variant="h5" sx={{ fontWeight: 700, mb: 3, textAlign: "center" }}>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}><ThemeToggle /></Box>
+      <Typography component="h1" variant="h4" sx={{ fontWeight: 350, mb: 3, textAlign: "center" }}>
         Dashboard Gereja
       </Typography>
       <Typography color="text.secondary" sx={{ textAlign: "center", mb: 3 }}>Masukkan kata sandi yang diberikan oleh pengelola gereja.</Typography>

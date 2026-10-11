@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Box, Container, Typography } from "@mui/material";
 import { churchConfig } from "@/config/church";
 import PhotoGallery from "@/components/PhotoGallery";
 
@@ -10,73 +9,13 @@ export const metadata: Metadata = {
 };
 
 export default function Pengumuman() {
-  return (
-    <Box sx={styles.mainContainer}>
-      <Container maxWidth="lg" sx={{ py: 3 }}>
-        <Typography component="h1" variant="h4" sx={{ fontWeight: 700 }}>Pengumuman Jemaat</Typography>
-      </Container>
-      {/* Canva Carousel - Full Width */}
-      <Box sx={styles.canvaContainer}>
-        <Box sx={styles.aspectBox}>
-          <iframe
-            title="Pengumuman mingguan GMAHK BSD dari Canva"
-            loading="lazy"
-            style={{
-              position: "absolute",
-              width: "100%",
-              height: "100%",
-              top: 0,
-              left: 0,
-              border: "none",
-              padding: 0,
-              margin: 0,
-            }}
-            src={churchConfig.pengumumanEmbedUrl}
-            allowFullScreen
-            allow="fullscreen"
-          />
-        </Box>
-      </Box>
-
-      {/* Photo Gallery */}
-      <Box sx={styles.galleryContainer}>
-        <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
-          <PhotoGallery />
-        </Container>
-      </Box>
-    </Box>
-  );
+  return <div className="site-width">
+    <header className="page-intro"><p className="eyebrow">KABAR KELUARGA GEREJA</p><h1>Pengumuman Jemaat</h1><p>Informasi ibadah, kegiatan, dan kabar terbaru dari seluruh departemen gereja.</p></header>
+    <section className="canva-section" aria-labelledby="weekly-announcements">
+      <h2 id="weekly-announcements">Pengumuman Mingguan</h2>
+      <div className="canva-frame"><iframe title="Pengumuman mingguan GMAHK BSD dari Canva" loading="lazy" src={churchConfig.pengumumanEmbedUrl} allowFullScreen allow="fullscreen" /></div>
+      <a className="canva-open" href={churchConfig.pengumumanEmbedUrl.replace("?embed", "")} target="_blank" rel="noopener noreferrer">Buka pengumuman dalam tampilan penuh ↗</a>
+    </section>
+    <section className="section-space"><PhotoGallery /></section>
+  </div>;
 }
-
-const styles = {
-  mainContainer: {
-    minHeight: "100vh",
-    display: "flex",
-    flexDirection: "column",
-    bgcolor: "white",
-    position: "relative",
-    overflow: "hidden",
-    animation: "pengumumanFadeIn 0.8s ease",
-    "@keyframes pengumumanFadeIn": {
-      from: { opacity: 0, transform: "scale(0.98)" },
-      to: { opacity: 1, transform: "scale(1)" },
-    },
-  },
-  canvaContainer: {
-    width: "100%",
-    mb: { xs: 4, sm: 6 },
-  },
-  aspectBox: {
-    position: "relative",
-    width: "100%",
-    height: 0,
-    paddingTop: "56.25%",
-    boxShadow: "0 2px 8px 0 rgba(63,69,81,0.16)",
-    overflow: "hidden",
-  },
-  galleryContainer: {
-    width: "100%",
-    flex: 1,
-    py: { xs: 4, sm: 6 },
-  },
-};

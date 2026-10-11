@@ -8,7 +8,7 @@ import PhotoEditModal from "./PhotoEditModal";
 import AnnouncementShare from "./AnnouncementShare";
 import type { AnnouncementItem } from "@/lib/announcementTypes";
 
-export default function PhotoGallery({ editable = false }: { editable?: boolean }) {
+export default function PhotoGallery({ editable = false, previewLimit }: { editable?: boolean; previewLimit?: number }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [photos, setPhotos] = useState<AnnouncementItem[]>([]);
@@ -45,14 +45,14 @@ export default function PhotoGallery({ editable = false }: { editable?: boolean 
       const data: { photos: AnnouncementItem[]; configured: boolean } = await res.json();
       if (signal?.aborted) return;
       setPhotos(data.photos); setConfigured(data.configured);
-      if (!editable) {
+      if (!editable && !previewLimit) {
         const id = new URL(window.location.href).searchParams.get("post");
         if (id) { const post = data.photos.find(p => p.id === id); setPreview(post ?? null); setMissingPost(!post); }
       }
     } catch {
       if (!signal?.aborted) setError("Pengumuman belum dapat dimuat. Silakan coba lagi.");
     } finally { if (!signal?.aborted) setLoading(false); }
-  }, [editable]);
+  }, [editable, previewLimit]);
 
   useEffect(() => { const controller = new AbortController(); void fetchPhotos(controller.signal); return () => controller.abort(); }, [fetchPhotos]);
 
@@ -68,10 +68,10 @@ export default function PhotoGallery({ editable = false }: { editable?: boolean 
   return <>
     <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 2, mb: 3 }}>
       <Box>
-        <Typography component="h2" variant="h5" sx={{ fontWeight: 700, mb: 1 }}>Papan Pengumuman Jemaat</Typography>
+        <Typography component="h2" variant="h5" sx={{ fontWeight: 450, mb: 1 }}>Papan Pengumuman Jemaat</Typography>
         <Typography color="text.secondary">Informasi dan kegiatan dari seluruh departemen gereja.</Typography>
       </Box>
-      {editable ? <Button variant="contained" onClick={() => setShowUpload(true)}>Tambah Pengumuman</Button> : <AnnouncementShare board />}
+      {editable ? <Button variant="contained" onClick={() => setShowUpload(true)}>Tambah Pengumuman</Button> : !previewLimit && <AnnouncementShare board />}
     </Box>
     {success && <Alert severity="success" onClose={() => setSuccess("")} sx={{ mb: 2 }}>{success}</Alert>}
     {error && <Alert severity="error" sx={{ mb: 2 }} action={<Button onClick={() => void fetchPhotos()}>Coba Lagi</Button>}>{error}</Alert>}
@@ -79,11 +79,11 @@ export default function PhotoGallery({ editable = false }: { editable?: boolean 
     {editable && !configured && <Alert severity="info" sx={{ mb: 2 }} action={<Button href="/admin/settings">Pengaturan</Button>}>Hubungkan folder pengumuman di Google Drive sebelum menerbitkan gambar.</Alert>}
     {loading ? <Box sx={{ display: "flex", justifyContent: "center", py: 6 }}><CircularProgress aria-label="Memuat pengumuman" /></Box> :
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: editable ? "repeat(2, 1fr)" : "repeat(3, 1fr)" }, gap: 3 }}>
-        {!photos.length && !error && <Box sx={{ p: 4, textAlign: "center", gridColumn: "1 / -1", bgcolor: "#f5f8fb", borderRadius: 3 }}>
+        {!photos.length && !error && <Box sx={{ py: 4, gridColumn: "1 / -1", borderTop: "1px solid var(--site-border)" }}>
           <Typography color="text.secondary">Belum ada pengumuman tambahan.</Typography>
           {editable && <Typography color="text.secondary" sx={{ mt: 1 }}>Tambahkan gambar dan keterangan untuk dibaca jemaat.</Typography>}
         </Box>}
-        {photos.map(photo => <PhotoCard key={photo.id} photo={photo} onOpen={() => setPreview(photo)} onEdit={editable ? () => setEditingPhoto(photo) : undefined}
+        {(previewLimit ? photos.slice(0, previewLimit) : photos).map(photo => <PhotoCard key={photo.id} photo={photo} onOpen={() => setPreview(photo)} onEdit={editable ? () => setEditingPhoto(photo) : undefined}
           onDelete={editable && !/^\d+$/.test(photo.id) ? () => { setDeleteError(""); setDeletingPhoto(photo); } : undefined} />)}
       </Box>}
     {editable && showUpload && <PhotoUploadModal onClose={() => setShowUpload(false)} onUploaded={uploaded} />}

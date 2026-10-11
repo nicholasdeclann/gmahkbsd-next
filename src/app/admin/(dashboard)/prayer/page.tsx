@@ -41,7 +41,7 @@ export default function PrayerAdminPage() {
     finally { setSaving(false); }
   }
   return <Box sx={{ maxWidth: 760 }}>
-    <Typography component="h1" variant="h4" sx={{ fontWeight: 750, mb: 1 }}>Pokok Doa</Typography>
+    <Typography component="h1" variant="h4" sx={{ fontWeight: 350, mb: 1 }}>Pokok Doa</Typography>
     <Typography color="text.secondary" sx={{ mb: 3 }}>Empat nama untuk setiap minggu, sesuai urutan pada Kertas Acara. Ganti nama di sini untuk minggu berikutnya. Slot boleh dikosongkan.</Typography>
     {snapshot?.date && <Typography sx={{ mb: 2, fontWeight: 600 }}>Tanggal Kertas Acara: {formatChurchDate(snapshot.date)}</Typography>}
     {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -49,7 +49,7 @@ export default function PrayerAdminPage() {
     {snapshot && !snapshot.canWrite && <Alert severity="info" sx={{ mb: 2 }}>Penyimpanan belum diaktifkan atau sel nama berisi rumus. Hubungi pengelola website.</Alert>}
     {snapshot && !snapshot.notesConfigured && <Alert severity="info" sx={{ mb: 2 }}>Nama dapat disimpan. Penyimpanan alasan doa belum diatur oleh pengelola website.</Alert>}
     {loading ? <CircularProgress aria-label="Memuat pokok doa" /> : snapshot && <Box component="form" onSubmit={save}>
-      {slots.map((slot, index) => <Box key={index} sx={{ bgcolor: "white", p: { xs: 2, sm: 3 }, border: "1px solid #dce4ed", borderRadius: 3, mb: 2 }}>
+      {slots.map((slot, index) => <Box component="section" key={index} sx={{ py: 3, borderTop: "1px solid var(--site-border)", mb: 2 }}>
         <Typography component="h2" variant="h6" sx={{ mb: 2 }}>Nama {index + 1}</Typography>
         <TextField fullWidth label={`Nama ${index + 1}`} value={slot.name} disabled={saving || !snapshot.canWrite} onChange={event => update(index, { name: event.target.value })} slotProps={{ htmlInput: { maxLength: 200 } }} helperText={`Disimpan sebagai “${index + 1}. Nama” pada Kertas Acara.`} />
         <TextField fullWidth multiline minRows={2} label="Alasan doa (opsional)" value={slot.note} disabled={saving || !snapshot.canWrite || !snapshot.notesConfigured} onChange={event => update(index, { note: event.target.value })} slotProps={{ htmlInput: { maxLength: 2000 } }} sx={{ mt: 2 }} helperText="Tidak dicantumkan di Kertas Acara." />

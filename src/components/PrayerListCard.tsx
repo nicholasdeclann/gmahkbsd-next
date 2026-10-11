@@ -52,7 +52,7 @@ export default function PrayerListCard() {
       <Box sx={styles.section}>
         <Box sx={styles.titleContainer}>
           <FavoriteBorder sx={styles.icon} />
-          <Typography variant="h4" sx={styles.title}>
+          <Typography component="h2" variant="h4" sx={styles.title}>
             {churchConfig.prayerList.title}
           </Typography>
         </Box>
@@ -89,39 +89,39 @@ const styles = {
   },
   icon: {
     fontSize: { xs: "1.75rem", sm: "2rem", md: "2.25rem" },
-    color: "#2e6ce8",
+    color: "var(--site-blue)",
   },
   title: {
     fontSize: { xs: "1.5rem", sm: "1.75rem", md: "2rem" },
-    fontWeight: 700,
-    color: "#1a1a1a",
+    fontWeight: 450,
+    color: "var(--site-text)",
     textAlign: "center",
   },
   card: {
     maxWidth: "800px",
     mx: "auto",
-    bgcolor: "rgba(255, 255, 255, 0.7)",
-    backdropFilter: "blur(10px)",
+    bgcolor: "transparent",
+
     borderRadius: 3,
-    border: "1px solid rgba(255, 255, 255, 0.3)",
-    boxShadow: "0 4px 16px 0 rgba(46, 108, 232, 0.1)",
+    border: "none",
+    boxShadow: "none",
   },
   item: {
     display: "flex",
     flexDirection: "column",
     alignItems: "flex-start",
     py: { xs: 1.25, sm: 1.5 },
-    borderBottom: "1px solid rgba(222, 226, 230, 0.5)",
+    borderBottom: "1px solid var(--site-border)",
     "&:last-child": { borderBottom: "none" },
   },
   name: {
-    fontSize: { xs: "0.95rem", sm: "1rem" },
-    fontWeight: 600,
-    color: "#111827",
+    fontSize: { xs: "1rem", sm: "1rem" },
+    fontWeight: 450,
+    color: "var(--site-text)",
   },
   note: {
-    fontSize: { xs: "0.8rem", sm: "0.85rem" },
-    color: "#6c757d",
+    fontSize: { xs: "1rem", sm: "1rem" },
+    color: "var(--site-muted)",
     fontStyle: "italic",
   },
 };

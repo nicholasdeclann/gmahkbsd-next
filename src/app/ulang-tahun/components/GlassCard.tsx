@@ -17,10 +17,10 @@ export default function GlassCard({
     <Card
       {...props}
       sx={{
-        bgcolor: "rgba(255, 255, 255, 0.7)",
+        bgcolor: "var(--site-surface)",
         backdropFilter: "blur(10px)",
         borderRadius: 3,
-        border: "1px solid rgba(255, 255, 255, 0.3)",
+        border: "1px solid var(--site-border)",
         ...(borderLeft && { borderLeft }),
         boxShadow: "0 4px 16px 0 rgba(46, 108, 232, 0.1)",
         transition: "transform 0.2s, box-shadow 0.2s",

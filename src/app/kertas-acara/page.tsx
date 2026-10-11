@@ -2,14 +2,11 @@
 
 import {
   Box,
-  Container,
   Typography,
   Button,
   CircularProgress,
   TextField,
-  IconButton,
   Fade,
-  Grow,
 } from "@mui/material";
 import ChevronRight from "@mui/icons-material/ChevronRight";
 import ChevronLeft from "@mui/icons-material/ChevronLeft";
@@ -27,6 +24,7 @@ import { getThisWeeksSaturday, formatDate, getSaturdayOfMonth } from "./utils";
 import { LaguSionMap, ParticipantData, ParticipantItem, Row } from "./types";
 import { churchConfig } from "@/config/church";
 import { fetchTextCached, CACHE_TTL } from "@/lib/sheetCache";
+import KertasAcaraLoading from "./loading";
 
 const { parsing } = churchConfig.kertasAcara;
 
@@ -56,7 +54,6 @@ function KertasAcaraContent() {
     diakonia: true,
   });
   const [searchTerm, setSearchTerm] = useState("");
-  const [isSearchVisible, setIsSearchVisible] = useState(false);
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -300,15 +297,16 @@ function KertasAcaraContent() {
 
   return (
     <Box sx={styles.mainContainer}>
-      <Box sx={styles.gradientBackground} />
+      <header className="site-width page-intro"><p className="eyebrow">IBADAH & PELAYANAN</p><h1>Kertas Acara</h1><p>Ikuti susunan ibadah dan lihat jadwal pelayanan jemaat.</p></header>
 
       {loading ? (
-        <Box sx={styles.loadingContainer}>
-          <CircularProgress size={60} sx={{ color: "#2e6ce8" }} />
+        <Box role="status" sx={styles.loadingContainer}>
+          <CircularProgress size={60} aria-label="Memuat kertas acara" sx={{ color: "var(--site-blue)" }} />
+          <Typography sx={{ mt: 2 }}>Memuat jadwal…</Typography>
         </Box>
       ) : (
-        <Fade in={!loading} timeout={800}>
-          <Container maxWidth="lg" sx={styles.contentContainer}>
+        <Fade in={!loading} timeout={0}>
+          <Box className="site-width" sx={styles.contentContainer}>
             <Box sx={styles.header}>
               <Box sx={styles.dateNavigation}>
                 {columnOffset === 1 && (
@@ -324,6 +322,7 @@ function KertasAcaraContent() {
                 )}
                 <Box sx={styles.dateContainer}>
                   <Typography
+                    component="p"
                     variant="h2"
                     sx={
                       columnOffset === 0
@@ -349,32 +348,20 @@ function KertasAcaraContent() {
             </Box>
 
             {/* Search */}
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 3, mb: 4 }}>
             <Box sx={styles.searchContainer}>
-              {!isSearchVisible ? (
-                <IconButton
-                  onClick={() => setIsSearchVisible(true)}
-                  sx={styles.searchIconButton}
-                >
-                  <Search />
-                </IconButton>
-              ) : (
-                <Grow in={isSearchVisible} timeout={300}>
                   <TextField
                     fullWidth
-                    autoFocus
                     variant="outlined"
-                    placeholder="Cari Nama..."
+                    label="Cari nama pelayan"
+                    placeholder="Ketik nama…"
+                    slotProps={{ input: { startAdornment: <Search sx={{ mr: 1, color: "text.secondary" }} /> } }}
                     value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    onBlur={() => {
-                      if (!searchTerm) {
-                        setIsSearchVisible(false);
-                      }
-                    }}
+                    onChange={(e: { target: { value: any; }; }) => setSearchTerm(e.target.value)}
                     sx={styles.searchField}
                   />
-                </Grow>
-              )}
+            </Box>
+              <DownloadButton dateLabel={scheduleDate.replace(/^Sabat,\s*/, "")} />
             </Box>
 
             <Box sx={styles.scheduleContainer}>
@@ -417,10 +404,7 @@ function KertasAcaraContent() {
               />
             </Box>
 
-            <DownloadButton
-              dateLabel={scheduleDate.replace(/^Sabat,\s*/, "")}
-            />
-          </Container>
+          </Box>
         </Fade>
       )}
     </Box>
@@ -429,24 +413,21 @@ function KertasAcaraContent() {
 
 const styles = {
   mainContainer: {
-    minHeight: "calc(100vh - 64px)",
-    bgcolor: "white",
+    minHeight: "65vh",
+    bgcolor: "var(--site-bg)",
     position: "relative",
     overflow: "hidden",
-  },
-  gradientBackground: {
-    display: "none",
   },
   loadingContainer: {
     display: "flex",
     flexDirection: "column",
     justifyContent: "center",
     alignItems: "center",
-    minHeight: "calc(100vh - 64px)",
+    minHeight: 240,
   },
   contentContainer: {
-    py: { xs: 3, md: 5 },
-    px: 3,
+    pt: 0,
+    pb: { xs: 5, md: 8 },
     position: "relative",
     zIndex: 1,
   },
@@ -458,7 +439,8 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    gap: { xs: 1, sm: 2 },
+    gap: { xs: 2, sm: 3 },
+    flexWrap: "wrap",
     mb: 2,
   },
   dateContainer: {
@@ -466,87 +448,69 @@ const styles = {
     minWidth: 0,
   },
   inactiveButton: {
-    fontSize: { xs: "0.85rem", sm: "0.85rem" },
+    fontSize: { xs: "1rem", sm: "1rem" },
     textTransform: "none",
-    borderColor: "#6c757d",
-    color: "#6c757d",
+    borderColor: "var(--site-muted)",
+    color: "var(--site-muted)",
     px: { xs: 1.5, sm: 2 },
     py: { xs: 0.5, sm: 1 },
     minWidth: { xs: "auto", sm: "64px" },
     "&:hover": {
-      borderColor: "#2e6ce8",
-      color: "#2e6ce8",
+      borderColor: "var(--site-blue)",
+      color: "var(--site-blue)",
       bgcolor: "rgba(46, 108, 232, 0.05)",
     },
   },
   scheduleDateLeft: {
-    fontSize: { xs: "0.95rem", sm: "1.1rem", md: "1.25rem" },
-    fontWeight: 700,
-    color: "#4a4a4a",
+    fontSize: { xs: "1rem", sm: "1.1rem", md: "1.25rem" },
+    fontWeight: 450,
+    color: "var(--site-text)",
     mb: 0,
     textAlign: "left",
   },
   scheduleDateRight: {
-    fontSize: { xs: "0.95rem", sm: "1.1rem", md: "1.25rem" },
-    fontWeight: 700,
-    color: "#4a4a4a",
+    fontSize: { xs: "1rem", sm: "1.1rem", md: "1.25rem" },
+    fontWeight: 450,
+    color: "var(--site-text)",
     mb: 0,
     textAlign: "right",
   },
   searchContainer: {
-    mb: { xs: 3, md: 4 },
-    maxWidth: "300px",
-    mx: "auto",
+    maxWidth: "500px",
+    width: "100%",
+    flex: "1 1 300px",
     display: "flex",
     justifyContent: "center",
   },
-  searchIconButton: {
-    color: "#2e6ce8",
-    bgcolor: "rgba(46, 108, 232, 0.1)",
-    "&:hover": {
-      bgcolor: "rgba(46, 108, 232, 0.2)",
-    },
-  },
   searchField: {
     "& .MuiOutlinedInput-root": {
-      borderRadius: 2,
-      bgcolor: "rgba(255, 255, 255, 0.7)",
-      backdropFilter: "blur(10px)",
+      borderRadius: 1,
+      bgcolor: "var(--site-surface)",
+
       "& fieldset": {
-        borderColor: "rgba(46, 108, 232, 0.3)",
+        borderColor: "var(--site-border)",
       },
       "&:hover fieldset": {
-        borderColor: "#2e6ce8",
+        borderColor: "var(--site-blue)",
       },
       "&.Mui-focused fieldset": {
-        borderColor: "#2e6ce8",
+        borderColor: "var(--site-blue)",
       },
     },
   },
   scheduleContainer: {
     display: { xs: "flex", md: "grid" },
-    flexDirection: { xs: "column" },
+    flexDirection: "column",
     gridTemplateColumns: { md: "repeat(2, 1fr)" },
-    gap: { xs: 3, md: 4 },
+    alignItems: "start",
+    gap: { xs: 4, md: 5 },
   },
 };
 
 export default function KertasAcara() {
   return (
     <Suspense
-      fallback={
-        <Box sx={styles.mainContainer}>
-          <Box sx={styles.gradientBackground} />
-          <Container maxWidth="lg" sx={styles.contentContainer}>
-            <Box sx={{ textAlign: "center", py: 8 }}>
-              <CircularProgress size={40} sx={{ color: "#2e6ce8" }} />
-              <Typography sx={{ mt: 2, color: "#6c757d" }}>
-                Memuat jadwal...
-              </Typography>
-            </Box>
-          </Container>
-        </Box>
-      }
+      fallback={<KertasAcaraLoading />}
     >
       <KertasAcaraContent />
     </Suspense>
