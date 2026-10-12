@@ -269,6 +269,24 @@ main:focus { outline: none; }
 .church-about { scroll-margin-top: 110px; }
 .canva-section { background: transparent; padding: 28px 0 0; border-top: 1px solid var(--site-border); }
 .canva-section h2 { font-size: 1.8rem; font-weight: 400; }
+.event-photo-button { display: block; border: 0; padding: 0; width: 100%; background: var(--site-surface); cursor: zoom-in; color: var(--site-text); }
+.event-photo-button img { display: block; height: 300px; object-fit: contain; }
+.event-slide .event-photo-button img { height: clamp(260px, 44vw, 580px); }
+.event-slide-caption { padding-block: 24px; max-width: 850px; }
+.event-slide-caption h3, .event-archive-grid h2 { font-size: 1.6rem; font-weight: 400; margin: 0 0 12px; }
+.event-slide-caption p:not(.eyebrow), .event-caption-text { white-space: pre-wrap; overflow-wrap: anywhere; color: var(--site-muted); font-size: 1.125rem; line-height: 1.8; }
+.event-image-stage { position: relative; }
+.event-arrow { position: absolute; top: 50%; transform: translateY(-50%); display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; border: 1px solid rgba(255,255,255,.7); background: rgba(10,26,45,.85); color: #fff; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,.15); }
+.event-arrow:hover { background: #174778; }
+.event-arrow-left { left: 16px; }
+.event-arrow-right { right: 16px; }
+.event-playback { display: flex; justify-content: flex-end; border-top: 1px solid var(--site-border); padding-top: 8px; }
+.event-playback .MuiButton-root { min-height: 48px; }
+.event-archive-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 48px 32px; }
+.event-archive-grid article { min-width: 0; }
+.event-archive-grid .eyebrow { margin-top: 20px; }
+.event-image-error { min-height: 260px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+@media (max-width: 700px) { .event-archive-grid { grid-template-columns: 1fr; } .event-arrow { width: 48px; height: 48px; } .event-arrow-left { left: 8px; } .event-arrow-right { right: 8px; } }
 .canva-open { min-height: 48px; align-items: center; }
 .dashboard-task-list > a { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 28px 0; border-top: 1px solid var(--site-border); text-decoration: none; }
 .dashboard-task-list > a:last-child { border-bottom: 1px solid var(--site-border); }

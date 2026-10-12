@@ -8,6 +8,7 @@ import { churchConfig } from "@/config/church";
 import { imageAsset } from "@/lib/asset";
 import PrayerListCard from "@/components/PrayerListCard";
 import PhotoGallery from "@/components/PhotoGallery";
+import EventPhotos from "@/components/events/EventPhotos";
 
 export default function Home() {
   return <>
@@ -30,6 +31,7 @@ export default function Home() {
       <Link href="/pengumuman"><h2>Pengumuman</h2><p>Kabar dan kegiatan seluruh jemaat.</p><span>Baca pengumuman <ArrowForward /></span></Link>
       <Link href="/ulang-tahun"><h2>Ulang Tahun</h2><p>Hari istimewa keluarga jemaat.</p><span>Lihat daftar <ArrowForward /></span></Link>
     </nav>
+    <EventPhotos carousel />
     <section className="section-space worship-section" aria-labelledby="worship-title">
       <div className="site-width worship-grid">
         <div><p className="eyebrow">MARI BERIBADAH BERSAMA</p><h2 id="worship-title" className="section-title">Waktu untuk<br />beribadah bersama.</h2><p className="section-description">Bergabunglah dalam ibadah di gereja atau secara daring melalui Zoom.</p></div>
