@@ -23,7 +23,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const { dark, toggle } = useColorMode();
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
-  if (pathname.startsWith("/admin")) return null;
+  if (pathname.startsWith("/admin") || pathname === "/tamu" || pathname.startsWith("/tamu/")) return null;
   return <ThemeProvider theme={headerTheme}><header className="site-header">
     <div className="site-width navbar-inner">
       <Link href="/" className="brand" aria-label="GMAHK BSD — Beranda">

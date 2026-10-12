@@ -13,6 +13,7 @@ import { ColorModeContext } from "./ColorModeContext";
 export default function SiteProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const admin = pathname.startsWith("/admin");
+  const staff = pathname === "/tamu" || pathname.startsWith("/tamu/");
   const [preference, setPreference] = useState(false);
   useEffect(() => {
     try { setPreference(localStorage.getItem("gmahkbsd-color-mode") === "dark"); } catch { /* Storage may be unavailable. */ }
@@ -28,10 +29,10 @@ export default function SiteProvider({ children }: { children: React.ReactNode }
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div className="site-frame" data-theme={dark ? "dark" : "light"}>
-        {!admin && <a className="skip-link" href="#main-content">Langsung ke isi halaman</a>}
+        {!admin && !staff && <a className="skip-link" href="#main-content">Langsung ke isi halaman</a>}
         <Navbar />
-        {admin ? children : <main id="main-content" tabIndex={-1}>{children}</main>}
-        {!admin && <footer className="site-footer">
+        {admin || staff ? children : <main id="main-content" tabIndex={-1}>{children}</main>}
+        {!admin && !staff && <footer className="site-footer">
           <div className="site-width footer-inner">
             <div><strong>{churchConfig.name}</strong><p>Beribadah, bertumbuh, dan melayani bersama.</p></div>
             <div className="footer-links"><Link href="/">Beranda</Link><Link href="/#tentang">Tentang Gereja</Link><Link href="/pengumuman">Pengumuman</Link><Link href="/kegiatan">Kegiatan Jemaat</Link><Link href="/admin">Dashboard Staf</Link></div>

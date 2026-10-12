@@ -70,6 +70,11 @@ export default function AdminLoginPage() {
           {loading ? "Memproses..." : "Masuk"}
         </Button>
       </Box>
+      <Box sx={{mt:4,pt:3,borderTop:"1px solid var(--site-border)",textAlign:"center"}}>
+        <Button href="/tamu" variant="outlined" fullWidth>Daftar Tamu · Penerima Tamu</Button>
+        <Button href="/tamu/mc" variant="outlined" fullWidth sx={{mt:1.5}}>Daftar Tamu untuk MC</Button>
+        <Typography variant="body2" color="text.secondary" sx={{mt:1}}>Daftar tamu dapat diisi tanpa kata sandi.</Typography>
+      </Box>
     </Container>
   );
 }

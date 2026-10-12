@@ -2,6 +2,8 @@ import Link from "next/link";
 import { Typography } from "@mui/material";
 
 const tasks = [
+  { title: "Daftar Tamu · Penerima Tamu", description: "Tambah, ubah, dan hapus tamu setiap Sabat tanpa kata sandi.", href: "/tamu" },
+  { title: "Daftar Tamu untuk MC", description: "Baca daftar tamu dan jumlah orang untuk penyambutan jemaat. Tanpa kata sandi.", href: "/tamu/mc" },
   { title: "Kegiatan Jemaat", description: "Unggah foto dan keterangan kegiatan ke arsip bulanan dan carousel Beranda.", href: "/admin/events" },
   { title: "Kertas Acara", description: "Isi judul khotbah, ayat, dan lagu untuk Sabat.", href: "/admin/kertas-acara" },
   { title: "Pokok Doa", description: "Isi empat nama mingguan dan alasan doa untuk website.", href: "/admin/prayer" },

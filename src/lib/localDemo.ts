@@ -4,6 +4,7 @@ import type { WeeklyValues } from "./kertasAcaraForm";
 import type { AnnouncementItem } from "./announcementTypes";
 import type { PrayerSlot } from "./prayerTypes";
 import type { EventPhoto } from "./eventTypes";
+import type { GuestEntry } from "./guestTypes";
 
 export function isLocalDemo(): boolean {
   return process.env.NODE_ENV === "development" && process.env.DASHBOARD_DEMO_MODE === "true";
@@ -18,7 +19,7 @@ export interface DemoPrayer {
   id: number; name: string; note: string | null; note_public: boolean; created_at: string;
 }
 export interface DemoAnnouncement extends AnnouncementItem { mime_type: string }
-export interface DemoData { weekly: WeeklyValues; prayers: DemoPrayer[]; nextPrayerId: number; announcements: DemoAnnouncement[]; prayerSlots?: PrayerSlot[]; prayerDate?: string; events?: (EventPhoto & { mime: string })[] }
+export interface DemoData { weekly: WeeklyValues; prayers: DemoPrayer[]; nextPrayerId: number; announcements: DemoAnnouncement[]; prayerSlots?: PrayerSlot[]; prayerDate?: string; events?: (EventPhoto & { mime: string })[]; guests?: GuestEntry[] }
 const directory = path.join(process.cwd(), "work");
 const filename = path.join(directory, "dashboard-demo.json");
 let pending: Promise<unknown> = Promise.resolve();
