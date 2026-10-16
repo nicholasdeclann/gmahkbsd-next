@@ -1,4 +1,6 @@
 "use client";
+import { T } from "@/components/LanguageProvider";
+
 
 import { useState } from "react";
 import { Box, Button, CircularProgress } from "@mui/material";
@@ -200,12 +202,10 @@ export default function DownloadButton({ dateLabel }: DownloadButtonProps) {
         }
         sx={styles.button}
       >
-        {loading ? "Menyiapkan..." : "Unduh Kertas Acara (JPG)"}
+        <T text={loading ? "Menyiapkan..." : "Unduh Kertas Acara (JPG)"} />
       </Button>
       {error && (
-        <Box sx={styles.errorText}>
-          Gagal mengunduh. Silakan coba lagi.
-        </Box>
+        <Box sx={styles.errorText}><T text="Gagal mengunduh. Silakan coba lagi." /></Box>
       )}
     </Box>
   );

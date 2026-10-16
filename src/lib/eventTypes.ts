@@ -12,8 +12,8 @@ export function previousMonth(now = new Date()): string {
   return `${month === 1 ? year - 1 : year}-${String(month === 1 ? 12 : month - 1).padStart(2, "0")}`;
 }
 export function validMonth(value: string): boolean { return /^(20\d{2})-(0[1-9]|1[0-2])$/.test(value); }
-export function monthLabel(value: string): string {
-  return new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric", timeZone: "Asia/Jakarta" }).format(new Date(`${value}-01T12:00:00+07:00`));
+export function monthLabel(value: string, locale = "id-ID"): string {
+  return new Intl.DateTimeFormat(locale, { month: "long", year: "numeric", timeZone: "Asia/Jakarta" }).format(new Date(`${value}-01T12:00:00+07:00`));
 }
 export function eventDetails(body: Record<string, unknown>) {
   if (typeof body.title !== "string" || !body.title.trim() || body.title.trim().length > 150) throw new Error("Isi nama kegiatan (maksimal 150 karakter).");

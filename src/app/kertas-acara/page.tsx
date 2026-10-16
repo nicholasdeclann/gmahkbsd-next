@@ -1,4 +1,6 @@
 "use client";
+import { T, useLanguage } from "@/components/LanguageProvider";
+
 
 import {
   Box,
@@ -29,6 +31,7 @@ import KertasAcaraLoading from "./loading";
 const { parsing } = churchConfig.kertasAcara;
 
 function KertasAcaraContent() {
+  const {t}=useLanguage();
   const searchParams = useSearchParams();
   const columnOffset = searchParams.get("week") === "next" ? 1 : 0;
 
@@ -297,12 +300,12 @@ function KertasAcaraContent() {
 
   return (
     <Box sx={styles.mainContainer}>
-      <header className="site-width page-intro"><p className="eyebrow">IBADAH & PELAYANAN</p><h1>Kertas Acara</h1><p>Ikuti susunan ibadah dan lihat jadwal pelayanan jemaat.</p></header>
+      <header className="site-width page-intro"><p className="eyebrow"><T text="IBADAH & PELAYANAN" /></p><h1><T text="Kertas Acara" /></h1><p><T text="Ikuti susunan ibadah dan lihat jadwal pelayanan jemaat." /></p></header>
 
       {loading ? (
         <Box role="status" sx={styles.loadingContainer}>
-          <CircularProgress size={60} aria-label="Memuat kertas acara" sx={{ color: "var(--site-blue)" }} />
-          <Typography sx={{ mt: 2 }}>Memuat jadwal…</Typography>
+          <CircularProgress size={60} aria-label={t("Memuat kertas acara")} sx={{ color: "var(--site-blue)" }} />
+          <Typography sx={{ mt: 2 }}><T text="Memuat jadwal…" /></Typography>
         </Box>
       ) : (
         <Fade in={!loading} timeout={0}>
@@ -316,9 +319,7 @@ function KertasAcaraContent() {
                     variant="outlined"
                     startIcon={<ChevronLeft />}
                     sx={styles.inactiveButton}
-                  >
-                    Sabat Ini
-                  </Button>
+                  ><T text="Sabat Ini" /></Button>
                 )}
                 <Box sx={styles.dateContainer}>
                   <Typography
@@ -340,9 +341,7 @@ function KertasAcaraContent() {
                     variant="outlined"
                     endIcon={<ChevronRight />}
                     sx={styles.inactiveButton}
-                  >
-                    Sabat Depan
-                  </Button>
+                  ><T text="Sabat Depan" /></Button>
                 )}
               </Box>
             </Box>
@@ -353,7 +352,7 @@ function KertasAcaraContent() {
                   <TextField
                     fullWidth
                     variant="outlined"
-                    label="Cari nama pelayan"
+                    label={t("Cari nama pelayan")}
                     placeholder="Ketik nama…"
                     slotProps={{ input: { startAdornment: <Search sx={{ mr: 1, color: "text.secondary" }} /> } }}
                     value={searchTerm}
@@ -362,6 +361,7 @@ function KertasAcaraContent() {
                   />
             </Box>
               <DownloadButton dateLabel={scheduleDate.replace(/^Sabat,\s*/, "")} />
+              <Button component={Link} href="/jadwal-pelayanan" variant="outlined"><T text="Jadwal Pelayanan Triwulan" /></Button>
             </Box>
 
             <Box sx={styles.scheduleContainer}>
@@ -501,8 +501,8 @@ const styles = {
   scheduleContainer: {
     display: { xs: "flex", md: "grid" },
     flexDirection: "column",
-    gridTemplateColumns: { md: "repeat(2, 1fr)" },
-    alignItems: "start",
+    gridTemplateColumns: { md: "repeat(2, minmax(0, 1fr))" },
+    alignItems: { xs: "stretch", md: "start" },
     gap: { xs: 4, md: 5 },
   },
 };

@@ -1,4 +1,6 @@
 "use client";
+import { T } from "@/components/LanguageProvider";
+
 
 import { useEffect, useMemo, useState } from "react";
 import { ThemeProvider } from "@mui/material/styles";
@@ -29,13 +31,13 @@ export default function SiteProvider({ children }: { children: React.ReactNode }
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <div className="site-frame" data-theme={dark ? "dark" : "light"}>
-        {!admin && !staff && <a className="skip-link" href="#main-content">Langsung ke isi halaman</a>}
+        {!admin && !staff && <a className="skip-link" href="#main-content"><T text="Langsung ke isi halaman" /></a>}
         <Navbar />
         {admin || staff ? children : <main id="main-content" tabIndex={-1}>{children}</main>}
         {!admin && !staff && <footer className="site-footer">
           <div className="site-width footer-inner">
-            <div><strong>{churchConfig.name}</strong><p>Beribadah, bertumbuh, dan melayani bersama.</p></div>
-            <div className="footer-links"><Link href="/">Beranda</Link><Link href="/#tentang">Tentang Gereja</Link><Link href="/pengumuman">Pengumuman</Link><Link href="/kegiatan">Kegiatan Jemaat</Link><Link href="/admin">Dashboard Staf</Link></div>
+            <div><strong>{churchConfig.name}</strong><p><T text="Beribadah, bertumbuh, dan melayani bersama." /></p></div>
+            <div className="footer-links"><Link href="/"><T text="Beranda" /></Link><Link href="/#tentang"><T text="Tentang Gereja" /></Link><Link href="/jadwal-pelayanan"><T text="Jadwal Pelayanan" /></Link><Link href="/pengumuman"><T text="Pengumuman" /></Link><Link href="/kegiatan"><T text="Kegiatan Jemaat" /></Link><Link href="/admin"><T text="Dashboard Staf" /></Link></div>
             <small>© {new Date().getFullYear()} {churchConfig.name}</small>
           </div>
         </footer>}

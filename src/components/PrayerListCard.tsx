@@ -1,4 +1,5 @@
 "use client";
+import {T} from "./LanguageProvider";
 
 import { useEffect, useState } from "react";
 import {
@@ -53,7 +54,7 @@ export default function PrayerListCard() {
         <Box sx={styles.titleContainer}>
           <FavoriteBorder sx={styles.icon} />
           <Typography component="h2" variant="h4" sx={styles.title}>
-            {churchConfig.prayerList.title}
+            <T text={churchConfig.prayerList.title} />
           </Typography>
         </Box>
         <Card sx={styles.card}>

@@ -111,6 +111,8 @@ export interface ChurchConfig {
       kertasAcaraGid: string;
       /** gid of the "Lagu Sion" (hymnal lookup) tab. */
       laguSionGid: string;
+      /** Annual ministry schedule tab in this workbook. */
+      quarterlyScheduleGid: string;
     };
     /**
      * Birthday (ulang tahun) sheet — congregation member birthdays. The data
@@ -249,6 +251,7 @@ export const churchConfig: ChurchConfig = {
       sheetId: "1uW-CwZxGJ9Jfqv78pUc-4iE9fqgrV17eV9Ws_FEE5Ns",
       kertasAcaraGid: "1587228396",
       laguSionGid: "1174681408",
+      quarterlyScheduleGid: "1354569176",
     },
     birthdays: {
       sheetId: "1S5mpra2WiQDO_-pM0nhD71Af5UYEalbh",

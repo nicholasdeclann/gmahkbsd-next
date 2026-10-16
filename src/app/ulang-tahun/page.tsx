@@ -1,4 +1,6 @@
 "use client";
+import { T, useLanguage } from "@/components/LanguageProvider";
+
 
 import {
   Box,
@@ -18,14 +20,16 @@ import {
   type BirthdayPerson,
   SHEET_URLS,
   getCurrentWeekRange,
-  formatDateShort,
-  formatDateLong,
+
+
   parseBirthdayRow,
   isBirthdayThisWeek,
   getDayName,
 } from "./utils";
 
 function UlangTahunPage() {
+  const {language}=useLanguage();
+  const dateLabel=(date:Date,short=false)=>new Intl.DateTimeFormat(language==="en"?"en-GB":"id-ID",{day:"numeric",month:short?"short":"long",...(short?{}:{year:"numeric" as const}),timeZone:"Asia/Jakarta"}).format(date);
   const [birthdays, setBirthdays] = useState<BirthdayPerson[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -137,26 +141,24 @@ function UlangTahunPage() {
 
             <Container maxWidth="lg" sx={styles.contentContainer}>
               <Box sx={styles.headerSection}>
-                <Typography component="h1" variant="h3" sx={styles.title}>
-                  Ulang Tahun
-                </Typography>
+                <Typography component="h1" variant="h3" sx={styles.title}><T text="Ulang Tahun" /></Typography>
                 {weekRange && (
                   <>
                     <Typography component="p" variant="h6" sx={styles.countText}>
                       {error ? (
-                        "Gagal memuat data"
+                        <T text="Gagal memuat data" />
                       ) : birthdays.length === 0 ? (
-                        "Tidak ada yang berulang tahun minggu ini..."
+                        <T text="Tidak ada yang berulang tahun minggu ini..." />
                       ) : (
                         <>
-                          {birthdays.length} jemaat berulang tahun minggu ini!
+                          {birthdays.length} <T text="jemaat berulang tahun minggu ini!" />
                           🎉
                         </>
                       )}
                     </Typography>
                     <Typography variant="body1" sx={styles.weekRangeText}>
-                      {formatDateLong(weekRange.sunday)} -{" "}
-                      {formatDateLong(weekRange.saturday)}
+                      {dateLabel(weekRange.sunday)} -{" "}
+                      {dateLabel(weekRange.saturday)}
                     </Typography>
                   </>
                 )}
@@ -169,18 +171,14 @@ function UlangTahunPage() {
                     variant="body1"
                     color="error"
                     sx={styles.messageText}
-                  >
-                    Gagal memuat data ulang tahun.
-                  </Typography>
+                  ><T text="Gagal memuat data ulang tahun." /></Typography>
                 </Box>
               )}
 
               {!error && birthdays.length === 0 && (
                 <Box sx={styles.centerBox}>
                   <SentimentDissatisfied sx={styles.icon} />
-                  <Typography variant="body1" sx={styles.messageText}>
-                    Tidak ada ulang tahun minggu ini.
-                  </Typography>
+                  <Typography variant="body1" sx={styles.messageText}><T text="Tidak ada ulang tahun minggu ini." /></Typography>
                 </Box>
               )}
 
@@ -193,8 +191,8 @@ function UlangTahunPage() {
                             </Typography>
                             <Box sx={styles.cardDateBox}>
                               <Typography variant="body2" sx={styles.cardDate}>
-                                {person.dayName},{" "}
-                                {formatDateShort(person.birthdayDate)}
+                                <T text={person.dayName} />,{" "}
+                                {dateLabel(person.birthdayDate,true)}
                               </Typography>
                             </Box>
                       </Box>

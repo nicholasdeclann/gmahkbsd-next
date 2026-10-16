@@ -1,3 +1,4 @@
+import { T } from "@/components/LanguageProvider";
 import {
   Box,
   Typography,
@@ -41,7 +42,7 @@ export default function CollapsibleSection({
         }}
         onClick={onToggle}
       >
-        <Typography component="span" sx={styles.sectionTitle}>{title}</Typography>
+        <Typography component="span" sx={styles.sectionTitle}><T text={title} /></Typography>
         {isExpanded ? <ExpandLess sx={styles.expandIcon} /> : <ExpandMore sx={styles.expandIcon} />}
       </ButtonBase>
       </Box>
@@ -68,7 +69,7 @@ export function renderListItem(options: {
     <ListItem key={key} sx={styles.listItem}>
       <Box sx={styles.listItemContent}>
         <Typography sx={{ ...styles.listLabel, ...(isLagu && styles.laguText) }}>
-          {label}
+          <T text={label} />
         </Typography>
         {middleValue !== undefined && middleValue !== "" && (
           <Typography sx={styles.middleValue}>{middleValue}</Typography>
@@ -83,6 +84,8 @@ export function renderListItem(options: {
 
 export const styles = {
   section: {
+    width: "100%",
+    minWidth: 0,
     bgcolor: "transparent",
     borderRadius: 0,
     borderTop: "1px solid var(--site-border)",

@@ -1,3 +1,4 @@
+import LanguageProvider from "@/components/LanguageProvider";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
@@ -26,7 +27,7 @@ export default function RootLayout({
     <html lang="id">
       <body className={`${inter.className} ${inter.variable}`}>
         <AppRouterCacheProvider>
-          <SiteProvider>{children}</SiteProvider>
+          <LanguageProvider><SiteProvider>{children}</SiteProvider></LanguageProvider>
         </AppRouterCacheProvider>
       </body>
     </html>
