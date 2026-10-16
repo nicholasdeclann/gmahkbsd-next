@@ -1,10 +1,7 @@
-import { churchConfig } from "@/config/church";
-
-const { schedule, liturgy } = churchConfig.sheets;
-
-export const SHEET_ID = schedule.sheetId;
-export const SHEET_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${schedule.gid}`;
-
-export const SHEET_ID_2 = liturgy.sheetId;
-export const KERTAS_ACARA_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID_2}/gviz/tq?tqx=out:json&gid=${liturgy.kertasAcaraGid}`;
-export const LAGU_SION_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID_2}/gviz/tq?tqx=out:json&gid=${liturgy.laguSionGid}`;
+export async function loadSheetUrls() {
+  const response = await fetch("/api/sheet-sources", {cache:"no-store"});
+  if (!response.ok) throw new Error("Sumber spreadsheet belum dapat dimuat.");
+  const {schedule,liturgy} = await response.json() as import("@/lib/sheetSources").SheetSources;
+  const base=(id:string,gid:string)=>`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:json&gid=${gid}`;
+  return {SHEET_URL:base(schedule.sheetId,schedule.gid), KERTAS_ACARA_URL:base(liturgy.sheetId,liturgy.kertasAcaraGid), LAGU_SION_URL:base(liturgy.sheetId,liturgy.laguSionGid)};
+}

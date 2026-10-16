@@ -2,6 +2,7 @@ import { Alert, Box, Typography } from "@mui/material";
 import { driveOAuthConfigured, getAccessToken } from "@/lib/drive";
 import { isLocalDemo, isWeeklyDemo } from "@/lib/localDemo";
 import DriveSettings from "@/components/admin/DriveSettings";
+import SpreadsheetSettings from "@/components/admin/SpreadsheetSettings";
 
 export default async function SettingsPage({ searchParams }: { searchParams: Promise<{ drive?: string }> }) {
   const demo = isLocalDemo();
@@ -22,7 +23,7 @@ export default async function SettingsPage({ searchParams }: { searchParams: Pro
     <Box component="section" sx={{ py: 3, borderTop: "1px solid var(--site-border)" }}>
       <Typography component="h2" variant="h6" sx={{ mb: 2, fontWeight: 400 }}>Google Sheets</Typography>
       <Typography>{isWeeklyDemo() ? "Formulir menggunakan data latihan lokal." : process.env.GOOGLE_SERVICE_ACCOUNT_JSON ? "Akses Sheets dikonfigurasi. Buka Kertas Acara untuk memeriksa akses." : "Kredensial Google Sheets belum dikonfigurasi."}</Typography>
-      <Typography color="text.secondary" sx={{ mt: 2 }}>Zona waktu gereja: Jakarta (WIB). Pergantian spreadsheet kuartal akan ditambahkan pada tahap berikutnya.</Typography>
     </Box>
+    <SpreadsheetSettings />
   </>;
 }

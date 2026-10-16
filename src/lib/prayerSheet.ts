@@ -1,7 +1,8 @@
 import { createHash } from "node:crypto";
 import { Readable } from "node:stream";
 import { google } from "googleapis";
-import { churchConfig } from "@/config/church";
+import { getSheetSettings } from "./sheetSettings";
+import type { SheetSources } from "./sheetSources";
 import { isWeeklyDemo, readDemo, updateDemo, type DemoData } from "./localDemo";
 import { sheetsClient } from "./weeklySheet";
 import { churchWeekStart, serialToDate } from "./kertasAcaraForm";
@@ -46,11 +47,12 @@ function demoSnapshot(data: DemoData): PrayerSnapshot {
   return { slots: displayed, date, revision: revision({ date, slots }), mode: "demo", canWrite: true, notesConfigured: true };
 }
 
-async function readSheetNames() {
-  const result = await sheetsClient().spreadsheets.get({ spreadsheetId: churchConfig.sheets.liturgy.sheetId,
+async function readSheetNames(source?: SheetSources) {
+  const sources = source ?? (await getSheetSettings()).sources;
+  const result = await sheetsClient().spreadsheets.get({ spreadsheetId: sources.liturgy.sheetId,
     ranges: ["'Kertas Acara'!B50:B53", "'Kertas Acara'!C2"], includeGridData: true,
     fields: "sheets(properties(sheetId),data(startRow,startColumn,rowData(values(userEnteredValue,effectiveValue))))" });
-  const sheet = result.data.sheets?.find(s => String(s.properties?.sheetId) === churchConfig.sheets.liturgy.kertasAcaraGid);
+  const sheet = result.data.sheets?.find(s => String(s.properties?.sheetId) === sources.liturgy.kertasAcaraGid);
   if (!sheet) throw new PrayerSheetError("Tab Kertas Acara tidak sesuai konfigurasi.");
   const names = ["", "", "", ""]; let date = ""; let hasFormula = false;
   for (const block of sheet.data ?? []) {
@@ -70,10 +72,11 @@ async function readSheetNames() {
   return { names, date, hasFormula };
 }
 
-async function googleSnapshot() {
-  const [sheet, notes] = await Promise.all([readSheetNames(), readNotes()]);
+async function googleSnapshot(source?: SheetSources) {
+  const sources = source ?? (await getSheetSettings()).sources;
+  const [sheet, notes] = await Promise.all([readSheetNames(sources), readNotes()]);
   return { sheet, notes, snapshot: { slots: attachPrayerNotes(sheet.names, sheet.date, notes), date: sheet.date,
-    revision: revision({ sheet, notes }), mode: "google" as const,
+    revision: revision({ sheet, notes, sources }), mode: "google" as const,
     canWrite: process.env.GOOGLE_SHEETS_WRITES_ENABLED === "true" && !sheet.hasFormula,
     notesConfigured: Boolean(process.env.GOOGLE_PRAYER_NOTES_FILE_ID) } };
 }
@@ -90,7 +93,8 @@ export async function savePrayerSheet(input: unknown, expectedRevision: string):
     if (demoSnapshot(data).revision !== expectedRevision) throw new PrayerSheetError("Data sudah diubah. Muat ulang sebelum menyimpan.", 409);
     data.prayerSlots = slots; data.prayerDate = data.weekly.date; return demoSnapshot(data);
   });
-  const { sheet, notes, snapshot } = await googleSnapshot();
+  const sources = (await getSheetSettings()).sources;
+  const { sheet, notes, snapshot } = await googleSnapshot(sources);
   if (!snapshot.canWrite) throw new PrayerSheetError("Penyimpanan belum diaktifkan atau sel nama berisi rumus. Hubungi pengelola website.");
   if (snapshot.revision !== expectedRevision) throw new PrayerSheetError("Spreadsheet atau alasan doa sudah diubah. Muat ulang sebelum menyimpan.", 409);
   if (!snapshot.notesConfigured && slots.some(s => s.note)) throw new PrayerSheetError("Penyimpanan alasan doa belum diatur. Nama tetap dapat disimpan tanpa alasan.");
@@ -100,8 +104,8 @@ export async function savePrayerSheet(input: unknown, expectedRevision: string):
     await notesDrive().files.update({ fileId: process.env.GOOGLE_PRAYER_NOTES_FILE_ID!,
       media: { mimeType: "application/json", body: Readable.from([JSON.stringify(nextNotes)]) } });
   }
-  const requests = prayerUpdateRequests(slots, Number(churchConfig.sheets.liturgy.kertasAcaraGid));
-  await sheetsClient().spreadsheets.batchUpdate({ spreadsheetId: churchConfig.sheets.liturgy.sheetId, requestBody: { requests } });
+  const requests = prayerUpdateRequests(slots, Number(sources.liturgy.kertasAcaraGid));
+  await sheetsClient().spreadsheets.batchUpdate({ spreadsheetId: sources.liturgy.sheetId, requestBody: { requests } });
   const saved = await readPrayerSheet();
   if (saved.date !== sheet.date || JSON.stringify(saved.slots) !== JSON.stringify(slots)) throw new PrayerSheetError("Hasil penyimpanan belum sesuai. Muat ulang untuk memeriksa nama dan alasan doa.", 409);
   return saved;

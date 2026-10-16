@@ -2,9 +2,9 @@
 
 Public page: `/jadwal-pelayanan`. Read-only; no new credentials, storage, or database.
 
-Source: `churchConfig.sheets.liturgy.sheetId` and `quarterlyScheduleGid` in
-`src/config/church.ts`. When replacing the Kertas Acara workbook, update the
-shared workbook ID and the tab IDs if the replacement uses different gids.
+Source: the saved Kertas Acara workbook under `/admin/settings`.
+`churchConfig.sheets.liturgy` in `src/config/church.ts` remains the default
+before the first settings save. The dashboard detects replacement tab IDs.
 The existing weekly participant workbook (`sheets.schedule`) is separate.
 
 The API reads `B4:CZ33`, using row 4 for dates, column B for roles, and rows

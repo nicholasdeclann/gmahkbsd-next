@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { getSheetSources } from "@/lib/sheetSettings";
 import { churchConfig } from "@/config/church";
 import { buildSheetExportUrl } from "@/lib/kertasAcaraExport";
 
@@ -9,7 +10,8 @@ import { buildSheetExportUrl } from "@/lib/kertasAcaraExport";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const url = buildSheetExportUrl(churchConfig.kertasAcara.export);
+  const {liturgy} = await getSheetSources();
+  const url = buildSheetExportUrl({...churchConfig.kertasAcara.export, sheetId:liturgy.sheetId, gid:liturgy.kertasAcaraGid});
 
   const upstream = await fetch(url, { cache: "no-store" });
 

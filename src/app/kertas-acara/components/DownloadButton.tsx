@@ -138,9 +138,12 @@ export default function DownloadButton({ dateLabel }: DownloadButtonProps) {
         if (!res.ok) throw new Error(`API responded ${res.status}`);
         pdfData = await res.arrayBuffer();
       } catch {
+        const sourceResponse = await fetch("/api/sheet-sources", { cache: "no-store" });
+        if (!sourceResponse.ok) throw new Error("Sumber spreadsheet belum dapat dimuat.");
+        const { liturgy } = await sourceResponse.json();
         // Fallback: let the browser download the PDF directly from Google.
         triggerBrowserDownload(
-          buildSheetExportUrl(churchConfig.kertasAcara.export),
+          buildSheetExportUrl({ ...churchConfig.kertasAcara.export, sheetId: liturgy.sheetId, gid: liturgy.kertasAcaraGid }),
           `${filenameBase}.pdf`,
         );
         return;

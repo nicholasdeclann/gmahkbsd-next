@@ -21,7 +21,7 @@ import KhotbahSection from "@/app/kertas-acara/components/KhotbahSection";
 import PelayananMusikSection from "@/app/kertas-acara/components/PelayananMusikSection";
 import DiakoniaSection from "@/app/kertas-acara/components/DiakoniaSection";
 import DownloadButton from "@/app/kertas-acara/components/DownloadButton";
-import { SHEET_URL, KERTAS_ACARA_URL, LAGU_SION_URL } from "./constants";
+import { loadSheetUrls } from "./constants";
 import { getThisWeeksSaturday, formatDate, getSaturdayOfMonth } from "./utils";
 import { LaguSionMap, ParticipantData, ParticipantItem, Row } from "./types";
 import { churchConfig } from "@/config/church";
@@ -67,11 +67,11 @@ function KertasAcaraContent() {
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([
+    loadSheetUrls().then(({SHEET_URL,KERTAS_ACARA_URL,LAGU_SION_URL})=>Promise.all([
       fetchTextCached(LAGU_SION_URL, CACHE_TTL.liturgy),
       fetchTextCached(KERTAS_ACARA_URL, CACHE_TTL.liturgy),
       fetchTextCached(SHEET_URL, CACHE_TTL.schedule),
-    ])
+    ]))
       .then(([laguSionText, kertasAcaraText, sheetText]) => {
         const laguSionJson = JSON.parse(
           laguSionText.substring(47, laguSionText.length - 2),

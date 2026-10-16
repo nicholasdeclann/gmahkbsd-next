@@ -10,6 +10,7 @@ import { imageAsset } from "@/lib/asset";
 import PrayerListCard from "@/components/PrayerListCard";
 import PhotoGallery from "@/components/PhotoGallery";
 import EventPhotos from "@/components/events/EventPhotos";
+import SabbathThisWeek from "@/components/SabbathThisWeek";
 
 export default function Home() {
   return <>
@@ -23,6 +24,7 @@ export default function Home() {
         <div className="button-row"><Link className="site-button hero-button" href="/kertas-acara"><T text="Kertas Acara" /><ArrowForward /></Link><a className="hero-location" href="#kunjungi"><T text="Kunjungi Kami" /><LocationOnOutlined /></a></div>
       </div>
     </section>
+    <SabbathThisWeek />
     <section className="site-width welcome-section">
       <p className="eyebrow"><T text="SELAMAT DATANG" /></p><h2 className="section-title"><T text="Ada tempat untuk Anda di sini." /></h2>
       <p><T text="Beribadah, bertumbuh dalam iman, dan melayani bersama." /><br /><T text="Kami senang menyambut Anda dan keluarga." /></p>

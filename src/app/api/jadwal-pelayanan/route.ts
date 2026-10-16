@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { churchConfig } from "@/config/church";
+import { getSheetSources } from "@/lib/sheetSettings";
 import { parseQuarterlySchedule } from "@/lib/quarterlySchedule";
 import { readQuarterlySource } from "@/lib/quarterlyScheduleSource";
 
 export async function GET(request: Request) {
   try {
-    const { sheetId, quarterlyScheduleGid } = churchConfig.sheets.liturgy;
+    const { sheetId, quarterlyScheduleGid } = (await getSheetSources()).liturgy;
     const url = new URL(`https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq`);
     url.search = new URLSearchParams({ gid: quarterlyScheduleGid, range: "B4:CZ33", headers: "0", tqx: "out:json" }).toString();
     const force = new URL(request.url).searchParams.get("refresh") === "1";
