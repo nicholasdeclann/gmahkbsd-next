@@ -1,4 +1,6 @@
 "use client";
+import LinkOutlined from "@mui/icons-material/LinkOutlined";
+
 import { useEffect, useState } from "react";
 import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from "@mui/material";
 import { sheetLink, type SheetSources } from "@/lib/sheetSources";
@@ -37,7 +39,7 @@ export default function SpreadsheetSettings() {
   return <Box component="section" sx={{ py: 3, borderTop: "1px solid var(--site-border)" }}>
     <Typography component="h2" variant="h6" sx={{ mb: 2, fontWeight: 400 }}>Tautan Spreadsheet</Typography>
     <Typography color="text.secondary" sx={{ mb: 3 }}>Ganti tautan saat spreadsheet baru siap. Periksa pratinjau sebelum memakai sumber baru. Zona waktu: Jakarta (WIB).</Typography>
-    {settings?.demo && <Alert severity="info" sx={{ mb: 3 }}>Mode latihan lokal. Penyimpanan di sini tidak mengubah pengaturan produksi.</Alert>}
+    {settings?.demo && <Typography variant="body2" color="text.secondary" sx={{mb:3}}>Perubahan hanya disimpan pada latihan lokal.</Typography>}
     {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
     {!settings && error && <Button onClick={() => window.location.reload()}>Muat Ulang</Button>}
     {success && <Alert severity="success" sx={{ mb: 3 }}>{success}</Alert>}
@@ -45,9 +47,9 @@ export default function SpreadsheetSettings() {
     {settings && <>
       <TextField fullWidth label="Workbook Kertas Acara" value={mainLink} disabled={busy} onChange={event => { setMain(event.target.value); changed(); }} helperText="Berisi tab Kertas Acara, Lagu Sion, dan Jadwal Kuartal. Juga digunakan untuk nama Pokok Doa dan unduhan." sx={{ mb: 3 }} />
       <TextField fullWidth label="Spreadsheet peserta pelayanan per kuartal" value={participantLink} disabled={busy} onChange={event => { setParticipant(event.target.value); changed(); }} helperText="Buka tab Khotbah & SS pada spreadsheet peserta, lalu salin tautan lengkapnya. Ini terpisah dari tabel tahunan Jadwal Kuartal." sx={{ mb: 3 }} />
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>Workbook pengganti harus bisa dibaca oleh pengunjung website dan dibagikan kepada akun layanan {settings.serviceEmail || "Google Sheets gereja"} sebagai Editor. Tidak perlu mengubah sel atau rumus saat memeriksa tautan.</Typography>
+      <details className="quiet-disclosure"><summary>Bantuan akses spreadsheet</summary><Typography variant="body2" color="text.secondary" sx={{ my: 2 }}>Workbook pengganti harus bisa dibaca oleh pengunjung website dan dibagikan kepada akun layanan {settings.serviceEmail || "Google Sheets gereja"} sebagai Editor. Tidak perlu mengubah sel atau rumus saat memeriksa tautan.</Typography></details>
       <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 3 }}>
-        <Button variant="outlined" disabled={busy || !mainLink.trim() || !participantLink.trim()} onClick={() => void request("preview")}>{busy ? "Memeriksa…" : "Periksa Tautan"}</Button>
+        <Button startIcon={<LinkOutlined/>} variant="outlined" disabled={busy || !mainLink.trim() || !participantLink.trim()} onClick={() => void request("preview")}>{busy ? "Memeriksa…" : "Periksa Tautan"}</Button>
         {settings.previous && <Button disabled={busy} onClick={() => setRestore(true)}>Pulihkan Tautan Sebelumnya</Button>}
       </Box>
       {preview && <Box sx={{ borderTop: "1px solid var(--site-border)", pt: 3 }}>

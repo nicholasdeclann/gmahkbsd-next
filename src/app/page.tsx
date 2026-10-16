@@ -1,3 +1,6 @@
+import CalendarMonthOutlined from "@mui/icons-material/CalendarMonthOutlined";
+import CakeOutlined from "@mui/icons-material/CakeOutlined";
+import PhotoLibraryOutlined from "@mui/icons-material/PhotoLibraryOutlined";
 import { T } from "@/components/LanguageProvider";
 import Image from "next/image";
 import Link from "next/link";
@@ -25,15 +28,15 @@ export default function Home() {
       </div>
     </section>
     <SabbathThisWeek />
-    <section className="site-width welcome-section">
-      <p className="eyebrow"><T text="SELAMAT DATANG" /></p><h2 className="section-title"><T text="Ada tempat untuk Anda di sini." /></h2>
-      <p><T text="Beribadah, bertumbuh dalam iman, dan melayani bersama." /><br /><T text="Kami senang menyambut Anda dan keluarga." /></p>
-    </section>
     <nav className="site-width simple-links" aria-label="Akses cepat">
-      <Link href="/kertas-acara"><h2><T text="Kertas Acara" /></h2><p><T text="Susunan ibadah dan jadwal pelayanan." /></p><span><T text="Lihat acara" /><ArrowForward /></span></Link>
-      <Link href="/pengumuman"><h2><T text="Pengumuman" /></h2><p><T text="Kabar dan kegiatan seluruh jemaat." /></p><span><T text="Baca pengumuman" /><ArrowForward /></span></Link>
-      <Link href="/ulang-tahun"><h2><T text="Ulang Tahun" /></h2><p><T text="Hari istimewa keluarga jemaat." /></p><span><T text="Lihat daftar" /><ArrowForward /></span></Link>
+      <Link href="/jadwal-pelayanan"><CalendarMonthOutlined/><h2><T text="Jadwal Pelayanan" /></h2><p><T text="Jadwal Pelayanan Triwulan" /></p><ArrowForward className="shortcut-arrow"/></Link>
+      <Link href="/ulang-tahun"><CakeOutlined/><h2><T text="Ulang Tahun" /></h2><p><T text="Hari istimewa keluarga jemaat." /></p><ArrowForward className="shortcut-arrow"/></Link>
+      <Link href="/kegiatan"><PhotoLibraryOutlined/><h2><T text="Kegiatan Jemaat" /></h2><p><T text="Foto dan cerita kebersamaan." /></p><ArrowForward className="shortcut-arrow"/></Link>
     </nav>
+    <section className="site-width section-space news-section" aria-labelledby="news-title">
+      <div className="section-heading"><div><p className="eyebrow"><T text="KABAR KELUARGA GEREJA" /></p><h2 className="section-title" id="news-title"><T text="Pengumuman Jemaat" /></h2></div><Link className="text-link" href="/pengumuman"><T text="Semua Pengumuman" /><ArrowForward /></Link></div>
+      <PhotoGallery previewLimit={3} />
+    </section>
     <EventPhotos carousel />
     <section className="section-space worship-section" aria-labelledby="worship-title">
       <div className="site-width worship-grid">
@@ -43,6 +46,10 @@ export default function Home() {
           <div className="zoom-row"><div><strong><T text="Ibadah melalui Zoom" /></strong><p>Meeting ID: {churchConfig.zoom.id}<br /><T text="Kata sandi:" />{churchConfig.zoom.password}</p></div><a className="site-button primary" href={churchConfig.zoom.url} target="_blank" rel="noopener noreferrer"><T text="Gabung Zoom" /><ArrowForward /></a></div>
         </div>
       </div>
+    </section>
+    <section className="site-width welcome-section">
+      <p className="eyebrow"><T text="SELAMAT DATANG" /></p><h2 className="section-title"><T text="Ada tempat untuk Anda di sini." /></h2>
+      <p><T text="Beribadah, bertumbuh dalam iman, dan melayani bersama." /><br /><T text="Kami senang menyambut Anda dan keluarga." /></p>
     </section>
     <section id="tentang" className="site-width section-space church-about" aria-labelledby="about-title">
       <div className="church-introduction">
@@ -58,10 +65,6 @@ export default function Home() {
     <section className="site-width section-space pastor-welcome" aria-labelledby="pastor-title">
       <div className="pastor-small-photo"><Image src={imageAsset("pdt-eko-surono.png")} alt="Pdt. Eko Surono" width={773} height={1507} sizes="220px" /></div>
       <div><p className="eyebrow"><T text="PENDETA JEMAAT" /></p><h2 id="pastor-title" className="section-title">Pdt. Eko Surono</h2><p className="section-description"><T text="Kami menyambut Anda untuk beribadah dan menjadi bagian dari keluarga jemaat GMAHK BSD." /></p><a className="text-link" href="https://wa.me/+62895337627700" target="_blank" rel="noopener noreferrer"><T text="Hubungi Pendeta" /><WhatsApp fontSize="small" /></a></div>
-    </section>
-    <section className="site-width section-space news-section" aria-labelledby="news-title">
-      <div className="section-heading"><div><p className="eyebrow"><T text="KABAR KELUARGA GEREJA" /></p><h2 className="section-title" id="news-title"><T text="Pengumuman Jemaat" /></h2></div><Link className="text-link" href="/pengumuman"><T text="Semua Pengumuman" /><ArrowForward /></Link></div>
-      <PhotoGallery previewLimit={3} />
     </section>
     <section className="community-section section-space" aria-labelledby="community-title">
       <div className="site-width community-heading"><p className="eyebrow"><T text="SALING MENGUATKAN" /></p><h2 id="community-title" className="section-title"><T text="Satu keluarga dalam doa." /></h2><p className="section-description"><T text="Mari saling mendoakan dan menyampaikan perhatian kepada sesama jemaat." /></p></div>

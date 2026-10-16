@@ -1,4 +1,6 @@
 "use client";
+import SaveOutlined from "@mui/icons-material/SaveOutlined";
+
 import { useCallback, useEffect, useState } from "react";
 import { Box, Typography, TextField, Button, Alert, CircularProgress, Checkbox, FormControlLabel } from "@mui/material";
 import { emptyPrayerSlots, type PrayerSlot, type PrayerSnapshot } from "@/lib/prayerTypes";
@@ -56,7 +58,7 @@ export default function PrayerAdminPage() {
         <FormControlLabel control={<Checkbox checked={slot.note_public} disabled={saving || !snapshot.canWrite || !snapshot.notesConfigured} onChange={event => update(index, { note_public: event.target.checked })} />} label="Tampilkan alasan doa di website" />
       </Box>)}
       <Typography color="text.secondary" sx={{ mb: 2 }}>Nama muncul di website pada minggu tanggal Kertas Acara. Alasan doa yang tidak dicentang hanya terlihat oleh pengelola.</Typography>
-      <Button type="submit" variant="contained" size="large" disabled={saving || !snapshot.canWrite || !dirty}>{saving ? "Menyimpan…" : "Simpan Pokok Doa"}</Button>
+      <Button startIcon={<SaveOutlined/>} type="submit" variant="contained" size="large" disabled={saving || !snapshot.canWrite || !dirty}>{saving ? "Menyimpan…" : "Simpan Pokok Doa"}</Button>
     </Box>}
     <Button sx={{ mt: 2, ml: 1 }} disabled={saving || loading} onClick={() => { if (!dirty || window.confirm("Muat ulang dan ganti isian yang belum disimpan dengan data terbaru?")) void load(); }}>Muat Ulang</Button>
   </Box>;

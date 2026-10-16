@@ -1,4 +1,6 @@
 "use client";
+import AddPhotoAlternateOutlined from "@mui/icons-material/AddPhotoAlternateOutlined";
+
 import { T } from "@/components/LanguageProvider";
 
 import { useCallback, useEffect, useState } from "react";
@@ -68,13 +70,13 @@ export default function PhotoGallery({ editable = false, previewLimit }: { edita
   }
 
   return <>
-    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 2, mb: 3 }}>
-      <Box>
+    {!previewLimit && <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 2, mb: 3 }}>
+      {!editable && <Box>
         <Typography component="h2" variant="h5" sx={{ fontWeight: 450, mb: 1 }}><T text="Papan Pengumuman Jemaat" /></Typography>
         <Typography color="text.secondary"><T text="Informasi dan kegiatan dari seluruh departemen gereja." /></Typography>
-      </Box>
-      {editable ? <Button variant="contained" onClick={() => setShowUpload(true)}>Tambah Pengumuman</Button> : !previewLimit && <AnnouncementShare board />}
-    </Box>
+      </Box>}
+      {editable ? <Button variant="contained" startIcon={<AddPhotoAlternateOutlined/>} onClick={() => setShowUpload(true)}>Tambah Pengumuman</Button> : !previewLimit && <AnnouncementShare board />}
+    </Box>}
     {success && <Alert severity="success" onClose={() => setSuccess("")} sx={{ mb: 2 }}>{success}</Alert>}
     {error && <Alert severity="error" sx={{ mb: 2 }} action={<Button onClick={() => void fetchPhotos()}><T text="Coba Lagi" /></Button>}><T text={error} /></Alert>}
     {missingPost && <Alert severity="info" sx={{ mb: 2 }}><T text="Pengumuman pada tautan ini belum tersedia. Lihat pengumuman lainnya di bawah." /></Alert>}

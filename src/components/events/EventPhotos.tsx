@@ -1,4 +1,6 @@
 "use client";
+import AddPhotoAlternateOutlined from "@mui/icons-material/AddPhotoAlternateOutlined";
+
 import { T, useLanguage } from "@/components/LanguageProvider";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -60,7 +62,7 @@ export default function EventPhotos({manage=false,carousel=false}:{manage?:boole
   function step(direction:number){setIndex(i=>(i+direction+photos.length)%photos.length);}
   if(carousel&&!loading&&!error&&!photos.length)return null;
   const contents=<>
-    {!carousel&&<Box sx={{display:"flex",gap:2,alignItems:"center",flexWrap:"wrap",mb:4}}><TextField label={t("Bulan kegiatan")} type="month" value={month} onChange={e=>{if(e.target.value)setMonth(e.target.value);}} disabled={busy||loadMore} slotProps={{inputLabel:{shrink:true}}}/>{manage&&<Button variant="contained" onClick={()=>setEditor("new")}>Tambah Foto Kegiatan</Button>}</Box>}
+    {!carousel&&<Box sx={{display:"flex",gap:2,alignItems:"center",flexWrap:"wrap",mb:4}}><TextField label={t("Bulan kegiatan")} type="month" value={month} onChange={e=>{if(e.target.value)setMonth(e.target.value);}} disabled={busy||loadMore} slotProps={{inputLabel:{shrink:true}}}/>{manage&&<Button startIcon={<AddPhotoAlternateOutlined/>} variant="contained" onClick={()=>setEditor("new")}>Tambah Foto Kegiatan</Button>}</Box>}
     {success&&<Alert severity="success" onClose={()=>setSuccess("")} sx={{mb:3}}>{success}</Alert>}
     {error&&<Alert severity="error" sx={{mb:3}} action={<Button onClick={()=>void load()}><T text="Coba Lagi" /></Button>}>{t(error)}</Alert>}
     {loading?<Box sx={{py:5,textAlign:"center"}}><CircularProgress aria-label={t("Memuat kegiatan jemaat")}/></Box>:carousel&&current?<>

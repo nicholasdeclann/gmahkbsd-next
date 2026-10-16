@@ -399,3 +399,65 @@ main:focus { outline: none; }
 .sabbath-status {color:var(--site-muted);font-size:.9rem;}
 .sabbath-retry {font:inherit;color:var(--site-blue);border:0;background:transparent;text-decoration:underline;min-height:44px;padding:8px;cursor:pointer;}
 @media(max-width:700px){.sabbath-summary {grid-template-columns:1fr;gap:32px;padding-block:36px;}.sabbath-summary-details dl {grid-template-columns:1fr;gap:20px;}}
+/* Shared, quieter navigation and management surfaces. */
+.navbar-inner {min-height:80px;gap:20px;}
+.desktop-nav {display:flex;gap:22px;margin-left:auto;}
+.desktop-nav a {font-size:.95rem;padding-block:22px;}
+.desktop-nav .MuiButton-root {font:inherit;font-size:.95rem;min-height:44px;color:inherit;}
+.nav-selected {color:#1555c0!important;}
+.nav-actions {margin-left:0;gap:8px;flex-shrink:0;}
+.nav-actions .mobile-menu-button {display:none;}
+.display-settings-trigger.MuiButton-root {min-height:44px;white-space:nowrap;}
+.MuiMenuItem-root.MuiMenuItem-root {min-height:48px;}
+.simple-links {padding-block:30px;}
+.simple-links > a {position:relative;padding:22px 40px 22px 0;}
+.simple-links > a > svg:first-child {color:var(--site-blue);width:25px;height:25px;margin-bottom:12px;}
+.simple-links h2 {font-size:1.25rem;}
+.simple-links p {font-size:1rem;margin-bottom:0;}
+.simple-links .shortcut-arrow {position:absolute;right:14px;top:26px;width:20px;color:var(--site-muted);}
+.welcome-section {padding-block:48px 20px;}
+.church-about {padding-top:40px;}
+.quiet-disclosure {border-top:1px solid var(--site-border);padding-block:8px;margin-block:20px;}
+.quiet-disclosure summary {cursor:pointer;min-height:48px;padding-block:12px;color:var(--site-text);font-size:1.05rem;}
+.quiet-disclosure[open] summary {margin-bottom:12px;}
+.secondary-actions {display:flex;gap:12px;flex-wrap:wrap;padding-block:12px;}
+.admin-content h1.MuiTypography-root {font-size:clamp(2rem,4vw,2.8rem);}
+.admin-demo-note {font-size:.85rem;color:var(--site-muted);margin:0 0 24px;line-height:1.5;}
+.dashboard-group {margin-block:36px;}
+.dashboard-group > h2 {font-size:.9rem;font-weight:500;letter-spacing:.04em;color:var(--site-muted);margin-bottom:14px;}
+.dashboard-task-list {display:grid;grid-template-columns:1fr 1fr;column-gap:40px;}
+.dashboard-task-list > a {justify-content:flex-start;gap:16px;padding:22px 0;border-bottom:0;}
+.dashboard-task-list > a:last-child {border-bottom:0;}
+.dashboard-task-list > a > div {flex:1;min-width:0;}
+.dashboard-task-list h3 {font-size:1.2rem;font-weight:450;margin:0 0 6px;}
+.dashboard-task-list p {font-size:.95rem;line-height:1.6;}
+.dashboard-task-list .task-icon {color:var(--site-blue);width:26px;height:26px;flex-shrink:0;}
+.dashboard-task-list .task-arrow {width:18px;color:var(--site-muted);flex-shrink:0;}
+.dashboard-task-list a:hover h3 {color:var(--site-blue);}
+.settings-disclosure {border-top:1px solid var(--site-border);}
+.settings-disclosure:last-of-type {border-bottom:1px solid var(--site-border);}
+.settings-disclosure > summary {list-style:none;display:flex;align-items:center;gap:14px;min-height:80px;cursor:pointer;font-size:1.125rem;flex-wrap:wrap;padding-block:18px;}
+.settings-disclosure > summary::-webkit-details-marker {display:none;}
+.settings-disclosure > summary > svg {color:var(--site-blue);flex-shrink:0;}
+.settings-disclosure > summary span {font-size:.9rem;color:var(--site-muted);margin-left:auto;}
+.settings-disclosure > summary::after {content:'+';font-size:1.5rem;margin-left:auto;}
+.settings-disclosure[open] > summary::after {content:'−';}
+.settings-disclosure .disclosure-body {padding:0 0 24px 38px;}
+.settings-disclosure .disclosure-body > section {border-top:0;}
+summary:focus-visible {outline:3px solid var(--site-blue);outline-offset:4px;}
+@media(max-width:1050px){.desktop-nav {display:none;}.nav-actions {margin-left:auto;}.nav-actions .mobile-menu-button {display:inline-flex;}}
+@media(max-width:700px){
+ .display-settings-trigger.MuiButton-root {min-width:44px;width:44px;padding:10px;}
+ .display-settings-trigger > span:not(.MuiButton-startIcon):not(.MuiTouchRipple-root) {display:none;}
+ .display-settings-trigger .MuiButton-startIcon {margin:0;}
+ .navbar-inner {min-height:72px;gap:8px;}
+ .nav-actions .mobile-menu-button {width:auto;min-width:72px;font-size:.9rem;gap:0;}
+ .nav-actions .mobile-menu-button .MuiButton-startIcon {margin-right:5px;}
+ .dashboard-task-list {grid-template-columns:1fr;}
+ .dashboard-task-list > a {padding:18px 0;}
+ .admin-header > .MuiContainer-root {gap:6px;}
+ .admin-header a {font-size:1rem;}
+ .admin-header .MuiButton-root {flex-shrink:0;}
+ .settings-disclosure > summary span {display:none;}
+ .settings-disclosure .disclosure-body {padding-left:0;}
+}

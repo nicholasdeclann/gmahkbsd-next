@@ -10,7 +10,7 @@ import {
   Button,
   Alert,
 } from "@mui/material";
-import ThemeToggle from "@/components/ThemeToggle";
+import DisplaySettings from "@/components/DisplaySettings";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -49,7 +49,7 @@ export default function AdminLoginPage() {
 
   return (
     <Container maxWidth="xs" sx={{ py: { xs: 8, sm: 12 } }}>
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}><ThemeToggle /></Box>
+      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}><DisplaySettings /></Box>
       <Typography component="h1" variant="h4" sx={{ fontWeight: 350, mb: 3, textAlign: "center" }}>
         Dashboard Gereja
       </Typography>
