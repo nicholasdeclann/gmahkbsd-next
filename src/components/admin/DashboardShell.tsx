@@ -19,7 +19,7 @@ import ArrowBack from "@mui/icons-material/ArrowBack";
 import { ThemeProvider } from "@mui/material/styles";
 import { createSiteTheme } from "@/app/theme";
 const headerTheme = createSiteTheme(false);
-const destinations=[{title:"Dashboard",href:"/admin",icon:DashboardOutlined},{title:"Kertas Acara",href:"/admin/kertas-acara",icon:DescriptionOutlined},{title:"Pokok Doa",href:"/admin/prayer",icon:FavoriteBorder},{title:"Pengumuman",href:"/admin/photos",icon:CampaignOutlined},{title:"Kegiatan Jemaat",href:"/admin/events",icon:PhotoLibraryOutlined},{title:"Daftar Tamu",href:"/tamu",icon:PeopleOutline},{title:"Pengaturan Website",href:"/admin/settings",icon:SettingsOutlined}];
+const destinations=[{title:"Dashboard",href:"/admin",icon:DashboardOutlined},{title:"Kertas Acara",href:"/admin/kertas-acara",icon:DescriptionOutlined},{title:"Pokok Doa",href:"/admin/prayer",icon:FavoriteBorder},{title:"Pengumuman",href:"/admin/photos",icon:CampaignOutlined},{title:"Presentasi Canva",href:"/admin/canva",icon:CampaignOutlined},{title:"Kegiatan Jemaat",href:"/admin/events",icon:PhotoLibraryOutlined},{title:"Daftar Tamu",href:"/tamu",icon:PeopleOutline},{title:"Pengaturan Website",href:"/admin/settings",icon:SettingsOutlined}];
 
 export default function DashboardShell({ children, demo, weeklyDemo }: { children: React.ReactNode; demo: boolean; weeklyDemo: boolean }) {
   const pathname = usePathname();

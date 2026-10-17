@@ -9,6 +9,7 @@ import RecordVoiceOverOutlined from "@mui/icons-material/RecordVoiceOverOutlined
 import SettingsOutlined from "@mui/icons-material/SettingsOutlined";
 import ArrowForward from "@mui/icons-material/ArrowForward";
 const weekly=[
+  {title:"Presentasi Canva",description:"Pratinjau pelayanan, doa, dan sinkronisasi Canva.",href:"/admin/canva",icon:CampaignOutlined},
   {title:"Kertas Acara",description:"Judul khotbah, ayat, dan lagu.",href:"/admin/kertas-acara",icon:DescriptionOutlined},
   {title:"Pokok Doa",description:"Empat nama dan alasan doa mingguan.",href:"/admin/prayer",icon:FavoriteBorder},
   {title:"Pengumuman",description:"Terbitkan informasi untuk jemaat.",href:"/admin/photos",icon:CampaignOutlined},
