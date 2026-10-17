@@ -4,7 +4,8 @@ export interface GuestEntry {
   name: string;
   church: string;
   type: "individual" | "group";
-  pax: number;
+  phone?: string;
+  pax: number | null;
   revision: string;
   createdAt: string;
   updatedAt: string;
@@ -27,15 +28,20 @@ export function isSaturday(date: string): boolean {
 export function saturdayLabel(date:string):string {
   return new Intl.DateTimeFormat("id-ID",{timeZone:"Asia/Jakarta",weekday:"long",day:"numeric",month:"long",year:"numeric"}).format(new Date(`${date}T12:00:00+07:00`));
 }
-export function guestDetails(body:unknown):Pick<GuestEntry,"date"|"name"|"church"|"type"|"pax"> {
+export function guestDetails(body:unknown):Pick<GuestEntry,"date"|"name"|"church"|"type"|"pax"|"phone"> {
   if(!body||typeof body!=="object"||Array.isArray(body))throw new Error("Formulir tamu tidak valid.");
   const value=body as Record<string,unknown>;
   if(typeof value.date!=="string"||!isSaturday(value.date))throw new Error("Pilih tanggal hari Sabtu.");
   if(typeof value.name!=="string"||!value.name.trim()||value.name.trim().length>150)throw new Error("Isi nama tamu atau keluarga (maksimal 150 karakter).");
   if(typeof value.church!=="string"||value.church.trim().length>150)throw new Error("Jemaat asal maksimal 150 karakter.");
   if(value.type!=="individual"&&value.type!=="group")throw new Error("Pilih jenis tamu.");
-  if(typeof value.pax!=="number"||!Number.isSafeInteger(value.pax)||value.pax<1||value.pax>999)throw new Error("Jumlah orang harus angka bulat antara 1 dan 999.");
-  if(value.type==="individual"&&value.pax!==1)throw new Error("Tamu perorangan berjumlah 1 orang.");
-  if(value.type==="group"&&value.pax<2)throw new Error("Rombongan berjumlah minimal 2 orang.");
-  return {date:value.date,name:value.name.trim(),church:value.church.trim(),type:value.type,pax:value.pax};
+  const phone=value.phone??"";
+  if(typeof phone!=="string"||!/^[0-9]*$/.test(phone))throw new Error("Nomor HP hanya boleh berisi angka.");
+  const pax=value.pax===undefined||value.pax===null||value.pax===""?null:value.pax;
+  if(pax!==null){
+    if(typeof pax!=="number"||!Number.isSafeInteger(pax)||pax<1||pax>999)throw new Error("Jumlah orang harus angka bulat antara 1 dan 999.");
+    if(value.type==="individual"&&pax!==1)throw new Error("Tamu perorangan berjumlah 1 orang.");
+    if(value.type==="group"&&pax<2)throw new Error("Rombongan berjumlah minimal 2 orang.");
+  }
+  return {date:value.date,name:value.name.trim(),church:value.church.trim(),type:value.type,phone,pax};
 }

@@ -7,7 +7,7 @@ import Refresh from "@mui/icons-material/Refresh";
 import {currentSaturday,guestDetails,isSaturday,saturdayLabel,type GuestEntry} from "@/lib/guestTypes";
 
 interface Row {key:string;value:GuestEntry;original?:GuestEntry;error?:string;saving?:boolean;requestId?:string}
-function dirty(row:Row){return !row.original||row.value.name!==row.original.name||row.value.church!==row.original.church||row.value.pax!==row.original.pax||row.value.type!==row.original.type;}
+function dirty(row:Row){return !row.original||row.value.name!==row.original.name||row.value.church!==row.original.church||row.value.pax!==row.original.pax||row.value.type!==row.original.type||(row.value.phone??"")!==(row.original.phone??"");}
 function errorText(error:unknown,fallback:string){return error instanceof Error&&!(error instanceof TypeError)?error.message:fallback;}
 export default function GuestRegister({initialDate,readOnly=false,invalidDate=false}:{initialDate:string;readOnly?:boolean;invalidDate?:boolean}){
   const [date,setDate]=useState(initialDate),[rows,setRows]=useState<Row[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(""),[message,setMessage]=useState("");
@@ -36,7 +36,7 @@ export default function GuestRegister({initialDate,readOnly=false,invalidDate=fa
     const prevent=(event:BeforeUnloadEvent)=>{event.preventDefault();event.returnValue="";};window.addEventListener("beforeunload",prevent);return()=>window.removeEventListener("beforeunload",prevent);
   },[rows,readOnly]);
   function update(key:string,changes:Partial<GuestEntry>){generation.current++;setRows(current=>current.map(row=>row.key===key?{...row,value:{...row.value,...changes},error:undefined}:row));}
-  function add(){generation.current++;const id=crypto.randomUUID();setRows(current=>[...current,{key:`new-${id}`,requestId:id,value:{id:"",date,name:"",church:"",type:"individual",pax:1,revision:"",createdAt:"",updatedAt:""}}]);}
+  function add(){generation.current++;const id=crypto.randomUUID();setRows(current=>[...current,{key:`new-${id}`,requestId:id,value:{id:"",date,name:"",church:"",type:"individual",phone:"",pax:null,revision:"",createdAt:"",updatedAt:""}}]);}
   function chooseDate(next:string){if(!isSaturday(next)){setError("Pilih tanggal hari Sabtu.");return;}if(next===date)return;if(rows.some(dirty)){setSwitchDate(next);return;}setDate(next);}
   async function saveRow(row:Row){
     let details;
@@ -66,10 +66,10 @@ export default function GuestRegister({initialDate,readOnly=false,invalidDate=fa
     try{await navigator.clipboard.writeText(url);setMessage("Tautan baca untuk pembawa acara telah disalin.");}catch{setMessage("Salin tautan pembawa acara di kotak tautan.");}
   }
   async function copyList(){
-    const text=[`Daftar Tamu — ${saturdayLabel(date)}`,"",...rows.filter(row=>row.original).map((row,index)=>`${index+1}. ${row.value.name} — ${row.value.church||"Jemaat asal belum dicatat"} (${row.value.pax} orang)`)].join("\n");
+    const text=[`Daftar Tamu — ${saturdayLabel(date)}`,"",...rows.filter(row=>row.original).map((row,index)=>`${index+1}. ${row.value.name} — ${row.value.church||"Jemaat asal belum dicatat"}${row.value.pax===null?"":` (${row.value.pax} orang)`}`)].join("\n");
     try{await navigator.clipboard.writeText(text);setMessage("Daftar tamu telah disalin.");}catch{setError("Belum dapat menyalin otomatis. Gunakan tautan baca pembawa acara.");}
   }
-  const saved=rows.filter(row=>row.original);const pax=saved.reduce((sum,row)=>sum+row.original!.pax,0);const unsaved=rows.filter(dirty).length;
+  const saved=rows.filter(row=>row.original);const pax=saved.reduce((sum,row)=>sum+(row.original!.pax??0),0);const unknownPax=saved.filter(row=>row.original!.pax===null).length;const unsaved=rows.filter(dirty).length;
   return <>
     <Typography component="h1" sx={{fontSize:{xs:"2.2rem",sm:"3rem"},fontWeight:350,mb:1}}>Daftar Tamu</Typography>
     <Typography color="text.secondary" sx={{mb:3,fontSize:"1.125rem"}}>{readOnly?"Daftar untuk dibacakan saat menyambut tamu. Tampilan ini hanya untuk membaca.":"Catat tamu perorangan atau keluarga untuk disambut oleh pembawa acara."}</Typography>
@@ -82,18 +82,19 @@ export default function GuestRegister({initialDate,readOnly=false,invalidDate=fa
       {readOnly&&<Button startIcon={<ContentCopy/>} onClick={()=>void copyList()} disabled={loading||!saved.length}>Salin Daftar</Button>}
     </Box>
     <Typography component="h2" sx={{fontSize:"1.35rem",fontWeight:450,mb:1}}>{saturdayLabel(date)}</Typography>
-    <Typography role="status" color="text.secondary" sx={{mb:3}}>{saved.length} catatan tamu · {pax} orang{unsaved&&!readOnly?` · ${unsaved} catatan belum disimpan`:""}</Typography>
+    <Typography role="status" color="text.secondary" sx={{mb:3}}>{saved.length} catatan tamu · {pax} orang tercatat{unknownPax?` · ${unknownPax} catatan tanpa jumlah orang`:""}{unsaved&&!readOnly?` · ${unsaved} catatan belum disimpan`:""}</Typography>
     {shareUrl&&<TextField label="Tautan baca untuk MC" value={shareUrl} fullWidth sx={{mb:3}} slotProps={{input:{readOnly:true}}} onFocus={event=>event.target.select()}/>}
     {message&&<Alert severity="success" sx={{mb:3}} onClose={()=>setMessage("")}>{message}</Alert>}
     {error&&<Alert severity="error" sx={{mb:3}} onClose={()=>setError("")}>{error}</Alert>}
     {loading?<Box sx={{py:6,textAlign:"center"}}><CircularProgress aria-label="Memuat daftar tamu"/></Box>:<>
       <table className={`guest-table${readOnly?" guest-table-readonly":""}`} aria-label={`Daftar tamu ${saturdayLabel(date)}`}>
-        <thead><tr><th scope="col">Jenis Tamu</th><th scope="col">Nama / Keluarga</th><th scope="col">Jemaat Asal</th><th scope="col">Jumlah Orang</th>{!readOnly&&<th scope="col">Tindakan</th>}</tr></thead>
+        <thead><tr><th scope="col">Jenis Tamu</th><th scope="col">Nama / Keluarga</th><th scope="col">Jemaat Asal</th><th scope="col">Nomor HP</th><th scope="col">Jumlah Orang</th>{!readOnly&&<th scope="col">Tindakan</th>}</tr></thead>
         <tbody>{rows.map((row,index)=><tr key={row.key}>
-          <td><span className="guest-cell-label">Jenis Tamu</span>{readOnly?row.value.type==="group"?"Keluarga / Rombongan":"Perorangan":<TextField select fullWidth value={row.value.type} disabled={busy} slotProps={{select:{renderValue:value=>value==="group"?"Rombongan":"Perorangan",inputProps:{"aria-label":`Jenis tamu baris ${index+1}`}}}} onChange={event=>update(row.key,{type:event.target.value as GuestEntry["type"],pax:event.target.value==="individual"?1:Math.max(2,row.value.pax)})}><MenuItem value="individual">Perorangan</MenuItem><MenuItem value="group">Keluarga / Rombongan</MenuItem></TextField>}</td>
+          <td><span className="guest-cell-label">Jenis Tamu</span>{readOnly?row.value.type==="group"?"Keluarga / Rombongan":"Perorangan":<TextField select fullWidth value={row.value.type} disabled={busy} slotProps={{select:{renderValue:value=>value==="group"?"Rombongan":"Perorangan",inputProps:{"aria-label":`Jenis tamu baris ${index+1}`}}}} onChange={event=>update(row.key,{type:event.target.value as GuestEntry["type"],pax:row.value.pax===null?null:event.target.value==="individual"?1:Math.max(2,row.value.pax)})}><MenuItem value="individual">Perorangan</MenuItem><MenuItem value="group">Keluarga / Rombongan</MenuItem></TextField>}</td>
           <td><span className="guest-cell-label">Nama / Keluarga</span>{readOnly?<strong>{row.value.name}</strong>:<TextField fullWidth value={row.value.name} disabled={busy} placeholder={row.value.type==="group"?"Kel. John Doe":"Nama tamu"} slotProps={{htmlInput:{"aria-label":`Nama tamu baris ${index+1}`,maxLength:150}}} onChange={event=>update(row.key,{name:event.target.value})}/>}</td>
           <td><span className="guest-cell-label">Jemaat Asal</span>{readOnly?row.value.church||"—":<TextField fullWidth value={row.value.church} disabled={busy} placeholder="Jemaat asal" slotProps={{htmlInput:{"aria-label":`Jemaat asal baris ${index+1}`,maxLength:150}}} onChange={event=>update(row.key,{church:event.target.value})}/>}</td>
-          <td><span className="guest-cell-label">Jumlah Orang</span>{readOnly||row.value.type==="individual"?<span className="guest-pax">{row.value.pax}</span>:<TextField type="number" value={row.value.pax||""} disabled={busy} slotProps={{htmlInput:{"aria-label":`Jumlah orang baris ${index+1}`,min:2,max:999,step:1,inputMode:"numeric"}}} onChange={event=>update(row.key,{pax:Number(event.target.value)})}/>}</td>
+          <td><span className="guest-cell-label">Nomor HP</span>{readOnly?row.value.phone||"—":<TextField fullWidth type="tel" value={row.value.phone??""} disabled={busy} placeholder="Nomor HP" slotProps={{htmlInput:{"aria-label":`Nomor HP baris ${index+1}`,inputMode:"numeric",pattern:"[0-9]*"}}} onChange={event=>update(row.key,{phone:event.target.value.replace(/[^0-9]/g,"")})}/>}</td>
+          <td><span className="guest-cell-label">Jumlah Orang</span>{readOnly?<span className="guest-pax">{row.value.pax??"—"}</span>:<TextField type="number" value={row.value.pax??""} placeholder="Opsional" disabled={busy} slotProps={{htmlInput:{"aria-label":`Jumlah orang baris ${index+1}`,min:row.value.type==="individual"?1:2,max:row.value.type==="individual"?1:999,step:1,inputMode:"numeric"}}} onChange={event=>update(row.key,{pax:event.target.value===""?null:Number(event.target.value)})}/>}</td>
           {!readOnly&&<td className="guest-row-actions"><Button onClick={()=>void save(row)} disabled={busy||!dirty(row)}>{row.saving?"Menyimpan…":"Simpan"}</Button><Button color="error" onClick={()=>{setError("");setDeleting(row);}} disabled={busy}>Hapus</Button>{dirty(row)&&<Typography variant="body2" color="text.secondary">Belum disimpan</Typography>}{row.error&&<Typography role="alert" color="error" variant="body2">{row.error}</Typography>}</td>}
         </tr>)}</tbody>
       </table>
