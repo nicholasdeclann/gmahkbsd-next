@@ -14,6 +14,7 @@ import PrayerListCard from "@/components/PrayerListCard";
 import PhotoGallery from "@/components/PhotoGallery";
 import EventPhotos from "@/components/events/EventPhotos";
 import SabbathThisWeek from "@/components/SabbathThisWeek";
+import InstagramFeed from "@/components/InstagramFeed";
 
 export default function Home() {
   return <>
@@ -38,6 +39,7 @@ export default function Home() {
       <PhotoGallery previewLimit={3} />
     </section>
     <EventPhotos carousel />
+    <InstagramFeed />
     <section className="section-space worship-section" aria-labelledby="worship-title">
       <div className="site-width worship-grid">
         <div><p className="eyebrow"><T text="MARI BERIBADAH BERSAMA" /></p><h2 id="worship-title" className="section-title"><T text="Waktu untuk" /><br /><T text="beribadah bersama." /></h2><p className="section-description"><T text="Bergabunglah dalam ibadah di gereja atau secara daring melalui Zoom." /></p></div>
