@@ -1,6 +1,7 @@
 "use client";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {Alert,Box,Button,CircularProgress,Dialog,DialogActions,DialogContent,DialogTitle,MenuItem,TextField,Typography} from "@mui/material";
+import Link from "next/link";
 import Add from "@mui/icons-material/Add";
 import ContentCopy from "@mui/icons-material/ContentCopy";
 import Refresh from "@mui/icons-material/Refresh";
@@ -80,6 +81,7 @@ export default function GuestRegister({initialDate,readOnly=false,invalidDate=fa
       <TextField label="Tanggal Sabat" type="date" value={date} onChange={event=>chooseDate(event.target.value)} disabled={busy||loading} slotProps={{inputLabel:{shrink:true}}} helperText="Pilih hari Sabtu."/>
       <Button onClick={()=>chooseDate(currentSaturday())} disabled={busy||loading}>Sabat Terdekat</Button>
       <Button startIcon={<Refresh/>} disabled={busy||loading} onClick={()=>{if(rows.some(dirty))setReload(true);else void load();}}>Perbarui Daftar</Button>
+      <Button component={Link} href={`${readOnly?"/tamu":"/tamu/mc"}?date=${date}`} disabled={busy}>{readOnly?"Penerima Tamu":"Tampilan MC"}</Button>
       {!readOnly&&<Button startIcon={<ContentCopy/>} onClick={()=>void copyMcLink()} disabled={busy}>Salin Tautan MC</Button>}
       {readOnly&&<Button startIcon={<ContentCopy/>} onClick={()=>void copyList()} disabled={loading||!saved.length}>Salin Daftar</Button>}
     </Box>

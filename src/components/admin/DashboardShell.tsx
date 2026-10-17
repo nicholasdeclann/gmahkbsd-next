@@ -15,7 +15,7 @@ import PeopleOutline from "@mui/icons-material/PeopleOutline";
 import SettingsOutlined from "@mui/icons-material/SettingsOutlined";
 import OpenInNew from "@mui/icons-material/OpenInNew";
 import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
-import ArrowBack from "@mui/icons-material/ArrowBack";
+import AdminBreadcrumbs from "./AdminBreadcrumbs";
 import { ThemeProvider } from "@mui/material/styles";
 import { createSiteTheme } from "@/app/theme";
 const headerTheme = createSiteTheme(false);
@@ -39,11 +39,12 @@ export default function DashboardShell({ children, demo, weeklyDemo }: { childre
   return (
     <Box sx={{ minHeight: "100vh", bgcolor: "var(--site-bg)" }}>
       <ThemeProvider theme={headerTheme}><Box component="header" className="admin-header" sx={{ bgcolor: "white", borderBottom: "1px solid #dfe5ed" }}>
-        <Container maxWidth="md" sx={{ py: 2, display: "flex", gap: 2, alignItems: "center", flexWrap: "nowrap" }}>
+        <Container maxWidth="md" sx={{ py: 2, display: "flex", gap: 2, alignItems: "center", flexWrap: "wrap" }}>
           <Box sx={{ flex: 1 }}>
             <Typography component={Link} href="/admin" sx={{ color: "var(--site-text)", textDecoration: "none", fontWeight: 550, fontSize: "1.25rem" }}>GMAHK BSD</Typography>
             <Typography color="text.secondary" variant="body2">Dashboard Staf</Typography>
           </Box>
+          <Button component={Link} href="/" className="admin-website-link" startIcon={<OpenInNew/>}>Lihat Website</Button>
           <Button startIcon={<MenuOutlined/>} onClick={event=>setAnchor(event.currentTarget)} aria-haspopup="menu" aria-expanded={Boolean(anchor)} aria-controls={anchor?"staff-navigation":undefined}>Menu</Button>
           <DisplaySettings/>
           <Menu id="staff-navigation" anchorEl={anchor} open={Boolean(anchor)} onClose={()=>setAnchor(null)} slotProps={{list:{"aria-label":"Navigasi staf"},paper:{sx:{minWidth:260}}}}>
@@ -55,7 +56,7 @@ export default function DashboardShell({ children, demo, weeklyDemo }: { childre
         </Container>
       </Box></ThemeProvider>
       <Container component="main" className="admin-content" id="main-content" maxWidth="md" sx={{ py: { xs: 3, sm: 5 }, "& .MuiButton-root": { minHeight: 46, textTransform: "none", fontSize: "1rem" }, "& .MuiInputBase-root": { bgcolor: "var(--site-surface)" } }}>
-        {pathname !== "/admin" && <Button component={Link} href="/admin" startIcon={<ArrowBack/>} sx={{ mb: 2 }}>Dashboard</Button>}
+        <AdminBreadcrumbs/>
         {demo && <p className="admin-demo-note" role="status">{weeklyDemo?"Mode latihan lokal · perubahan tidak memengaruhi website gereja.":"Mode lokal · Kertas Acara dan Pokok Doa memakai spreadsheet gereja."}</p>}
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
         {children}
