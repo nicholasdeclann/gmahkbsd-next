@@ -37,7 +37,7 @@ export default function SiteProvider({ children }: { children: React.ReactNode }
         {!admin && !staff && <footer className="site-footer">
           <div className="site-width footer-inner">
             <div><strong>{churchConfig.name}</strong><p><T text="Beribadah, bertumbuh, dan melayani bersama." /></p></div>
-            <div className="footer-links"><Link href="/"><T text="Beranda" /></Link><Link href="/#tentang"><T text="Tentang Gereja" /></Link><Link href="/jadwal-pelayanan"><T text="Jadwal Pelayanan" /></Link><Link href="/pengumuman"><T text="Pengumuman" /></Link><Link href="/kegiatan"><T text="Kegiatan Jemaat" /></Link><Link href="/admin"><T text="Dashboard Staf" /></Link><Link href="/privacy-policy">Kebijakan Privasi</Link></div>
+            <div className="footer-links"><Link href="/"><T text="Beranda" /></Link><Link href="/#tentang"><T text="Tentang Gereja" /></Link><Link href="/jadwal-pelayanan"><T text="Jadwal Pelayanan" /></Link><Link href="/pengumuman"><T text="Pengumuman" /></Link><Link href="/kegiatan"><T text="Kegiatan Jemaat" /></Link><Link href="/admin"><T text="Dashboard Staf" /></Link><Link href="/#persembahan"><T text="Persembahan & Perpuluhan"/></Link><Link href="/privacy-policy">Kebijakan Privasi</Link></div>
             <small>© {new Date().getFullYear()} {churchConfig.name}</small>
           </div>
         </footer>}

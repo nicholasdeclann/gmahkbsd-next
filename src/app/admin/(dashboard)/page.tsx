@@ -1,4 +1,5 @@
 import Link from "next/link";
+import GoogleConnectionHealth from "@/components/admin/GoogleConnectionHealth";
 import { Typography } from "@mui/material";
 import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
 import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
@@ -22,6 +23,7 @@ const tools=[
 export default function DashboardPage(){return <>
   <Typography component="h1" variant="h4" sx={{fontWeight:350,mb:1}}>Selamat datang</Typography>
   <Typography color="text.secondary" sx={{mb:4}}>Pilih yang ingin dikerjakan hari ini.</Typography>
+  <GoogleConnectionHealth compact/>
   {[{title:"Kelola Konten",items:weekly},{title:"Alat Pelayanan",items:tools}].map(group=><section className="dashboard-group" key={group.title}>
     <h2>{group.title}</h2><nav className="dashboard-task-list" aria-label={group.title}>{group.items.map(task=><Link key={task.href} href={task.href}>
       <task.icon className="task-icon" aria-hidden="true"/><div><h3>{task.title}</h3><p>{task.description}</p></div><ArrowForward className="task-arrow" aria-hidden="true"/>

@@ -19,9 +19,10 @@ import { churchConfig } from "@/config/church";
 import { imageAsset } from "@/lib/asset";
 import { createSiteTheme } from "@/app/theme";
 import DashboardOutlined from "@mui/icons-material/DashboardOutlined";
+import AccountBalanceOutlined from "@mui/icons-material/AccountBalanceOutlined";
 const headerTheme=createSiteTheme(false);
 const primary=[{label:"Beranda",href:"/",icon:HomeOutlined},{label:"Kertas Acara",href:"/kertas-acara",icon:DescriptionOutlined},{label:"Pengumuman",href:"/pengumuman",icon:CampaignOutlined}];
-const community=[{label:"Jadwal Pelayanan",href:"/jadwal-pelayanan",icon:CalendarMonthOutlined},{label:"Ulang Tahun",href:"/ulang-tahun",icon:CakeOutlined},{label:"Kegiatan Jemaat",href:"/kegiatan",icon:PhotoLibraryOutlined}];
+const community=[{label:"Persembahan & Perpuluhan",href:"/#persembahan",icon:AccountBalanceOutlined},{label:"Jadwal Pelayanan",href:"/jadwal-pelayanan",icon:CalendarMonthOutlined},{label:"Ulang Tahun",href:"/ulang-tahun",icon:CakeOutlined},{label:"Kegiatan Jemaat",href:"/kegiatan",icon:PhotoLibraryOutlined}];
 export default function Navbar() {
   const pathname=usePathname(),{t}=useLanguage();
   const [menu,setMenu]=useState<{anchor:HTMLElement;mobile:boolean}|null>(null);

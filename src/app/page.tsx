@@ -15,6 +15,7 @@ import PhotoGallery from "@/components/PhotoGallery";
 import EventPhotos from "@/components/events/EventPhotos";
 import SabbathThisWeek from "@/components/SabbathThisWeek";
 import InstagramFeed from "@/components/InstagramFeed";
+import GivingSection from "@/components/GivingSection";
 
 export default function Home() {
   return <>
@@ -73,6 +74,7 @@ export default function Home() {
       <PrayerListCard />
       <div className="site-width birthday-banner"><div><div><h3><T text="Siapa yang berulang tahun minggu ini?" /></h3><p><T text="Sampaikan ucapan dan doa untuk keluarga jemaat kita." /></p></div></div><Link className="text-link" href="/ulang-tahun"><T text="Lihat Ulang Tahun" /><ArrowForward /></Link></div>
     </section>
+    <GivingSection />
     <section id="kunjungi" className="site-width section-space visit-grid" aria-labelledby="visit-title">
       <div><p className="eyebrow"><T text="PINTU KAMI TERBUKA" /></p><h2 className="section-title" id="visit-title"><T text="Sampai jumpa" /><br /><T text="di gereja." /></h2><p className="section-description"><T text="Kami menantikan kehadiran Anda dan keluarga." /></p><address className="church-address">{churchConfig.address}</address><a className="site-button primary" href="https://www.google.com/maps/search/?api=1&query=GMAHK+Bumi+Serpong+Damai" target="_blank" rel="noopener noreferrer"><T text="Buka Google Maps" /><LocationOnOutlined /></a><a className="instagram-link" href={churchConfig.instagram.url} target="_blank" rel="noopener noreferrer"><Instagram /><T text="Ikuti" />{" "}{churchConfig.instagram.handle} <ArrowForward /></a></div>
       <div className="map-panel"><iframe title="Lokasi GMAHK Bumi Serpong Damai di Google Maps" src={churchConfig.mapsEmbedUrl} loading="lazy" referrerPolicy="no-referrer-when-downgrade" allowFullScreen /></div>

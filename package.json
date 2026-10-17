@@ -14,7 +14,8 @@
     "test:prayer": "node --test scripts/prayer-slots.test.mjs && node scripts/prayer-smoke.mjs",
     "connect:sheets": "node --experimental-strip-types scripts/connect-sheets.mjs",
     "test:sheet-settings": "node --test scripts/sheet-settings.test.mjs",
-    "test:sabbath": "node --test scripts/sabbath-summary.test.mjs"
+    "test:sabbath": "node --test scripts/sabbath-summary.test.mjs",
+    "test:drive-health": "node --test scripts/drive-health.test.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

@@ -1,10 +1,12 @@
 import { google } from "googleapis";
 import { cookies } from "next/headers";
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:crypto";
+import { isLocalDemo } from "./localDemo";
+import { driveFailureCode, driveHealthMessages, type DriveHealth, type DriveHealthCode } from "./driveHealthTypes";
 
 const TOKEN_COOKIE = "google_drive_credentials";
 export const DRIVE_STATE_COOKIE = "google_drive_oauth_state";
-type DriveCredentials = { access_token?: string | null; refresh_token?: string | null; expiry_date?: number | null };
+type DriveCredentials = { access_token?: string | null; refresh_token?: string | null; expiry_date?: number | null; browserExpiresAt?: number; refreshTokenExpiresAt?: number; refresh_token_expires_in?: number };
 
 function tokenKey(): Buffer {
   const secret = process.env.ADMIN_SECRET;
@@ -15,7 +17,9 @@ function tokenKey(): Buffer {
 export async function saveDriveCredentials(credentials: DriveCredentials): Promise<void> {
   const iv = randomBytes(12);
   const cipher = createCipheriv("aes-256-gcm", tokenKey(), iv);
-  const stored = { access_token: credentials.access_token, refresh_token: credentials.refresh_token, expiry_date: credentials.expiry_date };
+  const stored = { access_token: credentials.access_token, refresh_token: credentials.refresh_token, expiry_date: credentials.expiry_date,
+    browserExpiresAt: Date.now() + 7 * 86400_000,
+    ...(typeof credentials.refresh_token_expires_in === "number" ? { refreshTokenExpiresAt: Date.now() + credentials.refresh_token_expires_in * 1000 } : {}) };
   const ciphertext = Buffer.concat([cipher.update(JSON.stringify(stored), "utf8"), cipher.final()]);
   const sealed = Buffer.concat([iv, cipher.getAuthTag(), ciphertext]).toString("base64url");
   (await cookies()).set(TOKEN_COOKIE, sealed, { httpOnly: true, secure: process.env.NODE_ENV === "production", sameSite: "lax", path: "/", maxAge: 60 * 60 * 24 * 7 });
@@ -70,6 +74,30 @@ export async function getAccessToken(): Promise<string | null> {
 
 export async function isDriveAuthenticated(): Promise<boolean> {
   return Boolean(await getAccessToken());
+}
+
+export async function inspectDriveConnection(): Promise<{health:DriveHealth;identity:string}> {
+  const credentials = await readDriveCredentials();
+  const source = process.env.GOOGLE_DRIVE_REFRESH_TOKEN ? "shared" : "browser";
+  const identity = createHash("sha256").update(JSON.stringify([source,process.env.GOOGLE_CLIENT_ID,process.env.GOOGLE_CLIENT_SECRET,process.env.GOOGLE_DRIVE_FOLDER_ID,credentials?.refresh_token??credentials?.access_token])).digest("hex");
+  let code: DriveHealthCode = "connected";
+  if(isLocalDemo()) code="demo";
+  else if(!driveOAuthConfigured()) code="not_configured";
+  else if(!credentials) code="not_connected";
+  else {
+    try {
+      const client=createOAuthClient();client.setCredentials(credentials);
+      const access=await client.getAccessToken();
+      if(!access.token) code="authorization_expired";
+      else {
+        const folder=await getDriveService(access.token).files.get({fileId:process.env.GOOGLE_DRIVE_FOLDER_ID!,fields:"mimeType,trashed",supportsAllDrives:true},{timeout:15000});
+        if(folder.data.trashed || folder.data.mimeType!=="application/vnd.google-apps.folder")code="folder_unavailable";
+      }
+    }catch(error){code=driveFailureCode(error);}
+  }
+  return {identity,health:{code,source,configured:driveOAuthConfigured(),message:driveHealthMessages[code],checkedAt:new Date().toISOString(),lastSuccessfulCheck:null,
+    browserExpiresAt:source==="browser"?credentials?.browserExpiresAt??null:null,
+    refreshTokenExpiresAt:source==="browser"?credentials?.refreshTokenExpiresAt??null:null}};
 }
 
 export function getAuthUrl(state: string) {
