@@ -48,12 +48,12 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <Container maxWidth="xs" sx={{ py: { xs: 8, sm: 12 } }}>
+    <Container maxWidth="xs" className="login-page">
       <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}><DisplaySettings /></Box>
       <Typography component="h1" variant="h4" sx={{ fontWeight: 350, mb: 3, textAlign: "center" }}>
-        Dashboard Gereja
+        Dashboard Staf
       </Typography>
-      <Typography color="text.secondary" sx={{ textAlign: "center", mb: 3 }}>Masukkan kata sandi yang diberikan oleh pengelola gereja.</Typography>
+      <Typography color="text.secondary" sx={{ textAlign: "center", mb: 3 }}>Masuk dengan kata sandi staf.</Typography>
       <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         {error && <Alert severity="error">{error}</Alert>}
         <TextField
@@ -71,8 +71,8 @@ export default function AdminLoginPage() {
         </Button>
       </Box>
       <Box sx={{mt:4,pt:3,borderTop:"1px solid var(--site-border)",textAlign:"center"}}>
-        <Button href="/tamu" variant="outlined" fullWidth>Daftar Tamu · Penerima Tamu</Button>
-        <Button href="/tamu/mc" variant="outlined" fullWidth sx={{mt:1.5}}>Daftar Tamu untuk MC</Button>
+        <Button href="/tamu" variant="outlined" fullWidth>Penerima Tamu</Button>
+        <Button href="/tamu/mc" variant="outlined" fullWidth sx={{mt:1.5}}>Tampilan MC</Button>
         <Typography variant="body2" color="text.secondary" sx={{mt:1}}>Daftar tamu dapat diisi tanpa kata sandi.</Typography>
       </Box>
     </Container>

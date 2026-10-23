@@ -3,6 +3,7 @@
 # dependencies
 /node_modules
 /work/
+/.playwright-cli/
 /.pnp
 .pnp.*
 .yarn/*

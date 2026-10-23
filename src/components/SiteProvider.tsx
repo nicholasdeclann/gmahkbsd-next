@@ -21,6 +21,7 @@ export default function SiteProvider({ children }: { children: React.ReactNode }
     try { setPreference(localStorage.getItem("gmahkbsd-color-mode") === "dark"); } catch { /* Storage may be unavailable. */ }
   }, []);
   const dark = preference;
+  useEffect(() => { document.documentElement.dataset.theme = dark ? "dark" : "light"; }, [dark]);
   const theme = useMemo(() => createSiteTheme(dark), [dark]);
   function toggle() {
     const next = !preference;
@@ -30,15 +31,14 @@ export default function SiteProvider({ children }: { children: React.ReactNode }
   return <ColorModeContext.Provider value={{ dark, toggle }}>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <div className="site-frame" data-theme={dark ? "dark" : "light"}>
+      <div className={`site-frame${!admin && !staff ? " public-frame" : ""}`} data-theme={dark ? "dark" : "light"}>
         {!admin && !staff && <a className="skip-link" href="#main-content"><T text="Langsung ke isi halaman" /></a>}
         <Navbar />
         {admin || staff ? children : <main id="main-content" tabIndex={-1}>{children}</main>}
         {!admin && !staff && <footer className="site-footer">
           <div className="site-width footer-inner">
-            <div><strong>{churchConfig.name}</strong><p><T text="Beribadah, bertumbuh, dan melayani bersama." /></p></div>
-            <div className="footer-links"><Link href="/"><T text="Beranda" /></Link><Link href="/#tentang"><T text="Tentang Gereja" /></Link><Link href="/jadwal-pelayanan"><T text="Jadwal Pelayanan" /></Link><Link href="/pengumuman"><T text="Pengumuman" /></Link><Link href="/kegiatan"><T text="Kegiatan Jemaat" /></Link><Link href="/admin"><T text="Dashboard Staf" /></Link></div>
-            <small>© {new Date().getFullYear()} {churchConfig.name}</small>
+            <small>© {new Date().getFullYear()} {churchConfig.shortName}</small>
+            <div className="footer-links"><Link href="/#kunjungi"><T text="Kunjungi Kami" /></Link><Link href="/admin"><T text="Dashboard Staf" /></Link></div>
           </div>
         </footer>}
       </div>

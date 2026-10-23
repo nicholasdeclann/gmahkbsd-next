@@ -1,5 +1,5 @@
 "use client";
-import AddPhotoAlternateOutlined from "@mui/icons-material/AddPhotoAlternateOutlined";
+import { AddPhotoAlternateOutlined } from "@/components/ui/icons";
 
 import { T, useLanguage } from "@/components/LanguageProvider";
 
@@ -9,10 +9,10 @@ import Link from "next/link";
 import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from "@mui/material";
 import { jakartaMonth, monthLabel, previousMonth, type EventPhoto } from "@/lib/eventTypes";
 import EventEditor from "./EventEditor";
-import ArrowBackIosNewRounded from "@mui/icons-material/ArrowBackIosNewRounded";
-import ArrowForwardIosRounded from "@mui/icons-material/ArrowForwardIosRounded";
-import PauseCircleOutline from "@mui/icons-material/PauseCircleOutline";
-import PlayCircleOutline from "@mui/icons-material/PlayCircleOutline";
+import { ArrowBackIosNewRounded } from "@/components/ui/icons";
+import { ArrowForwardIosRounded } from "@/components/ui/icons";
+import { PauseCircleOutline } from "@/components/ui/icons";
+import { PlayCircleOutline } from "@/components/ui/icons";
 function dateLabel(date:string,language="id"){return new Intl.DateTimeFormat(language==="en"?"en-GB":"id-ID",{day:"numeric",month:"long",year:"numeric",timeZone:"Asia/Jakarta"}).format(new Date(`${date}T12:00:00+07:00`));}
 function PhotoImage({photo,large=false}:{photo:EventPhoto;large?:boolean}) {
   const [failed,setFailed]=useState(false);

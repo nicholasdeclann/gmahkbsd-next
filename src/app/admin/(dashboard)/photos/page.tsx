@@ -1,4 +1,4 @@
-import OpenInNew from "@mui/icons-material/OpenInNew";
+import { OpenInNew } from "@/components/ui/icons";
 import { Alert, Box, Button, Typography } from "@mui/material";
 import PhotoGallery from "@/components/PhotoGallery";
 import { churchConfig } from "@/config/church";

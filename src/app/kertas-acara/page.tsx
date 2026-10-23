@@ -10,9 +10,9 @@ import {
   TextField,
   Fade,
 } from "@mui/material";
-import ChevronRight from "@mui/icons-material/ChevronRight";
-import ChevronLeft from "@mui/icons-material/ChevronLeft";
-import Search from "@mui/icons-material/Search";
+import { ChevronRight } from "@/components/ui/icons";
+import { ChevronLeft } from "@/components/ui/icons";
+import { Search } from "@/components/ui/icons";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState, useEffect, Suspense } from "react";

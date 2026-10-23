@@ -4,7 +4,7 @@ import { T } from "@/components/LanguageProvider";
 
 import { useState } from "react";
 import { Box, Button, CircularProgress } from "@mui/material";
-import Download from "@mui/icons-material/Download";
+import { Download } from "@/components/ui/icons";
 import { churchConfig } from "@/config/church";
 import { buildSheetExportUrl } from "@/lib/kertasAcaraExport";
 

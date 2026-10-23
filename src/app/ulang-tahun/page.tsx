@@ -11,8 +11,8 @@ import {
 } from "@mui/material";
 import { useState, useEffect } from "react";
 import Image from "next/image";
-import SentimentDissatisfied from "@mui/icons-material/SentimentDissatisfied";
-import ErrorOutline from "@mui/icons-material/ErrorOutline";
+import { SentimentDissatisfied } from "@/components/ui/icons";
+import { ErrorOutline } from "@/components/ui/icons";
 import { churchConfig } from "@/config/church";
 import { imageAsset } from "@/lib/asset";
 import { fetchTextCached, CACHE_TTL } from "@/lib/sheetCache";

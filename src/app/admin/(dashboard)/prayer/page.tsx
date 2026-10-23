@@ -1,5 +1,5 @@
 "use client";
-import SaveOutlined from "@mui/icons-material/SaveOutlined";
+import { SaveOutlined } from "@/components/ui/icons";
 
 import { useCallback, useEffect, useState } from "react";
 import { Box, Typography, TextField, Button, Alert, CircularProgress, Checkbox, FormControlLabel } from "@mui/material";
@@ -44,7 +44,7 @@ export default function PrayerAdminPage() {
   }
   return <Box sx={{ maxWidth: 760 }}>
     <Typography component="h1" variant="h4" sx={{ fontWeight: 350, mb: 1 }}>Pokok Doa</Typography>
-    <Typography color="text.secondary" sx={{ mb: 3 }}>Empat nama untuk setiap minggu, sesuai urutan pada Kertas Acara. Ganti nama di sini untuk minggu berikutnya. Slot boleh dikosongkan.</Typography>
+    <Typography color="text.secondary" sx={{ mb: 3 }}>Empat nama sesuai urutan Kertas Acara. Slot boleh dikosongkan.</Typography>
     {snapshot?.date && <Typography sx={{ mb: 2, fontWeight: 600 }}>Tanggal Kertas Acara: {formatChurchDate(snapshot.date)}</Typography>}
     {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
     {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}

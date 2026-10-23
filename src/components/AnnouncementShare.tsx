@@ -3,6 +3,7 @@ import { T, useLanguage } from "@/components/LanguageProvider";
 
 import { useState } from "react";
 import { Alert, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from "@mui/material";
+import { ShareOutlined, ContentCopy, OpenInNew } from "./ui/icons";
 
 export default function AnnouncementShare({ id, caption, board = false }: { id?: string; caption?: string | null; board?: boolean }) {
   const {t}=useLanguage();
@@ -20,7 +21,7 @@ export default function AnnouncementShare({ id, caption, board = false }: { id?:
   }
   const text = (caption?.slice(0, 160) || "Pengumuman GMAHK BSD") + "\n" + url;
   return <>
-    <Button variant={board ? "outlined" : "text"} onClick={open}>{t(board ? "Bagikan Papan Pengumuman" : "Bagikan")}</Button>
+    <Button startIcon={<ShareOutlined />} variant={board ? "outlined" : "text"} onClick={open}>{t(board ? "Bagikan Papan Pengumuman" : "Bagikan")}</Button>
     <Dialog open={Boolean(url)} onClose={() => setUrl("")} maxWidth="sm" fullWidth aria-labelledby="share-announcement-title">
       <DialogTitle id="share-announcement-title"><T text="Bagikan kepada Jemaat" /></DialogTitle>
       <DialogContent>
@@ -30,8 +31,8 @@ export default function AnnouncementShare({ id, caption, board = false }: { id?:
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2, flexWrap: "wrap", gap: 1 }}>
         <Button onClick={() => setUrl("")}><T text="Tutup" /></Button>
-        <Button component="a" href={"https://wa.me/?text=" + encodeURIComponent(text)} target="_blank" rel="noopener noreferrer">WhatsApp ↗</Button>
-        <Button variant="contained" onClick={() => void copy()}><T text="Salin Tautan" /></Button>
+        <Button endIcon={<OpenInNew />} component="a" href={"https://wa.me/?text=" + encodeURIComponent(text)} target="_blank" rel="noopener noreferrer">WhatsApp</Button>
+        <Button startIcon={<ContentCopy />} variant="contained" onClick={() => void copy()}><T text="Salin Tautan" /></Button>
       </DialogActions>
     </Dialog>
   </>;

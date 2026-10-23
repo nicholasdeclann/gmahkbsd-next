@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import ArrowForward from "@mui/icons-material/ArrowForward";
+import { ArrowForward } from "@/components/ui/icons";
 import { useLanguage } from "./LanguageProvider";
 import { churchConfig } from "@/config/church";
 import type { SabbathSummary } from "@/lib/sabbathSummary";
@@ -18,7 +18,7 @@ export default function SabbathThisWeek() {
     return()=>{controller.abort();window.clearInterval(timer);document.removeEventListener("visibilitychange",visible);};
   },[refresh]);
   return <section className="site-width sabbath-summary" aria-labelledby="sabbath-title">
-    <div className="sabbath-summary-heading"><p className="eyebrow">{t("MARI BERIBADAH BERSAMA")}</p><h2 id="sabbath-title" className="section-title">{t("Sabat Ini")}</h2>
+    <div className="sabbath-summary-heading"><h1 id="sabbath-title" className="section-title">{t("Sabat Ini")}</h1>
       {data&&<p className="sabbath-date"><time dateTime={data.date}>{new Intl.DateTimeFormat(language==="en"?"en-GB":"id-ID",{day:"numeric",month:"long",year:"numeric",timeZone:"Asia/Jakarta"}).format(new Date(`${data.date}T12:00:00+07:00`))}</time><br/>{churchConfig.services[0].time}</p>}
       <Link className="text-link" href="/kertas-acara">{t("Lihat Kertas Acara")} <ArrowForward fontSize="small"/></Link>
     </div>

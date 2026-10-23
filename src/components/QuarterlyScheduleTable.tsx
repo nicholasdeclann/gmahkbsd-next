@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { Alert, Button, CircularProgress, TextField } from "@mui/material";
-import Refresh from "@mui/icons-material/Refresh";
-import TodayOutlined from "@mui/icons-material/TodayOutlined";
+import { Refresh } from "@/components/ui/icons";
+import { TodayOutlined } from "@/components/ui/icons";
 import { useLanguage } from "./LanguageProvider";
 import type { QuarterlySchedule } from "@/lib/quarterlySchedule";
 

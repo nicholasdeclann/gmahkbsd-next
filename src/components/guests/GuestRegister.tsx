@@ -1,9 +1,9 @@
 "use client";
 import {useCallback,useEffect,useRef,useState} from "react";
 import {Alert,Box,Button,CircularProgress,Dialog,DialogActions,DialogContent,DialogTitle,MenuItem,TextField,Typography} from "@mui/material";
-import Add from "@mui/icons-material/Add";
-import ContentCopy from "@mui/icons-material/ContentCopy";
-import Refresh from "@mui/icons-material/Refresh";
+import { Add } from "@/components/ui/icons";
+import { ContentCopy } from "@/components/ui/icons";
+import { Refresh } from "@/components/ui/icons";
 import {currentSaturday,guestDetails,isSaturday,saturdayLabel,type GuestEntry} from "@/lib/guestTypes";
 
 interface Row {key:string;value:GuestEntry;original?:GuestEntry;error?:string;saving?:boolean;requestId?:string}
@@ -71,8 +71,8 @@ export default function GuestRegister({initialDate,readOnly=false,invalidDate=fa
   }
   const saved=rows.filter(row=>row.original);const pax=saved.reduce((sum,row)=>sum+row.original!.pax,0);const unsaved=rows.filter(dirty).length;
   return <>
-    <Typography component="h1" sx={{fontSize:{xs:"2.2rem",sm:"3rem"},fontWeight:350,mb:1}}>Daftar Tamu</Typography>
-    <Typography color="text.secondary" sx={{mb:3,fontSize:"1.125rem"}}>{readOnly?"Daftar untuk dibacakan saat menyambut tamu. Tampilan ini hanya untuk membaca.":"Catat tamu perorangan atau keluarga untuk disambut oleh pembawa acara."}</Typography>
+    <Typography component="h1" sx={{fontSize:{xs:"1.75rem",sm:"2.25rem"},fontWeight:350,mb:1}}>Daftar Tamu</Typography>
+    <Typography color="text.secondary" sx={{mb:3,fontSize:"1rem"}}>{readOnly?"Daftar untuk dibacakan · hanya baca.":"Catat tamu untuk disambut pembawa acara."}</Typography>
     {invalidDate&&<Alert severity="info" sx={{mb:2}}>Tanggal pada tautan tidak valid. Menampilkan Sabat terdekat.</Alert>}
     <Box className="guest-toolbar" sx={{display:"flex",gap:2,flexWrap:"wrap",alignItems:"center",mb:3}}>
       <TextField label="Tanggal Sabat" type="date" value={date} onChange={event=>chooseDate(event.target.value)} disabled={busy||loading} slotProps={{inputLabel:{shrink:true}}} helperText="Pilih hari Sabtu."/>

@@ -1,5 +1,5 @@
-import CloudOutlined from "@mui/icons-material/CloudOutlined";
-import TableChartOutlined from "@mui/icons-material/TableChartOutlined";
+import { CloudOutlined } from "@/components/ui/icons";
+import { TableChartOutlined } from "@/components/ui/icons";
 import { Alert, Box, Typography } from "@mui/material";
 import { driveOAuthConfigured, getAccessToken } from "@/lib/drive";
 import { isLocalDemo, isWeeklyDemo } from "@/lib/localDemo";

@@ -1,38 +1,70 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Button, ListItemIcon, ListSubheader, Menu, MenuItem } from "@mui/material";
+import { Button } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-import MenuOutlined from "@mui/icons-material/MenuOutlined";
-import ExpandMore from "@mui/icons-material/ExpandMore";
-import HomeOutlined from "@mui/icons-material/HomeOutlined";
-import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
-import CampaignOutlined from "@mui/icons-material/CampaignOutlined";
-import CalendarMonthOutlined from "@mui/icons-material/CalendarMonthOutlined";
-import CakeOutlined from "@mui/icons-material/CakeOutlined";
-import PhotoLibraryOutlined from "@mui/icons-material/PhotoLibraryOutlined";
+import { HomeOutlined, DescriptionOutlined, CampaignOutlined, MenuOutlined, CalendarMonthOutlined, CakeOutlined, PhotoLibraryOutlined, InfoIcon, DashboardOutlined } from "./ui/icons";
+import NavigationSheet from "./ui/NavigationSheet";
 import { useLanguage } from "./LanguageProvider";
 import DisplaySettings from "./DisplaySettings";
 import { churchConfig } from "@/config/church";
 import { imageAsset } from "@/lib/asset";
 import { createSiteTheme } from "@/app/theme";
-const headerTheme=createSiteTheme(false);
-const primary=[{label:"Beranda",href:"/",icon:HomeOutlined},{label:"Kertas Acara",href:"/kertas-acara",icon:DescriptionOutlined},{label:"Pengumuman",href:"/pengumuman",icon:CampaignOutlined}];
-const community=[{label:"Jadwal Pelayanan",href:"/jadwal-pelayanan",icon:CalendarMonthOutlined},{label:"Ulang Tahun",href:"/ulang-tahun",icon:CakeOutlined},{label:"Kegiatan Jemaat",href:"/kegiatan",icon:PhotoLibraryOutlined}];
+const headerTheme = createSiteTheme(false);
+const primary = [
+  { label: "Beranda", href: "/", icon: HomeOutlined },
+  { label: "Acara", href: "/kertas-acara", icon: DescriptionOutlined },
+  { label: "Pengumuman", href: "/pengumuman", icon: CampaignOutlined },
+];
+const secondary = [
+  { label: "Jadwal Pelayanan", href: "/jadwal-pelayanan", icon: CalendarMonthOutlined },
+  { label: "Ulang Tahun", href: "/ulang-tahun", icon: CakeOutlined },
+  { label: "Kegiatan Jemaat", href: "/kegiatan", icon: PhotoLibraryOutlined },
+  { label: "Tentang Gereja", href: "/#tentang", icon: InfoIcon },
+  { label: "Dashboard Staf", href: "/admin", icon: DashboardOutlined },
+];
 export default function Navbar() {
-  const pathname=usePathname(),{t}=useLanguage();
-  const [menu,setMenu]=useState<{anchor:HTMLElement;mobile:boolean}|null>(null);
-  if(pathname.startsWith("/admin")||pathname==="/tamu"||pathname.startsWith("/tamu/"))return null;
-  return <ThemeProvider theme={headerTheme}><header className="site-header"><div className="site-width navbar-inner">
-    <Link href="/" className="brand" aria-label={`GMAHK BSD — ${t("Beranda")}`}><span className="brand-logo"><Image src={imageAsset(churchConfig.assets.logo)} width={46} height={46} alt="" priority/></span><span>{churchConfig.shortName}<small>Bumi Serpong Damai</small></span></Link>
-    <nav className="desktop-nav" aria-label={t("Navigasi utama")}>{primary.map(link=><Link key={link.href} href={link.href} aria-current={pathname===link.href?"page":undefined}>{t(link.label)}</Link>)}<Button endIcon={<ExpandMore/>} aria-haspopup="menu" aria-expanded={Boolean(menu&&!menu.mobile)} aria-controls={menu&&!menu.mobile?"public-navigation":undefined} onClick={event=>setMenu({anchor:event.currentTarget,mobile:false})} className={community.some(link=>link.href===pathname)?"nav-selected":undefined}>{t("Jemaat")}</Button></nav>
-    <div className="nav-actions"><Button className="mobile-menu-button" startIcon={<MenuOutlined/>} aria-haspopup="menu" aria-expanded={Boolean(menu?.mobile)} aria-controls={menu?.mobile?"public-navigation":undefined} onClick={event=>setMenu({anchor:event.currentTarget,mobile:true})}>Menu</Button><DisplaySettings/></div>
-    <Menu id="public-navigation" anchorEl={menu?.anchor} open={Boolean(menu)} onClose={()=>setMenu(null)} slotProps={{list:{"aria-label":t("Navigasi utama")},paper:{sx:{minWidth:250}}}}>
-      {menu?.mobile&&primary.map(link=><MenuItem key={link.href} component={Link} href={link.href} selected={pathname===link.href} aria-current={pathname===link.href?"page":undefined} onClick={()=>setMenu(null)}><ListItemIcon><link.icon fontSize="small"/></ListItemIcon>{t(link.label)}</MenuItem>)}
-      <ListSubheader>{t("Jemaat")}</ListSubheader>
-      {community.map(link=><MenuItem key={link.href} component={Link} href={link.href} selected={pathname===link.href} aria-current={pathname===link.href?"page":undefined} onClick={()=>setMenu(null)}><ListItemIcon><link.icon fontSize="small"/></ListItemIcon>{t(link.label)}</MenuItem>)}
-    </Menu>
-  </div></header></ThemeProvider>;
+  const pathname = usePathname();
+  const { t, language } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const [keyboard, setKeyboard] = useState(false);
+  useEffect(() => { setOpen(false); }, [pathname]);
+  useEffect(() => {
+    const viewport = window.visualViewport;
+    function update() {
+      const editing = document.activeElement?.matches("input, textarea, [contenteditable=true]");
+      setKeyboard(Boolean(editing && viewport && window.innerHeight - viewport.height > 120));
+    }
+    viewport?.addEventListener("resize", update);
+    document.addEventListener("focusin", update);
+    document.addEventListener("focusout", update);
+    return () => { viewport?.removeEventListener("resize", update); document.removeEventListener("focusin", update); document.removeEventListener("focusout", update); };
+  }, []);
+  if (pathname.startsWith("/admin") || pathname === "/tamu" || pathname.startsWith("/tamu/")) return null;
+  const moreActive = secondary.some(item => item.href === pathname);
+  return <>
+    <ThemeProvider theme={headerTheme}>
+      <header className="site-header glass-header"><div className="site-width navbar-inner">
+        <Link href="/" className="brand" aria-label={`GMAHK BSD — ${t("Beranda")}`}>
+          <Image src={imageAsset(churchConfig.assets.logo)} width={38} height={38} alt="" priority /><span>{churchConfig.shortName}</span>
+        </Link>
+        <nav className="desktop-nav" aria-label={t("Navigasi utama")}>
+          {primary.map(item => <Link key={item.href} href={item.href} aria-current={pathname === item.href ? "page" : undefined}>{t(item.label === "Acara" ? "Kertas Acara" : item.label)}</Link>)}
+          <Button onClick={() => setOpen(true)} startIcon={<MenuOutlined />} aria-haspopup="dialog" aria-expanded={open}>{t("Menu")}</Button>
+        </nav>
+        <DisplaySettings />
+      </div></header>
+    </ThemeProvider>
+    <nav className={`mobile-dock${keyboard ? " keyboard-open" : ""}`} aria-label={t("Navigasi utama seluler")}>
+      {primary.map(item => <Link key={item.href} href={item.href} aria-current={pathname === item.href ? "page" : undefined}><item.icon aria-hidden="true" /><span>{language === "en" && item.label === "Pengumuman" ? "News" : t(item.label)}</span></Link>)}
+      <button type="button" onClick={() => setOpen(true)} aria-haspopup="dialog" aria-expanded={open} className={moreActive ? "dock-active" : undefined}><MenuOutlined aria-hidden="true" /><span>{t("Menu")}</span></button>
+    </nav>
+    <NavigationSheet open={open} onClose={() => setOpen(false)} title={t("Menu")}>
+      <nav className="sheet-links" aria-label={t("Halaman lainnya")}>
+        {[...primary, ...secondary].map(item => <Link key={item.href} href={item.href} onClick={() => setOpen(false)} aria-current={pathname === item.href ? "page" : undefined}><item.icon aria-hidden="true" /><span>{t(item.label === "Acara" ? "Kertas Acara" : item.label)}</span></Link>)}
+      </nav>
+    </NavigationSheet>
+  </>;
 }

@@ -1,29 +1,27 @@
 "use client";
-
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Alert, Box, Button, Container, Typography, Menu, MenuItem, ListItemIcon, Divider } from "@mui/material";
+import { Alert, Box, Button, Container } from "@mui/material";
 import DisplaySettings from "../DisplaySettings";
-import MenuOutlined from "@mui/icons-material/MenuOutlined";
-import DashboardOutlined from "@mui/icons-material/DashboardOutlined";
-import DescriptionOutlined from "@mui/icons-material/DescriptionOutlined";
-import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
-import CampaignOutlined from "@mui/icons-material/CampaignOutlined";
-import PhotoLibraryOutlined from "@mui/icons-material/PhotoLibraryOutlined";
-import PeopleOutline from "@mui/icons-material/PeopleOutline";
-import SettingsOutlined from "@mui/icons-material/SettingsOutlined";
-import OpenInNew from "@mui/icons-material/OpenInNew";
-import LogoutOutlined from "@mui/icons-material/LogoutOutlined";
-import ArrowBack from "@mui/icons-material/ArrowBack";
+import NavigationSheet from "../ui/NavigationSheet";
+import { MenuOutlined, DashboardOutlined, DescriptionOutlined, FavoriteBorder, CampaignOutlined, PhotoLibraryOutlined, PeopleOutline, SettingsOutlined, OpenInNew, LogoutOutlined, ArrowBack, RecordVoiceOverOutlined } from "../ui/icons";
 import { ThemeProvider } from "@mui/material/styles";
 import { createSiteTheme } from "@/app/theme";
 const headerTheme = createSiteTheme(false);
-const destinations=[{title:"Dashboard",href:"/admin",icon:DashboardOutlined},{title:"Kertas Acara",href:"/admin/kertas-acara",icon:DescriptionOutlined},{title:"Pokok Doa",href:"/admin/prayer",icon:FavoriteBorder},{title:"Pengumuman",href:"/admin/photos",icon:CampaignOutlined},{title:"Kegiatan Jemaat",href:"/admin/events",icon:PhotoLibraryOutlined},{title:"Daftar Tamu",href:"/tamu",icon:PeopleOutline},{title:"Pengaturan Website",href:"/admin/settings",icon:SettingsOutlined}];
-
+const destinations = [
+  {title:"Dashboard",href:"/admin",icon:DashboardOutlined},
+  {title:"Kertas Acara",href:"/admin/kertas-acara",icon:DescriptionOutlined},
+  {title:"Pokok Doa",href:"/admin/prayer",icon:FavoriteBorder},
+  {title:"Pengumuman",href:"/admin/photos",icon:CampaignOutlined},
+  {title:"Kegiatan Jemaat",href:"/admin/events",icon:PhotoLibraryOutlined},
+  {title:"Penerima Tamu",href:"/tamu",icon:PeopleOutline},
+  {title:"Tampilan MC",href:"/tamu/mc",icon:RecordVoiceOverOutlined},
+  {title:"Pengaturan Website",href:"/admin/settings",icon:SettingsOutlined},
+];
 export default function DashboardShell({ children, demo, weeklyDemo }: { children: React.ReactNode; demo: boolean; weeklyDemo: boolean }) {
   const pathname = usePathname();
-  const [anchor,setAnchor]=useState<HTMLElement|null>(null);
+  const [open, setOpen] = useState(false);
   const router = useRouter();
   const [error, setError] = useState("");
   const [leaving, setLeaving] = useState(false);
@@ -36,30 +34,27 @@ export default function DashboardShell({ children, demo, weeklyDemo }: { childre
       router.refresh();
     } catch { setError("Belum berhasil keluar. Silakan coba lagi."); setLeaving(false); }
   }
-  return (
-    <Box sx={{ minHeight: "100vh", bgcolor: "var(--site-bg)" }}>
-      <ThemeProvider theme={headerTheme}><Box component="header" className="admin-header" sx={{ bgcolor: "white", borderBottom: "1px solid #dfe5ed" }}>
-        <Container maxWidth="md" sx={{ py: 2, display: "flex", gap: 2, alignItems: "center", flexWrap: "nowrap" }}>
-          <Box sx={{ flex: 1 }}>
-            <Typography component={Link} href="/admin" sx={{ color: "var(--site-text)", textDecoration: "none", fontWeight: 550, fontSize: "1.25rem" }}>GMAHK BSD</Typography>
-            <Typography color="text.secondary" variant="body2">Dashboard Staf</Typography>
-          </Box>
-          <Button startIcon={<MenuOutlined/>} onClick={event=>setAnchor(event.currentTarget)} aria-haspopup="menu" aria-expanded={Boolean(anchor)} aria-controls={anchor?"staff-navigation":undefined}>Menu</Button>
-          <DisplaySettings/>
-          <Menu id="staff-navigation" anchorEl={anchor} open={Boolean(anchor)} onClose={()=>setAnchor(null)} slotProps={{list:{"aria-label":"Navigasi staf"},paper:{sx:{minWidth:260}}}}>
-            {destinations.map(item=><MenuItem key={item.href} component={Link} href={item.href} selected={pathname===item.href} onClick={()=>setAnchor(null)}><ListItemIcon><item.icon fontSize="small"/></ListItemIcon>{item.title}</MenuItem>)}
-            <Divider/>
-            <MenuItem component={Link} href="/"><ListItemIcon><OpenInNew fontSize="small"/></ListItemIcon>Lihat Website</MenuItem>
-            <MenuItem disabled={leaving} onClick={()=>{setAnchor(null);void logout();}}><ListItemIcon><LogoutOutlined fontSize="small"/></ListItemIcon>{leaving?"Keluar…":"Keluar"}</MenuItem>
-          </Menu>
-        </Container>
-      </Box></ThemeProvider>
-      <Container component="main" className="admin-content" id="main-content" maxWidth="md" sx={{ py: { xs: 3, sm: 5 }, "& .MuiButton-root": { minHeight: 46, textTransform: "none", fontSize: "1rem" }, "& .MuiInputBase-root": { bgcolor: "var(--site-surface)" } }}>
-        {pathname !== "/admin" && <Button component={Link} href="/admin" startIcon={<ArrowBack/>} sx={{ mb: 2 }}>Dashboard</Button>}
-        {demo && <p className="admin-demo-note" role="status">{weeklyDemo?"Mode latihan lokal · perubahan tidak memengaruhi website gereja.":"Mode lokal · Kertas Acara dan Pokok Doa memakai spreadsheet gereja."}</p>}
-        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-        {children}
+  return <Box sx={{ minHeight: "100dvh", bgcolor: "var(--site-bg)" }}>
+    <a className="skip-link" href="#main-content">Langsung ke isi halaman</a>
+    <ThemeProvider theme={headerTheme}><Box component="header" className="admin-header glass-header">
+      <Container maxWidth="md" sx={{ display:"flex",alignItems:"center" }}>
+        {pathname !== "/admin" && <Button component={Link} href="/admin" aria-label="Kembali ke Dashboard" sx={{minWidth:44,width:44,p:1}}><ArrowBack /></Button>}
+        <div className="staff-brand"><Link href="/admin">GMAHK BSD<small>Dashboard Staf</small></Link></div>
+        <Button startIcon={<MenuOutlined />} onClick={()=>setOpen(true)} aria-haspopup="dialog" aria-expanded={open}>Menu</Button>
+        <DisplaySettings />
       </Container>
-    </Box>
-  );
+    </Box></ThemeProvider>
+    <NavigationSheet open={open} onClose={()=>setOpen(false)} title="Menu Staf">
+      <nav className="sheet-links" aria-label="Navigasi staf">
+        {destinations.map(item=><Link key={item.href} href={item.href} aria-current={pathname===item.href?"page":undefined} onClick={()=>setOpen(false)}><item.icon aria-hidden="true" /><span>{item.title}</span></Link>)}
+        <Link href="/" onClick={()=>setOpen(false)}><OpenInNew aria-hidden="true" />Lihat Website</Link>
+        <button type="button" disabled={leaving} onClick={()=>{setOpen(false);void logout();}} className="danger-action"><LogoutOutlined aria-hidden="true" />{leaving?"Keluar…":"Keluar"}</button>
+      </nav>
+    </NavigationSheet>
+    <Container component="main" className="admin-content" id="main-content" tabIndex={-1} maxWidth="md">
+      {demo && <p className="admin-demo-note" role="status">{weeklyDemo?"Mode latihan lokal · perubahan tidak memengaruhi website gereja.":"Mode lokal · Kertas Acara dan Pokok Doa memakai spreadsheet gereja."}</p>}
+      {error && <Alert severity="error" sx={{mb:2}}>{error}</Alert>}
+      {children}
+    </Container>
+  </Box>;
 }

@@ -1,5 +1,5 @@
 "use client";
-import AddPhotoAlternateOutlined from "@mui/icons-material/AddPhotoAlternateOutlined";
+import { AddPhotoAlternateOutlined } from "@/components/ui/icons";
 
 import { T } from "@/components/LanguageProvider";
 

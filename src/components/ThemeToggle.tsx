@@ -1,7 +1,7 @@
 "use client";
 import Button from "@mui/material/Button";
-import DarkModeOutlined from "@mui/icons-material/DarkModeOutlined";
-import LightModeOutlined from "@mui/icons-material/LightModeOutlined";
+import { DarkModeOutlined } from "@/components/ui/icons";
+import { LightModeOutlined } from "@/components/ui/icons";
 import { useColorMode } from "./ColorModeContext";
 
 export default function ThemeToggle() {

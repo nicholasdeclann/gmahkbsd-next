@@ -1,4 +1,5 @@
 "use client";
+import { SaveOutlined, Refresh, OpenInNew } from "../ui/icons";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -83,9 +84,9 @@ export default function WeeklyForm() {
         </Box>
         <Typography color="text.secondary" sx={{ mb: 2 }}>{snapshot.mode === "demo" ? "Mode latihan: perubahan hanya disimpan secara lokal." : "Menyimpan akan langsung memperbarui Kertas Acara yang digunakan website."}</Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-          <Button type="submit" variant="contained" size="large" disabled={!dirty || saving || !snapshot.canWrite}>{saving ? "Menyimpan…" : "Simpan Perubahan"}</Button>
-          <Button variant="outlined" disabled={saving} onClick={() => { if (!dirty || window.confirm("Muat ulang dan batalkan perubahan yang belum disimpan?")) void load(); }}>Muat Ulang</Button>
-          {snapshot.mode === "google" && <Button component={Link} href="/kertas-acara" target="_blank">Lihat Kertas Acara ↗</Button>}
+          <Button startIcon={<SaveOutlined />} type="submit" variant="contained" size="large" disabled={!dirty || saving || !snapshot.canWrite}>{saving ? "Menyimpan…" : "Simpan Perubahan"}</Button>
+          <Button startIcon={<Refresh />} variant="outlined" disabled={saving} onClick={() => { if (!dirty || window.confirm("Muat ulang dan batalkan perubahan yang belum disimpan?")) void load(); }}>Muat Ulang</Button>
+          {snapshot.mode === "google" && <Button endIcon={<OpenInNew />} component={Link} href="/kertas-acara" target="_blank">Lihat Kertas Acara</Button>}
         </Box>
       </Box> : <Button variant="outlined" onClick={() => void load()}>Coba Lagi</Button>}
   </>;

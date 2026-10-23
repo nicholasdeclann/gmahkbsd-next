@@ -5,6 +5,7 @@ import { Box, Button, ButtonBase, Typography } from "@mui/material";
 import Image from "next/image";
 import AnnouncementShare from "./AnnouncementShare";
 import type { AnnouncementItem } from "@/lib/announcementTypes";
+import { EyeOutlined, EditOutlined, DeleteOutlined } from "./ui/icons";
 
 export default function PhotoCard({ photo, onEdit, onDelete, onOpen }: { photo: AnnouncementItem; onEdit?: () => void; onDelete?: () => void; onOpen: () => void }) {
   const {language}=useLanguage();
@@ -22,10 +23,10 @@ export default function PhotoCard({ photo, onEdit, onDelete, onOpen }: { photo: 
       </Box>
       {photo.caption && <Typography sx={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere", lineHeight: 1.7, mb: 1 }}>{photo.caption}</Typography>}
       <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 1 }}>
-        <Button onClick={onOpen}><T text="Lihat Gambar" /></Button>
+        <Button startIcon={<EyeOutlined />} onClick={onOpen}><T text="Lihat Gambar" /></Button>
         <AnnouncementShare id={photo.id} caption={photo.caption} />
-        {onEdit && <Button onClick={onEdit}>Ubah Keterangan</Button>}
-        {onDelete && <Button color="error" onClick={onDelete}>Hapus</Button>}
+        {onEdit && <Button startIcon={<EditOutlined />} onClick={onEdit}>Ubah Keterangan</Button>}
+        {onDelete && <Button startIcon={<DeleteOutlined />} color="error" onClick={onDelete}>Hapus</Button>}
       </Box>
     </Box>
   </Box>;

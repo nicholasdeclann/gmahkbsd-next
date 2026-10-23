@@ -11,7 +11,7 @@ import {
   List,
   ListItem,
 } from "@mui/material";
-import FavoriteBorder from "@mui/icons-material/FavoriteBorder";
+import { FavoriteBorder } from "@/components/ui/icons";
 import { churchConfig } from "@/config/church";
 
 interface PrayerItem {
@@ -20,7 +20,7 @@ interface PrayerItem {
   note: string | null;
 }
 
-export default function PrayerListCard() {
+export default function PrayerListCard({ showHeading = true }: { showHeading?: boolean }) {
   const [items, setItems] = useState<PrayerItem[] | null>(null);
   const [available, setAvailable] = useState(true);
 
@@ -51,14 +51,14 @@ export default function PrayerListCard() {
   return (
     <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3 } }}>
       <Box sx={styles.section}>
-        <Box sx={styles.titleContainer}>
+        {showHeading && <Box sx={styles.titleContainer}>
           <FavoriteBorder sx={styles.icon} />
           <Typography component="h2" variant="h4" sx={styles.title}>
             <T text={churchConfig.prayerList.title} />
           </Typography>
-        </Box>
+        </Box>}
         <Card sx={styles.card}>
-          <CardContent>
+          <CardContent sx={{ px: 0 }}>
             <List sx={{ p: 0 }}>
               {items.map((item) => (
                 <ListItem key={item.id} sx={styles.item}>
@@ -79,7 +79,7 @@ export default function PrayerListCard() {
 const styles = {
   section: {
     width: "100%",
-    mb: { xs: 6, sm: 8 },
+    mb: 3,
   },
   titleContainer: {
     display: "flex",
