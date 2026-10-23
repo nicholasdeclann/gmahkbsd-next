@@ -10,6 +10,8 @@ import {
   Button,
   Alert,
 } from "@mui/material";
+import Link from "next/link";
+import { ArrowBack } from "@/components/ui/icons";
 import DisplaySettings from "@/components/DisplaySettings";
 
 export default function AdminLoginPage() {
@@ -49,7 +51,7 @@ export default function AdminLoginPage() {
 
   return (
     <Container maxWidth="xs" className="login-page">
-      <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 3 }}><DisplaySettings /></Box>
+      <Box sx={{display:"flex",justifyContent:"space-between",alignItems:"center",mb:3}}><Button component={Link} href="/" startIcon={<ArrowBack/>}>Kembali ke Website</Button><DisplaySettings/></Box>
       <Typography component="h1" variant="h4" sx={{ fontWeight: 350, mb: 3, textAlign: "center" }}>
         Dashboard Staf
       </Typography>

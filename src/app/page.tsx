@@ -8,6 +8,8 @@ import PrayerListCard from "@/components/PrayerListCard";
 import PhotoGallery from "@/components/PhotoGallery";
 import EventPhotos from "@/components/events/EventPhotos";
 import SabbathThisWeek from "@/components/SabbathThisWeek";
+import InstagramFeed from "@/components/InstagramFeed";
+import GivingSection from "@/components/GivingSection";
 
 export default function Home() {
   return <>
@@ -28,6 +30,7 @@ export default function Home() {
       <PhotoGallery previewLimit={2} />
     </section>
     <EventPhotos carousel />
+    <InstagramFeed />
     <section className="section-space worship-section" aria-labelledby="worship-title">
       <div className="site-width worship-grid">
         <div><h2 id="worship-title" className="section-title"><T text="Ibadah Bersama" /></h2><p className="section-description"><T text="Di gereja atau melalui Zoom." /></p>
@@ -57,6 +60,7 @@ export default function Home() {
       <div className="pastor-small-photo"><Image src={imageAsset("pdt-eko-surono.png")} alt="Pdt. Eko Surono" width={773} height={1507} sizes="160px" /></div>
       <div><h2 id="pastor-title" className="section-title">Pdt. Eko Surono</h2><p className="section-description"><T text="Kami menyambut Anda untuk beribadah dan menjadi bagian dari keluarga jemaat GMAHK BSD." /></p><a className="text-link" href="https://wa.me/+62895337627700" target="_blank" rel="noopener noreferrer"><WhatsApp /><T text="Hubungi Pendeta" /></a></div>
     </section>
+    <GivingSection />
     <section className="community-section section-space" aria-labelledby="community-title">
       <div className="site-width community-heading"><h2 id="community-title" className="section-title"><T text="Pokok Doa" /></h2></div>
       <PrayerListCard showHeading={false} />

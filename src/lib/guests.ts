@@ -68,9 +68,9 @@ async function checked(drive:drive_v3.Drive,id:string,date:string){
   if(!file.parents?.includes(parent)&&!(await listFiles(drive,parent)).some(f=>f.id===id))throw new GuestError("Catatan tamu tidak ditemukan.",404);
   return {entry:decode(file),etag:(response.headers as Record<string,string>).etag};
 }
-type Details=Pick<GuestEntry,"date"|"name"|"church"|"type"|"pax">;
+type Details=Pick<GuestEntry,"date"|"name"|"church"|"type"|"pax"|"phone">;
 function retryEntry(entry:GuestEntry,details:Details){
-  if(entry.date!==details.date||entry.name!==details.name||entry.church!==details.church||entry.type!==details.type||entry.pax!==details.pax)throw new GuestError("Catatan dari percobaan sebelumnya sudah tersimpan. Perbarui daftar untuk melihatnya sebelum mengedit.",409);
+  if(entry.date!==details.date||entry.name!==details.name||entry.church!==details.church||entry.type!==details.type||entry.pax!==details.pax||(entry.phone??"")!==(details.phone??""))throw new GuestError("Catatan dari percobaan sebelumnya sudah tersimpan. Perbarui daftar untuk melihatnya sebelum mengedit.",409);
   return entry;
 }
 export async function createGuest(details:Details,requestId:string):Promise<GuestEntry>{

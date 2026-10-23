@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Alert, Box, Button, Container } from "@mui/material";
 import DisplaySettings from "../DisplaySettings";
+import AdminBreadcrumbs from "./AdminBreadcrumbs";
 import NavigationSheet from "../ui/NavigationSheet";
 import { MenuOutlined, DashboardOutlined, DescriptionOutlined, FavoriteBorder, CampaignOutlined, PhotoLibraryOutlined, PeopleOutline, SettingsOutlined, OpenInNew, LogoutOutlined, ArrowBack, RecordVoiceOverOutlined } from "../ui/icons";
 import { ThemeProvider } from "@mui/material/styles";
@@ -52,6 +53,7 @@ export default function DashboardShell({ children, demo, weeklyDemo }: { childre
       </nav>
     </NavigationSheet>
     <Container component="main" className="admin-content" id="main-content" tabIndex={-1} maxWidth="md">
+      <AdminBreadcrumbs />
       {demo && <p className="admin-demo-note" role="status">{weeklyDemo?"Mode latihan lokal · perubahan tidak memengaruhi website gereja.":"Mode lokal · Kertas Acara dan Pokok Doa memakai spreadsheet gereja."}</p>}
       {error && <Alert severity="error" sx={{mb:2}}>{error}</Alert>}
       {children}

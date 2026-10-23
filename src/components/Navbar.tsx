@@ -19,6 +19,7 @@ const primary = [
   { label: "Pengumuman", href: "/pengumuman", icon: CampaignOutlined },
 ];
 const secondary = [
+  { label: "Persembahan & Perpuluhan", href: "/#persembahan", icon: InfoIcon },
   { label: "Jadwal Pelayanan", href: "/jadwal-pelayanan", icon: CalendarMonthOutlined },
   { label: "Ulang Tahun", href: "/ulang-tahun", icon: CakeOutlined },
   { label: "Kegiatan Jemaat", href: "/kegiatan", icon: PhotoLibraryOutlined },
@@ -29,6 +30,16 @@ export default function Navbar() {
   const pathname = usePathname();
   const { t, language } = useLanguage();
   const [open, setOpen] = useState(false);
+  const [admin,setAdmin]=useState(false);
+  useEffect(()=>{
+    const controller=new AbortController();
+    async function check(){
+      try {const response=await fetch("/api/admin/session",{cache:"no-store",credentials:"same-origin",signal:controller.signal});const data=response.ok?await response.json():null;if(!controller.signal.aborted)setAdmin(data?.authenticated===true);}
+      catch{if(!controller.signal.aborted)setAdmin(false);}
+    }
+    void check();window.addEventListener("focus",check);
+    return()=>{controller.abort();window.removeEventListener("focus",check);};
+  },[pathname]);
   const [keyboard, setKeyboard] = useState(false);
   useEffect(() => { setOpen(false); }, [pathname]);
   useEffect(() => {
@@ -52,6 +63,7 @@ export default function Navbar() {
         </Link>
         <nav className="desktop-nav" aria-label={t("Navigasi utama")}>
           {primary.map(item => <Link key={item.href} href={item.href} aria-current={pathname === item.href ? "page" : undefined}>{t(item.label === "Acara" ? "Kertas Acara" : item.label)}</Link>)}
+          {admin && <Button component={Link} href="/admin" startIcon={<DashboardOutlined />}>Dashboard Admin</Button>}
           <Button onClick={() => setOpen(true)} startIcon={<MenuOutlined />} aria-haspopup="dialog" aria-expanded={open}>{t("Menu")}</Button>
         </nav>
         <DisplaySettings />

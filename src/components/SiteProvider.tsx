@@ -38,7 +38,7 @@ export default function SiteProvider({ children }: { children: React.ReactNode }
         {!admin && !staff && <footer className="site-footer">
           <div className="site-width footer-inner">
             <small>© {new Date().getFullYear()} {churchConfig.shortName}</small>
-            <div className="footer-links"><Link href="/#kunjungi"><T text="Kunjungi Kami" /></Link><Link href="/admin"><T text="Dashboard Staf" /></Link></div>
+            <div className="footer-links"><Link href="/#kunjungi"><T text="Kunjungi Kami" /></Link><Link href="/admin"><T text="Dashboard Staf" /></Link><Link href="/#persembahan"><T text="Persembahan & Perpuluhan" /></Link><Link href="/privacy-policy">Kebijakan Privasi</Link></div>
           </div>
         </footer>}
       </div>

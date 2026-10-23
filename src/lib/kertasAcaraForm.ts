@@ -1,5 +1,14 @@
 export const CHURCH_TIMEZONE = "Asia/Jakarta";
 
+export function rollForwardSabbath(selected: string, dates: string[], now = new Date()): string {
+  const parts = new Intl.DateTimeFormat("en-CA", { timeZone: CHURCH_TIMEZONE, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
+  const part = (type: string) => parts.find(item => item.type === type)!.value;
+  const date = new Date(`${part("year")}-${part("month")}-${part("day")}T12:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + (6 - date.getUTCDay() + 7) % 7);
+  const upcoming = date.toISOString().slice(0, 10);
+  return selected && selected < upcoming && dates.includes(upcoming) ? upcoming : selected;
+}
+
 export function churchWeekStart(now = new Date()): string {
   const parts = new Intl.DateTimeFormat("en-CA", { timeZone: CHURCH_TIMEZONE, year: "numeric", month: "2-digit", day: "2-digit" }).formatToParts(now);
   const part = (type: string) => parts.find(item => item.type === type)?.value;

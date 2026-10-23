@@ -3,9 +3,10 @@ import { SaveOutlined, Refresh, OpenInNew } from "../ui/icons";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Close from "@mui/icons-material/Close";
 import { useRouter } from "next/navigation";
 import { Alert, Autocomplete, Box, Button, CircularProgress, MenuItem, TextField, Typography } from "@mui/material";
-import { formatChurchDate, type WeeklySnapshot, type WeeklyValues } from "@/lib/kertasAcaraForm";
+import { formatChurchDate, rollForwardSabbath, type WeeklySnapshot, type WeeklyValues } from "@/lib/kertasAcaraForm";
 
 export default function WeeklyForm() {
   const router = useRouter();
@@ -31,6 +32,22 @@ export default function WeeklyForm() {
   }, [router]);
   useEffect(() => { alive.current = true; void load(); return () => { alive.current = false; }; }, [load]);
   useEffect(() => {
+    if (!snapshot || saving) return;
+    function advance() {
+      if (document.hidden) return;
+      setValues(previous => {
+        if (!previous) return previous;
+        const date = rollForwardSabbath(previous.date, snapshot!.dates);
+        return date === previous.date ? previous : { ...previous, date };
+      });
+    }
+    advance();
+    const timer = window.setInterval(advance, 60_000);
+    window.addEventListener("focus", advance);
+    document.addEventListener("visibilitychange", advance);
+    return () => { window.clearInterval(timer); window.removeEventListener("focus", advance); document.removeEventListener("visibilitychange", advance); };
+  }, [snapshot, saving]);
+  useEffect(() => {
     if (!dirty) return;
     const warn = (event: BeforeUnloadEvent) => { event.preventDefault(); };
     window.addEventListener("beforeunload", warn);
@@ -39,6 +56,14 @@ export default function WeeklyForm() {
 
   function change(key: keyof WeeklyValues, value: string) {
     setValues(previous => previous ? { ...previous, [key]: value } : previous); setSuccess("");
+  }
+  function clearFields() {
+    if (saving || !snapshot?.canWrite) return;
+    setValues(previous => previous ? {
+      date: previous.date, sermonTitle: "", mainVerse: "", responsiveReading: "",
+      openingHymn: "", closingHymn: "", ssOpeningHymn: "", ssClosingHymn: "",
+    } : previous);
+    setError(""); setSuccess("");
   }
   async function save(event: React.FormEvent) {
     event.preventDefault();
@@ -62,7 +87,7 @@ export default function WeeklyForm() {
       <Box component="form" onSubmit={save}>
         {!snapshot.canWrite && <Alert severity="warning" sx={{ mb: 3 }}>Formulir dapat dilihat. Penyimpanan ke Google Sheets belum diaktifkan oleh pengelola.</Alert>}
         <Box sx={{ pt: 3, borderTop: "1px solid var(--site-border)", mb: 4 }}>
-          <TextField select label="Tanggal Sabat" value={values.date} onChange={event => change("date", event.target.value)} fullWidth disabled={saving || !snapshot.canWrite} helperText="Waktu Indonesia Barat (Jakarta)">
+          <TextField select label="Tanggal Sabat" value={values.date} onChange={event => change("date", event.target.value)} fullWidth disabled={saving || !snapshot.canWrite} helperText="Otomatis maju ke Sabat berikutnya mulai hari Minggu (WIB). Simpan Perubahan untuk memperbarui spreadsheet.">
             {snapshot.dates.map(date => <MenuItem key={date} value={date}>{formatChurchDate(date)}</MenuItem>)}
           </TextField>
           <Typography component="h2" variant="h6" sx={{ mt: 4, mb: 2, fontWeight: 400 }}>Detail Khotbah</Typography>
@@ -85,9 +110,11 @@ export default function WeeklyForm() {
         <Typography color="text.secondary" sx={{ mb: 2 }}>{snapshot.mode === "demo" ? "Mode latihan: perubahan hanya disimpan secara lokal." : "Menyimpan akan langsung memperbarui Kertas Acara yang digunakan website."}</Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
           <Button startIcon={<SaveOutlined />} type="submit" variant="contained" size="large" disabled={!dirty || saving || !snapshot.canWrite}>{saving ? "Menyimpan…" : "Simpan Perubahan"}</Button>
+          <Button type="button" variant="outlined" color="error" startIcon={<Close />} onClick={clearFields} disabled={saving || !snapshot.canWrite}>Kosongkan Formulir</Button>
           <Button startIcon={<Refresh />} variant="outlined" disabled={saving} onClick={() => { if (!dirty || window.confirm("Muat ulang dan batalkan perubahan yang belum disimpan?")) void load(); }}>Muat Ulang</Button>
           {snapshot.mode === "google" && <Button endIcon={<OpenInNew />} component={Link} href="/kertas-acara" target="_blank">Lihat Kertas Acara</Button>}
         </Box>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>Kosongkan Formulir menghapus isian khotbah dan lagu tanpa mengubah tanggal Sabat. Perubahan baru tersimpan setelah memilih Simpan Perubahan.</Typography>
       </Box> : <Button variant="outlined" onClick={() => void load()}>Coba Lagi</Button>}
   </>;
 }

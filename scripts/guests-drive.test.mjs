@@ -52,3 +52,13 @@ test("Different ushers adding guests preserve both records; unrelated files cann
   files.get(first.id).parents=["private_other_folder"];await assert.rejects(()=>api.updateGuest(first.id,details,first.revision),error=>error.status===404);
   files.get(second.id).properties.kind="gmahkbsd-announcement";await assert.rejects(()=>api.deleteGuest(second.id,details.date,second.revision),error=>error.status===404);
 });
+test("Phone and omitted headcount survive storage and edits",async()=>{
+  const {api}=setup(),requestId=randomUUID();
+  const input=types.guestDetails({...details,pax:null,phone:"08123456789"});
+  const created=await api.createGuest(input,requestId);
+  const listed=(await api.listGuests(details.date))[0];
+  assert.equal(listed.phone,"08123456789");assert.equal(listed.pax,null);
+  await assert.rejects(()=>api.createGuest({...input,phone:"08999"},requestId),error=>error.status===409);
+  const edited=await api.updateGuest(created.id,{...input,phone:"08999"},created.revision);
+  assert.equal(edited.phone,"08999");assert.equal(edited.pax,null);
+});
