@@ -1,32 +1,120 @@
 import Link from "next/link";
 import GoogleConnectionHealth from "@/components/admin/GoogleConnectionHealth";
 import { Typography } from "@mui/material";
-import { DescriptionOutlined } from "@/components/ui/icons";
-import { FavoriteBorder } from "@/components/ui/icons";
-import { CampaignOutlined } from "@/components/ui/icons";
-import { PhotoLibraryOutlined } from "@/components/ui/icons";
-import { PeopleOutline } from "@/components/ui/icons";
-import { RecordVoiceOverOutlined } from "@/components/ui/icons";
-import { SettingsOutlined } from "@/components/ui/icons";
-import { ArrowForward } from "@/components/ui/icons";
-const weekly=[
-  {title:"Kertas Acara",description:"Judul khotbah, ayat, dan lagu.",href:"/admin/kertas-acara",icon:DescriptionOutlined},
-  {title:"Pokok Doa",description:"Empat nama dan alasan doa mingguan.",href:"/admin/prayer",icon:FavoriteBorder},
-  {title:"Pengumuman",description:"Terbitkan informasi untuk jemaat.",href:"/admin/photos",icon:CampaignOutlined},
-  {title:"Kegiatan Jemaat",description:"Foto kegiatan dan arsip bulanan.",href:"/admin/events",icon:PhotoLibraryOutlined},
+import {
+  DescriptionOutlined,
+  FavoriteBorder,
+  CampaignOutlined,
+  PhotoLibraryOutlined,
+  PeopleOutline,
+  RecordVoiceOverOutlined,
+  SettingsOutlined,
+  ArrowForward,
+} from "@/components/ui/icons";
+
+const weekly = [
+  {
+    title: "Kertas Acara",
+    badge: "Sabat Ini",
+    description: "Perbarui judul khotbah, pembicara, ayat inti, dan lagu ibadah Sabat.",
+    href: "/admin/kertas-acara",
+    icon: DescriptionOutlined,
+  },
+  {
+    title: "Pokok Doa",
+    badge: "4 Slot Mingguan",
+    description: "Kelola daftar nama dan pokok doa jemaat yang ditampilkan pekan ini.",
+    href: "/admin/prayer",
+    icon: FavoriteBorder,
+  },
+  {
+    title: "Pengumuman",
+    badge: "Warta Jemaat",
+    description: "Unggah dan atur poster pengumuman mingguan untuk jemaat.",
+    href: "/admin/photos",
+    icon: CampaignOutlined,
+  },
+  {
+    title: "Kegiatan Jemaat",
+    badge: "Galeri Bulanan",
+    description: "Kelola dokumentasi foto pelayanan dan arsip kegiatan bulanan.",
+    href: "/admin/events",
+    icon: PhotoLibraryOutlined,
+  },
 ];
-const tools=[
-  {title:"Penerima Tamu",description:"Isi daftar tamu Sabat tanpa kata sandi.",href:"/tamu",icon:PeopleOutline},
-  {title:"Tampilan MC",description:"Baca daftar tamu untuk penyambutan.",href:"/tamu/mc",icon:RecordVoiceOverOutlined},
-  {title:"Pengaturan Website",description:"Koneksi Google dan tautan spreadsheet.",href:"/admin/settings",icon:SettingsOutlined},
+
+const tools = [
+  {
+    title: "Penerima Tamu",
+    badge: "Meja Sambutan",
+    description: "Formulir buku tamu Sabat yang cepat diakses oleh tim penerima tamu.",
+    href: "/tamu",
+    icon: PeopleOutline,
+  },
+  {
+    title: "Tampilan MC",
+    badge: "Mimbar & Sambutan",
+    description: "Daftar tamu terkini yang mudah dibaca untuk sesi penyambutan.",
+    href: "/tamu/mc",
+    icon: RecordVoiceOverOutlined,
+  },
+  {
+    title: "Pengaturan Website",
+    badge: "Integrasi & Akun",
+    description: "Kelola koneksi Google Drive, spreadsheet, dan pengaturan staf.",
+    href: "/admin/settings",
+    icon: SettingsOutlined,
+  },
 ];
-export default function DashboardPage(){return <>
-  <Typography component="h1" variant="h4" sx={{fontWeight:350,mb:1}}>Dashboard</Typography>
-  <Typography color="text.secondary" sx={{mb:4}}>Kelola ibadah dan kabar jemaat.</Typography>
-  <GoogleConnectionHealth compact/>
-  {[{title:"Kelola Konten",items:weekly},{title:"Alat Pelayanan",items:tools}].map(group=><section className="dashboard-group" key={group.title}>
-    <h2>{group.title}</h2><nav className="dashboard-task-list" aria-label={group.title}>{group.items.map(task=><Link key={task.href} href={task.href}>
-      <task.icon className="task-icon" aria-hidden="true"/><div><h3>{task.title}</h3><p>{task.description}</p></div><ArrowForward className="task-arrow" aria-hidden="true"/>
-    </Link>)}</nav>
-  </section>)}
-</>;}
+
+export default function DashboardPage() {
+  return (
+    <>
+      <div className="dashboard-hero-head">
+        <div>
+          <Typography component="h1" variant="h4" sx={{ fontWeight: 500, mb: 0.75 }}>
+            Dashboard Staf
+          </Typography>
+          <Typography color="text.secondary">
+            Pilih kartu di bawah untuk mengelola konten ibadah Sabat, warta jemaat, dan alat pelayanan.
+          </Typography>
+        </div>
+      </div>
+
+      <GoogleConnectionHealth compact />
+
+      {[
+        { title: "Kelola Konten Sabat", items: weekly },
+        { title: "Alat Pelayanan & Pengaturan", items: tools },
+      ].map((group) => (
+        <section className="dashboard-group" key={group.title}>
+          <h2 className="dashboard-group-title">{group.title}</h2>
+          <nav className="dashboard-card-grid" aria-label={group.title}>
+            {group.items.map((task) => (
+              <Link
+                key={task.href}
+                href={task.href}
+                className="dashboard-card"
+              >
+                <div className="dashboard-card-top">
+                  <span className="dashboard-card-icon">
+                    <task.icon aria-hidden="true" />
+                  </span>
+                  <span className="dashboard-card-badge">{task.badge}</span>
+                </div>
+                <div className="dashboard-card-body">
+                  <h3>{task.title}</h3>
+                  <p>{task.description}</p>
+                </div>
+                <div className="dashboard-card-footer">
+                  <span>Buka halaman</span>
+                  <ArrowForward className="task-arrow" aria-hidden="true" />
+                </div>
+              </Link>
+            ))}
+          </nav>
+        </section>
+      ))}
+    </>
+  );
+}

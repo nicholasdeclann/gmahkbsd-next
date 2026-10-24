@@ -146,6 +146,7 @@
   "Menjadi sebuah jemaat yang nyaman bagi persekutuan anggota, mendukung pertumbuhan kerohanian dan melatih anggota untuk menyampaikan kabar sukacita kepada lingkungan di sekitarnya": "To be a welcoming church for fellowship, supporting spiritual growth and equipping members to share the good news with their surrounding community.",
   "Menyampaikan Pekabaran Tiga Malaikat kepada semua orang, khususnya di daerah BSD dan sekitarnya melalui pengabaran Injil (pelayanan ke luar), meningkatkan pertumbuhan kerohanian (pelayanan perbaktian) dan persekutuan jemaat (pelayanan ke dalam)": "To proclaim the Three Angels’ Messages to everyone, especially in BSD and the surrounding areas, through evangelism and outreach, spiritual growth through worship, and fellowship within the congregation.",
   "jemaat berulang tahun minggu ini!": "church members celebrate a birthday this week!",
+  "jemaat berulang tahun minggu ini": "church members celebrate a birthday this week",
   "Dorongan PP": "Personal Ministries",
   "Lagu Partisipan Khotbah": "Worship Participants’ Hymn",
   "Doa Syafaat": "Intercessory Prayer",
@@ -238,5 +239,18 @@
   "Di gereja atau melalui Zoom.": "At church or on Zoom.",
   "Lokasi Gereja": "Church Location",
   "Ulang Tahun Minggu Ini": "This Week’s Birthdays",
-  "Tampilan MC": "MC View"
+  "Tampilan MC": "MC View",
+  "Menu": "Menu",
+  "Jadwal": "Schedule",
+  "Kegiatan": "Activities",
+  "Ibadah": "Worship",
+  "Kabar & Jemaat": "News & Community",
+  "Gereja & Staf": "Church & Staff",
+  "Ibadah & Lokasi": "Worship & Location",
+  "Ibadah Bersama & Lokasi": "Worship Together & Location",
+  "Pokok Doa & Komunitas": "Prayer & Church Family",
+  "Ibadah Sabat": "Sabbath Worship",
+  "Akses cepat ke warta jemaat, jadwal pelayanan, kegiatan, dan pokok doa.": "Quick access to church announcements, ministry schedules, activities, and prayer requests.",
+  "Silakan muat ulang halaman ini beberapa saat lagi.": "Please reload this page in a moment.",
+  "Daftar ini diperbarui secara otomatis setiap awal pekan.": "This list updates automatically at the start of each week."
 }

@@ -27,7 +27,7 @@ function demoSnapshot(values: WeeklyValues): WeeklySnapshot {
     values, revision: revision(values), mode: "demo", canWrite: true,
     dates: Array.from({ length: 52 }, (_, i) => serialToDate(dateToSerial("2026-01-03") + i * 7)),
     hymns: [{ number: "79", title: "Ku Puji Tuhan Yang Ciptakan" }, { number: "186", title: "Lagu Sion 186" },
-      { number: "22", title: "Hai Jiwaku Bangun Seg'ra" }, { number: "68", title: "Bapa Kami Datang" },
+      { number: "21", title: "Suci, Suci, Suci" }, { number: "22", title: "Hai Jiwaku Bangun Seg'ra" }, { number: "68", title: "Bapa Kami Datang" },
       { number: "417", title: "`Bak Wanita Di Sumur" }, { number: "421", title: "Ada Tempat Diam Teduh" },
       { number: "168", title: "Kita Memiliki Pengharapan" }],
   };
