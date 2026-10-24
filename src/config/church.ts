@@ -141,6 +141,7 @@ export interface ChurchConfig {
     /** Fixed hymn numbers used at set points in the worship order. */
     fixedHymns: {
       laguPartisipanKhotbah: string;
+      laguSambutanDoa: string;
       laguSambutan1: string;
       laguSambutanKhotbah: string;
       laguSambutan2: string;
@@ -277,8 +278,9 @@ export const churchConfig: ChurchConfig = {
     hymnalPrefix: "LSEL",
     fixedHymns: {
       laguPartisipanKhotbah: "421",
-      laguSambutan1: "21",
-      laguSambutanKhotbah: "524",
+      laguSambutanDoa: "68 (Reff)",
+      laguSambutan1: "22 (Ayat 2)",
+      laguSambutanKhotbah: "417 (Reff)",
       laguSambutan2: "168",
     },
     pengumumanRole: "Dept. Komunikasi, Ketua Jemaat",

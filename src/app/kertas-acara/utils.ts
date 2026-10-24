@@ -51,9 +51,15 @@ export const getSaturdayOfMonth = (date: Date) => {
 };
 
 export const formatLaguSion = (
-  laguNum: string,
+  laguNum: string | number,
   laguSionMap: Record<string, string>,
 ) => {
-  if (!laguNum || !laguSionMap[laguNum]) return "";
-  return `${churchConfig.kertasAcara.hymnalPrefix} ${laguNum} | ${laguSionMap[laguNum]}`;
+  if (laguNum === undefined || laguNum === null || laguNum === "") return "";
+  const raw = String(laguNum).trim();
+  const match = /^(\d+)(?:\s+(.+))?$/.exec(raw);
+  const numKey = match ? match[1] : raw;
+  const suffix = match?.[2] ? ` ${match[2]}` : "";
+  const title = laguSionMap[numKey];
+  if (!title) return "";
+  return `${churchConfig.kertasAcara.hymnalPrefix} ${numKey} | ${title}${suffix}`;
 };

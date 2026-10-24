@@ -58,6 +58,13 @@ export default function KhotbahSection({
           label: "Doa Syafaat",
           value: khotbahData["doa syafaat"]?.person || "",
         })}
+      {showSongs &&
+        renderListItem({
+          key: "lagu-sambutan-doa",
+          label: "Lagu Sambutan Doa",
+          value: formatLaguSion(fixedHymns.laguSambutanDoa, laguSionMap),
+          isLagu: true,
+        })}
       {bacaanPersembahan &&
         renderListItem({
           key: "bacaan-persembahan",
@@ -113,12 +120,13 @@ export default function KhotbahSection({
           value: ayatBersahutan,
           middleValue: showSongs ? ayatBersahutanText : undefined,
         })}
-      {ayatBersahutan &&
+      {showSongs &&
+        ayatInti &&
         renderListItem({
           key: "ayat-inti",
           label: "Ayat Inti",
-          value: ayatBersahutan,
-          middleValue: showSongs ? ayatInti : undefined,
+          value: "",
+          middleValue: ayatInti,
         })}
       {showSongs &&
         renderListItem({
