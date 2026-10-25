@@ -46,9 +46,9 @@ const PRESETS: Record<
     brightness: 1.65,
   },
   birthday: {
-    color1: "#17324d",
-    color2: "#1555c0",
-    color3: "#5494f0",
+    color1: "#f8c5d8",
+    color2: "#f9df9e",
+    color3: "#96e2dc",
     uSpeed: 0.15,
     uStrength: 1.1,
     uDensity: 0.9,
@@ -124,7 +124,7 @@ export default function ShaderGradientBg({
               cAzimuthAngle={preset.cAzimuthAngle}
               lightType="3d"
               brightness={preset.brightness}
-              grain="on"
+              grain={variant === "birthday" ? "off" : "on"}
               shader="defaults"
             />
           </CanvasComp>

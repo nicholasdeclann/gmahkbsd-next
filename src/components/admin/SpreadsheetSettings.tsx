@@ -39,8 +39,7 @@ export default function SpreadsheetSettings() {
     finally { setBusy(false); }
   }
   const changed = () => { setPreview(null); setSuccess(""); setError(""); };
-  return <Box component="section" sx={{ py: 3, borderTop: "1px solid var(--site-border)" }}>
-    <Typography component="h2" variant="h6" sx={{ mb: 2, fontWeight: 400 }}>Tautan Spreadsheet</Typography>
+  return <Box component="section" className="settings-panel" aria-label="Tautan Spreadsheet">
     <Typography color="text.secondary" sx={{ mb: 3 }}>Ganti tautan saat spreadsheet baru siap. Periksa pratinjau sebelum memakai sumber baru. Zona waktu: Jakarta (WIB).</Typography>
     {settings?.demo && <Typography variant="body2" color="text.secondary" sx={{mb:3}}>Perubahan hanya disimpan pada latihan lokal.</Typography>}
     {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}

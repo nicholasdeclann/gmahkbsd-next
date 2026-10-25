@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { CircularProgress } from "@mui/material";
 import ShaderGradientBg from "@/components/ui/ShaderGradientBg";
 import { T, useLanguage } from "@/components/LanguageProvider";
+import { CakeOutlined, GiftOutlined, PartyPopperOutlined } from "@/components/ui/icons";
 import { fetchTextCached, CACHE_TTL } from "@/lib/sheetCache";
 import {
   type BirthdayPerson,
@@ -12,6 +13,12 @@ import {
   isBirthdayThisWeek,
   getDayName,
 } from "./utils";
+
+const birthdayIcons = [CakeOutlined, GiftOutlined, PartyPopperOutlined];
+function birthdayStyle(name: string) {
+  const hash = Array.from(name.toLowerCase()).reduce((sum, char) => (sum * 31 + char.charCodeAt(0)) >>> 0, 0);
+  return { Icon: birthdayIcons[hash % birthdayIcons.length] };
+}
 
 export default function UlangTahunPage() {
   const { language } = useLanguage();
@@ -32,6 +39,7 @@ export default function UlangTahunPage() {
     }).format(date);
 
   const [birthdays, setBirthdays] = useState<BirthdayPerson[]>([]);
+  const [birthdayHues, setBirthdayHues] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [weekRange, setWeekRange] = useState<{
@@ -95,6 +103,14 @@ export default function UlangTahunPage() {
           (a, b) => a.birthdayDate.getTime() - b.birthdayDate.getTime(),
         );
 
+        // Shuffle evenly spaced hues once per load: distinct cards without render-time flicker.
+        const startHue = Math.random() * 360;
+        const hues = birthdayList.map((_, index) => (startHue + index * 360 / birthdayList.length) % 360);
+        for (let i = hues.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [hues[i], hues[j]] = [hues[j], hues[i]];
+        }
+        setBirthdayHues(hues);
         setBirthdays(birthdayList);
         setLoading(false);
       })
@@ -109,7 +125,7 @@ export default function UlangTahunPage() {
     <div className="birthday-page">
       <ShaderGradientBg variant="birthday" className="birthday-shader-hero">
         <div className="site-width birthday-hero-inner">
-          <p className="hero-church-name">GMAHK BUMI SERPONG DAMAI</p>
+          <div className="birthday-celebration-icons" aria-hidden="true"><GiftOutlined/><CakeOutlined/><PartyPopperOutlined/></div>
           <h1 className="birthday-hero-title">
             <T text="Ulang Tahun Minggu Ini" />
           </h1>
@@ -161,25 +177,28 @@ export default function UlangTahunPage() {
           </div>
         ) : (
           <div className="birthday-open-grid">
-            {birthdays.map((person) => (
+            {birthdays.map((person, index) => { const { Icon } = birthdayStyle(person.nama); return (
               <article
                 className="birthday-open-item"
+                data-accent="birthday"
+                style={{ "--birthday-hue": birthdayHues[index] ?? 0 } as CSSProperties}
                 key={`${person.nama}-${person.birthday.month}-${person.birthday.day}`}
               >
-                <div className="birthday-open-date" aria-hidden="true">
+                <time className="birthday-open-date" dateTime={`${person.birthdayDate.getFullYear()}-${String(person.birthday.month + 1).padStart(2, "0")}-${String(person.birthday.day).padStart(2, "0")}`}>
                   <span className="birthday-open-day">{person.birthday.day}</span>
                   <span className="birthday-open-month">
                     {monthShortLabel(person.birthdayDate)}
                   </span>
-                </div>
+                </time>
                 <div className="birthday-open-info">
                   <h2>{person.nama}</h2>
                   <p>
-                    <T text={person.dayName} />, {dateLabel(person.birthdayDate, true)}
+                    <T text={person.dayName} />
                   </p>
                 </div>
+                <span className="birthday-person-icon" aria-hidden="true"><Icon/></span>
               </article>
-            ))}
+            ); })}
           </div>
         )}
       </div>

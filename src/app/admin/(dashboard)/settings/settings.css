@@ -1,0 +1,32 @@
+.settings-area { max-width: 1000px; min-width: 0; }
+.settings-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.settings-card {
+  display: grid; grid-template-columns: 48px minmax(0, 1fr) 44px; gap: 16px;
+  align-items: center; padding: 24px; min-height: 144px; border-radius: 22px;
+  border: 1px solid var(--site-border); background: var(--site-surface);
+  color: var(--site-text); text-decoration: none;
+  transition: border-color 150ms ease, background-color 150ms ease;
+}
+.settings-card:hover { border-color: var(--site-primary, #1760bf); background: var(--glass-field); }
+.settings-card:focus-visible { outline: 3px solid var(--site-primary, #1760bf); outline-offset: 4px; }
+.settings-card-icon { width: 48px; height: 48px; display: grid; place-items: center; border-radius: 14px; background: var(--glass-field); color: var(--site-primary, #1760bf); }
+.settings-card-copy h2 { margin: 0 0 8px; font-size: 20px; font-weight: 500; line-height: 1.35; }
+.settings-card-copy p { margin: 0; color: var(--site-muted); font-size: 16px; line-height: 1.5; }
+.settings-card-arrow { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; }
+.settings-card-arrow svg { width: 20px; height: 20px; }
+.settings-panel { padding: 24px; border: 1px solid var(--site-border); border-radius: 22px; background: var(--site-surface); min-width: 0; }
+.settings-panels { display: grid; gap: 16px; }
+.settings-area details > summary { cursor: pointer; padding: 12px 0; min-height: 44px; }
+@media (max-width: 740px) {
+  .settings-grid { grid-template-columns: minmax(0, 1fr); }
+  .settings-card { padding: 20px; gap: 12px; }
+  .settings-panel { padding: 20px; }
+}
+@media (max-width: 359px) {
+  .settings-card { padding: 16px; grid-template-columns: 36px minmax(0, 1fr) 24px; gap: 10px; }
+  .settings-card-icon { width: 36px; height: 36px; border-radius: 10px; }
+  .settings-card-arrow { width: 24px; height: 36px; background: none; box-shadow: none; border: none; backdrop-filter: none; }
+  .settings-card-copy h2 { font-size: 18px; }
+  .settings-panel { padding: 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .settings-card { transition: none; } }

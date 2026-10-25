@@ -1,0 +1,54 @@
+/* Context accents stay on content; navigation and primary actions remain church blue. */
+[data-accent="blue"] { --context-ink: #1956b8; --context-wash: #edf3ff; --context-edge: #ccdafa; }
+[data-accent="rose"] { --context-ink: #a52e60; --context-wash: #fff0f5; --context-edge: #f1ccdd; }
+[data-accent="teal"] { --context-ink: #097363; --context-wash: #eaf8f2; --context-edge: #bce3d6; }
+[data-accent="violet"] { --context-ink: #7344a6; --context-wash: #f5effc; --context-edge: #dfcfef; }
+[data-accent="amber"] { --context-ink: #95600b; --context-wash: #fff7e7; --context-edge: #ecdbad; }
+[data-accent="slate"] { --context-ink: #526278; --context-wash: #f0f3f7; --context-edge: #d7dfe8; }
+:root[data-theme="dark"] [data-accent="blue"] { --context-ink: #a5c9ff; --context-wash: #182c4b; --context-edge: #34557f; }
+:root[data-theme="dark"] [data-accent="rose"] { --context-ink: #ffb4d0; --context-wash: #392331; --context-edge: #694259; }
+:root[data-theme="dark"] [data-accent="teal"] { --context-ink: #8cddc7; --context-wash: #17352f; --context-edge: #35665c; }
+:root[data-theme="dark"] [data-accent="violet"] { --context-ink: #d6b9ff; --context-wash: #2e2543; --context-edge: #57466f; }
+:root[data-theme="dark"] [data-accent="amber"] { --context-ink: #f2ce83; --context-wash: #352e20; --context-edge: #6b5a36; }
+:root[data-theme="dark"] [data-accent="slate"] { --context-ink: #c0cddd; --context-wash: #253040; --context-edge: #46576b; }
+.dashboard-card[data-accent] .dashboard-card-icon,
+.dashboard-card[data-accent] .dashboard-card-badge { background: var(--context-wash); color: var(--context-ink); }
+.dashboard-card[data-accent] .dashboard-card-body h3,
+.dashboard-card[data-accent] .dashboard-card-footer { color: var(--context-ink); }
+.dashboard-card[data-accent]:hover { border-color: var(--context-edge); background: var(--context-wash); }
+.settings-card[data-accent] .settings-card-icon { background: var(--context-wash); color: var(--context-ink); }
+.settings-card[data-accent] .settings-card-copy h2,
+.settings-card[data-accent] .settings-card-arrow { color: var(--context-ink); }
+.settings-card[data-accent]:hover { border-color: var(--context-edge); background: var(--context-wash); }
+
+.shader-band--birthday { background: linear-gradient(115deg, #ffe0c1, #fbd4e7 48%, #bcece2); color: #17324d; }
+.birthday-shader-hero { padding-block: 44px 36px; }
+.birthday-shader-hero .birthday-hero-title,
+.birthday-shader-hero .birthday-hero-subtitle { color: #17324d; }
+.birthday-shader-hero .shader-band__canvas { mix-blend-mode: normal; opacity: .18; }
+.birthday-shader-hero .shader-band__noise { display: none; }
+.birthday-celebration-icons { display: flex; justify-content: center; align-items: center; gap: 20px; margin-bottom: 20px; }
+.birthday-celebration-icons svg { width: 28px; height: 28px; color: #a95912; transform: rotate(-12deg); }
+.birthday-celebration-icons svg:nth-child(2) { width: 40px; height: 40px; color: #a92b61; transform: none; }
+.birthday-celebration-icons svg:nth-child(3) { color: #087b6d; transform: rotate(12deg); }
+.birthday-shader-hero .birthday-hero-meta { color: #17324d; background: rgba(255,255,255,.5); border: 1px solid rgba(255,255,255,.7); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.birthday-page > .section-space { padding-block: 32px; }
+.birthday-open-grid { gap: 12px; align-items: start; }
+.birthday-open-item[data-accent="birthday"] { --context-ink: hsl(var(--birthday-hue) 72% 24%); --context-wash: hsl(var(--birthday-hue) 90% 88%); --context-edge: hsl(var(--birthday-hue) 65% 72%); }
+:root[data-theme="dark"] .birthday-open-item[data-accent="birthday"] { --context-ink: hsl(var(--birthday-hue) 95% 84%); --context-wash: hsl(var(--birthday-hue) 45% 19%); --context-edge: hsl(var(--birthday-hue) 45% 38%); }
+.birthday-open-item[data-accent] { align-items: center; gap: 12px; padding: 14px 16px; border: 1px solid var(--context-edge); border-radius: 16px; background: var(--context-wash); min-width: 0; }
+.birthday-open-item .birthday-open-date { align-items: center; min-width: 48px; }
+.birthday-open-item .birthday-open-day,
+.birthday-open-item .birthday-open-month,
+.birthday-open-item .birthday-open-info h2 { color: var(--context-ink); }
+.birthday-open-item .birthday-open-info { flex: 1; }
+.birthday-open-item .birthday-open-info h2 { font-size: 1.125rem; margin-bottom: 2px; }
+.birthday-open-item .birthday-open-day { font-size: 2rem; }
+.birthday-open-item .birthday-open-info p { color: var(--context-ink); }
+.birthday-open-item .birthday-open-month { font-size: .875rem; text-transform: none; letter-spacing: 0; }
+.birthday-person-icon { align-self: flex-start; color: var(--context-ink); opacity: .75; transform: rotate(8deg); }
+.birthday-person-icon svg { width: 22px; height: 22px; }
+@media (max-width: 599px) {
+  .birthday-open-item[data-accent] { padding: 12px 14px; gap: 12px; }
+  .birthday-celebration-icons { margin-bottom: 16px; }
+}

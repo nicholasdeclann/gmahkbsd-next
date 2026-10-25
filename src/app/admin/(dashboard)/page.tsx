@@ -1,5 +1,4 @@
 import Link from "next/link";
-import GoogleConnectionHealth from "@/components/admin/GoogleConnectionHealth";
 import { Typography } from "@mui/material";
 import {
   DescriptionOutlined,
@@ -19,6 +18,7 @@ const weekly = [
     description: "Perbarui judul khotbah, pembicara, ayat inti, dan lagu ibadah Sabat.",
     href: "/admin/kertas-acara",
     icon: DescriptionOutlined,
+    accent: "blue",
   },
   {
     title: "Pokok Doa",
@@ -26,6 +26,7 @@ const weekly = [
     description: "Kelola daftar nama dan pokok doa jemaat yang ditampilkan pekan ini.",
     href: "/admin/prayer",
     icon: FavoriteBorder,
+    accent: "rose",
   },
   {
     title: "Pengumuman",
@@ -33,6 +34,7 @@ const weekly = [
     description: "Unggah dan atur poster pengumuman mingguan untuk jemaat.",
     href: "/admin/photos",
     icon: CampaignOutlined,
+    accent: "amber",
   },
   {
     title: "Kegiatan Jemaat",
@@ -40,6 +42,7 @@ const weekly = [
     description: "Kelola dokumentasi foto pelayanan dan arsip kegiatan bulanan.",
     href: "/admin/events",
     icon: PhotoLibraryOutlined,
+    accent: "violet",
   },
 ];
 
@@ -50,6 +53,7 @@ const tools = [
     description: "Formulir buku tamu Sabat yang cepat diakses oleh tim penerima tamu.",
     href: "/tamu",
     icon: PeopleOutline,
+    accent: "teal",
   },
   {
     title: "Tampilan MC",
@@ -57,6 +61,7 @@ const tools = [
     description: "Daftar tamu terkini yang mudah dibaca untuk sesi penyambutan.",
     href: "/tamu/mc",
     icon: RecordVoiceOverOutlined,
+    accent: "violet",
   },
   {
     title: "Pengaturan Website",
@@ -64,6 +69,7 @@ const tools = [
     description: "Kelola koneksi Google Drive, spreadsheet, dan pengaturan staf.",
     href: "/admin/settings",
     icon: SettingsOutlined,
+    accent: "slate",
   },
 ];
 
@@ -81,8 +87,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <GoogleConnectionHealth compact />
-
       {[
         { title: "Kelola Konten Sabat", items: weekly },
         { title: "Alat Pelayanan & Pengaturan", items: tools },
@@ -95,6 +99,7 @@ export default function DashboardPage() {
                 key={task.href}
                 href={task.href}
                 className="dashboard-card"
+                data-accent={task.accent}
               >
                 <div className="dashboard-card-top">
                   <span className="dashboard-card-icon">

@@ -6,6 +6,7 @@ import SiteProvider from "@/components/SiteProvider";
 import "./globals.css";
 import "@/components/ui/glass/glass.css";
 import "@/components/announcements.css";
+import "./context-colors.css";
 import { churchConfig } from "@/config/church";
 import { imageAsset } from "@/lib/asset";
 
