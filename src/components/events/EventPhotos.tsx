@@ -4,9 +4,11 @@ import { AddPhotoAlternateOutlined } from "@/components/ui/icons";
 import { T, useLanguage } from "@/components/LanguageProvider";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import FilledImage from "../ui/glass/FilledImage";
+import Lightbox from "../ui/glass/Lightbox";
+import ConfirmDialog from "../ui/glass/ConfirmDialog";
 import Link from "next/link";
-import { Alert, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, CircularProgress, TextField, Typography } from "@mui/material";
 import { jakartaMonth, monthLabel, previousMonth, type EventPhoto } from "@/lib/eventTypes";
 import EventEditor from "./EventEditor";
 import { ArrowBackIosNewRounded } from "@/components/ui/icons";
@@ -14,10 +16,7 @@ import { ArrowForwardIosRounded } from "@/components/ui/icons";
 import { PauseCircleOutline } from "@/components/ui/icons";
 import { PlayCircleOutline } from "@/components/ui/icons";
 function dateLabel(date:string,language="id"){return new Intl.DateTimeFormat(language==="en"?"en-GB":"id-ID",{day:"numeric",month:"long",year:"numeric",timeZone:"Asia/Jakarta"}).format(new Date(`${date}T12:00:00+07:00`));}
-function PhotoImage({photo,large=false}:{photo:EventPhoto;large?:boolean}) {
-  const [failed,setFailed]=useState(false);
-  return failed?<div className="event-image-error" role="status"><T text="Foto belum dapat dimuat." /></div>:<Image src={photo.imageUrl} alt={photo.caption||photo.title} width={1600} height={1000} unoptimized onError={()=>setFailed(true)} style={{width:"100%",height:large?"auto":undefined,maxHeight:large?"75vh":undefined,objectFit:"contain"}}/>;
-}
+function PhotoImage({photo}:{photo:EventPhoto}) {return <FilledImage src={photo.imageUrl} alt={photo.caption||photo.title} ratio={16/9}/>;}
 export default function EventPhotos({manage=false,carousel=false}:{manage?:boolean;carousel?:boolean}) {
   const {t,language}=useLanguage();
   const [month,setMonth]=useState(()=>manage?jakartaMonth():previousMonth());
@@ -84,8 +83,8 @@ export default function EventPhotos({manage=false,carousel=false}:{manage?:boole
     </article>)}</div>}
     {!carousel&&cursor&&<Button sx={{mt:4}} variant="outlined" disabled={loadMore} onClick={()=>void more()}>{t(loadMore?"Memuat…":"Muat Foto Lainnya")}</Button>}
     {manage&&editor&&<EventEditor photo={editor==="new"?undefined:editor} onClose={()=>{setEditor(null);void load();}} onSaved={saved}/>}
-    <Dialog open={Boolean(preview)} onClose={()=>setPreview(null)} fullWidth maxWidth="md" aria-labelledby="event-preview-title"><DialogTitle id="event-preview-title">{preview?.title}</DialogTitle><DialogContent>{preview&&<><PhotoImage key={preview.id} photo={preview} large/><Typography color="text.secondary" sx={{mt:2}}>{dateLabel(preview.eventDate,language)}</Typography><Typography sx={{mt:1,whiteSpace:"pre-wrap",overflowWrap:"anywhere"}}>{preview.caption}</Typography></>}</DialogContent><DialogActions><Button onClick={()=>setPreview(null)}><T text="Tutup" /></Button></DialogActions></Dialog>
-    {manage&&<Dialog open={Boolean(deleting)} onClose={busy?undefined:()=>setDeleting(null)} aria-labelledby="event-delete-title"><DialogTitle id="event-delete-title">Hapus Foto Kegiatan?</DialogTitle><DialogContent><Typography>{deleting?.title}</Typography><Typography sx={{mt:2}}>Foto akan hilang dari website dan dipindahkan ke sampah Google Drive.</Typography>{error&&<Alert severity="error" sx={{mt:2}}>{error}</Alert>}</DialogContent><DialogActions><Button disabled={busy} onClick={()=>setDeleting(null)}><T text="Batal" /></Button><Button color="error" variant="contained" disabled={busy} onClick={()=>void remove()}>{busy?"Menghapus…":"Hapus Foto"}</Button></DialogActions></Dialog>}
+    {preview&&<Lightbox open onClose={()=>setPreview(null)} src={preview.imageUrl} title={preview.title} caption={<><p>{dateLabel(preview.eventDate,language)}</p><p className="announcement-full-caption">{preview.caption}</p></>}/>}
+    {manage&&<ConfirmDialog open={Boolean(deleting)} onClose={()=>setDeleting(null)} onConfirm={()=>void remove()} title="Hapus Foto Kegiatan?" subject={deleting?.title} message="Foto akan hilang dari website dan dipindahkan ke sampah Google Drive." confirmLabel="Hapus Foto" busyLabel="Menghapus…" busy={busy} error={error}/> }
   </>;
   return carousel?<section className="site-width section-space" aria-labelledby="events-title"><div className="section-heading"><div><p className="eyebrow"><T text="CERITA KELUARGA GEREJA ·" />{monthLabel(month,language==="en"?"en-GB":"id-ID")}</p><h2 id="events-title" className="section-title"><T text="Kegiatan Jemaat" /></h2></div><Link href="/kegiatan" className="text-link"><T text="Lihat Semua Kegiatan →" /></Link></div>{contents}</section>:contents;
 }

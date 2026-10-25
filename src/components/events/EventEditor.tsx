@@ -1,7 +1,10 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
-import { Alert, Box, Button, Checkbox, Dialog, DialogActions, DialogContent, DialogTitle, FormControlLabel, TextField, Typography } from "@mui/material";
+import { SaveOutlined } from "../ui/icons";
+import GlassDialog from "../ui/glass/GlassDialog";
+import FilledImage from "../ui/glass/FilledImage";
+import {GlassButton} from "../ui/glass/GlassControls";
+import { Alert, Box, Button, Checkbox, FormControlLabel, TextField, Typography } from "@mui/material";
 import { eventDetails, EVENT_IMAGE_TYPES, EVENT_MAX_BYTES, type EventPhoto } from "@/lib/eventTypes";
 type PendingPhoto = {key:string;file:File;url:string;caption:string};
 async function resize(file:File):Promise<File> {
@@ -19,7 +22,7 @@ async function resize(file:File):Promise<File> {
     return new File([blob],file.name.replace(/\.[^.]+$/,"")+".jpg",{type:"image/jpeg"});
   } finally {URL.revokeObjectURL(url);}
 }
-function PendingPreview({photo}:{photo:PendingPhoto}) {return <Image src={photo.url} alt="Pratinjau foto kegiatan" width={600} height={400} unoptimized style={{width:"100%",height:200,objectFit:"contain"}}/>;}
+function PendingPreview({photo}:{photo:PendingPhoto}) {return <FilledImage src={photo.url} alt="Pratinjau foto kegiatan" ratio={16/9}/>;}
 export default function EventEditor({photo,onClose,onSaved}:{photo?:EventPhoto;onClose:()=>void;onSaved:(month:string)=>void}) {
   const [title,setTitle]=useState(photo?.title||""), [eventDate,setDate]=useState(photo?.eventDate||""), [caption,setCaption]=useState(photo?.caption||"");
   const [published,setPublished]=useState(photo?.published??true), [pending,setPending]=useState<PendingPhoto[]>([]), [busy,setBusy]=useState(false), [error,setError]=useState(""), [progress,setProgress]=useState("");
@@ -61,9 +64,7 @@ export default function EventEditor({photo,onClose,onSaved}:{photo?:EventPhoto;o
       setError(`${succeeded?`${succeeded} foto berhasil disimpan. `:""}${error instanceof Error?error.message:"Unggahan belum berhasil."} Foto yang belum tersimpan dapat dicoba kembali.`);
     } finally {setBusy(false);setProgress("");}
   }
-  return <Dialog open onClose={busy?undefined:onClose} fullWidth maxWidth="sm" aria-labelledby="event-editor-title">
-    <DialogTitle id="event-editor-title">{photo?"Edit Foto Kegiatan":"Tambah Foto Kegiatan"}</DialogTitle>
-    <DialogContent>
+  return <GlassDialog open onClose={onClose} title={photo?"Edit Foto Kegiatan":"Tambah Foto Kegiatan"} size="md" busy={busy} actions={<><GlassButton tone="plain" disabled={busy} onClick={onClose}>Tutup</GlassButton><GlassButton tone="primary" startIcon={<SaveOutlined/>} disabled={busy||(!photo&&!pending.length)} onClick={()=>void save()}>{busy?"Menyimpan…":"Simpan"}</GlassButton></>}>
       <Typography color="text.secondary" sx={{mb:3}}>Folder tahun dan bulan dipilih otomatis dari tanggal kegiatan.</Typography>
       <TextField label="Nama kegiatan" value={title} onChange={e=>setTitle(e.target.value)} fullWidth disabled={busy} sx={{mb:3}} slotProps={{htmlInput:{maxLength:150}}}/>
       <TextField label="Tanggal kegiatan" type="date" value={eventDate} onChange={e=>setDate(e.target.value)} fullWidth disabled={busy} sx={{mb:3}} slotProps={{inputLabel:{shrink:true}}} helperText="Tanggal kegiatan berlangsung, bukan tanggal unggahan."/>
@@ -74,7 +75,5 @@ export default function EventEditor({photo,onClose,onSaved}:{photo?:EventPhoto;o
       {completed>0 && <Alert severity="info" sx={{mt:2}}>{completed} foto sudah tersimpan. Jangan unggah ulang foto tersebut.</Alert>}
       {progress && <Typography role="status" sx={{mt:2}}>{progress}</Typography>}
       {error && <Alert severity="error" sx={{mt:2}}>{error}</Alert>}
-    </DialogContent>
-    <DialogActions sx={{px:3,pb:3}}><Button disabled={busy} onClick={onClose}>Tutup</Button><Button variant="contained" disabled={busy||(!photo&&!pending.length)} onClick={()=>void save()}>{busy?"Menyimpan…":photo?"Simpan Perubahan":published?"Terbitkan Foto":"Simpan Draf"}</Button></DialogActions>
-  </Dialog>;
+    </GlassDialog>;
 }

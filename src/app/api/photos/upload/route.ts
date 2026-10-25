@@ -17,9 +17,10 @@ export async function POST(req: NextRequest) {
     if (!ANNOUNCEMENT_IMAGE_TYPES.includes(file.type)) return NextResponse.json({ error: "Gunakan gambar JPG, PNG, atau WebP." }, { status: 400 });
     if (file.size > ANNOUNCEMENT_MAX_BYTES) return NextResponse.json({ error: "Ukuran gambar maksimal 4 MB." }, { status: 413 });
     let details;
-    try { details = announcementDetails(form.get("department"), form.get("caption")); }
-    catch (error) { return NextResponse.json({ error: (error as Error).message }, { status: 400 }); }
-    const photo = await publishAnnouncement(file, details.department, details.caption);
+    try {
+      details = announcementDetails({ department: form.get("department"), title: form.get("title"), caption: form.get("caption"), due_date: form.get("due_date") });
+    } catch (error) { return NextResponse.json({ error: (error as Error).message }, { status: 400 }); }
+    const photo = await publishAnnouncement(file, details);
     return NextResponse.json({ photo }, { status: 201 });
   } catch (error) {
     if (error instanceof AnnouncementError) return NextResponse.json({ error: error.message, code: error.code }, { status: error.status });

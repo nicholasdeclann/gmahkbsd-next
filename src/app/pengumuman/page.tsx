@@ -1,7 +1,7 @@
 import { T } from "@/components/LanguageProvider";
 import type { Metadata } from "next";
 import { churchConfig } from "@/config/church";
-import PhotoGallery from "@/components/PhotoGallery";
+import AnnouncementGallery from "@/components/AnnouncementGallery";
 
 export const metadata: Metadata = {
   title: "Pengumuman Jemaat | GMAHK BSD",
@@ -17,6 +17,6 @@ export default function Pengumuman() {
       <div className="canva-frame"><iframe title="Pengumuman mingguan GMAHK BSD dari Canva" loading="lazy" src={churchConfig.pengumumanEmbedUrl} allowFullScreen allow="fullscreen" /></div>
       <a className="canva-open" href={churchConfig.pengumumanEmbedUrl.replace("?embed", "")} target="_blank" rel="noopener noreferrer"><T text="Buka pengumuman dalam tampilan penuh ↗" /></a>
     </section>
-    <section className="section-space"><PhotoGallery /></section>
+    <section className="section-space"><AnnouncementGallery /></section>
   </div>;
 }

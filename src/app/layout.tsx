@@ -4,6 +4,8 @@ import { Inter } from "next/font/google";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import SiteProvider from "@/components/SiteProvider";
 import "./globals.css";
+import "@/components/ui/glass/glass.css";
+import "@/components/announcements.css";
 import { churchConfig } from "@/config/church";
 import { imageAsset } from "@/lib/asset";
 

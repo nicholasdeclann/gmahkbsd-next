@@ -19,7 +19,8 @@ export function isWeeklyDemo(): boolean {
 export interface DemoPrayer {
   id: number; name: string; note: string | null; note_public: boolean; created_at: string;
 }
-export interface DemoAnnouncement extends AnnouncementItem { mime_type: string }
+/** Stored shape: `title` is optional and `expired` is derived on read, so older practice data keeps working. */
+export type DemoAnnouncement = Omit<AnnouncementItem, "title" | "expired"> & { title?: string | null; mime_type: string };
 export interface DemoData { weekly: WeeklyValues; prayers: DemoPrayer[]; nextPrayerId: number; announcements: DemoAnnouncement[]; prayerSlots?: PrayerSlot[]; prayerDate?: string; events?: (EventPhoto & { mime: string })[]; guests?: GuestEntry[]; sheetSettings?: {version:1;sources:SheetSources;previous?:SheetSources;updatedAt:string} }
 const directory = path.join(process.cwd(), "work");
 const filename = path.join(directory, "dashboard-demo.json");

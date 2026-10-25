@@ -48,7 +48,6 @@ export default function PrayerListCard({ showHeading = true }: { showHeading?: b
             <strong>
               {item.id}. {item.name}
             </strong>
-            {item.note && <span>{item.note}</span>}
           </li>
         ))}
       </ul>

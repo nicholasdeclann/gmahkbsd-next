@@ -1,50 +1,23 @@
 import { createHash } from "node:crypto";
-import { Readable } from "node:stream";
-import { google } from "googleapis";
 import { getSheetSettings } from "./sheetSettings";
 import type { SheetSources } from "./sheetSources";
 import { isWeeklyDemo, readDemo, updateDemo, type DemoData } from "./localDemo";
 import { sheetsClient } from "./weeklySheet";
 import { churchWeekStart, serialToDate } from "./kertasAcaraForm";
-import { attachPrayerNotes, emptyPrayerSlots, nameFromPrayerCell, prayerUpdateRequests, validatePrayerSlots, type PrayerSlot, type PrayerSnapshot } from "./prayerTypes";
+import { emptyPrayerSlots, nameFromPrayerCell, prayerUpdateRequests, validatePrayerSlots, type PrayerSlot, type PrayerSnapshot } from "./prayerTypes";
 
 export class PrayerSheetError extends Error {
   constructor(message: string, public status = 503) { super(message); }
 }
-interface Notes { version: 1; date: string; slots: PrayerSlot[] }
-const emptyNotes = (): Notes => ({ version: 1, date: "", slots: emptyPrayerSlots() });
 const revision = (value: unknown) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
-
-function notesDrive() {
-  const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
-  if (!raw) throw new PrayerSheetError("Koneksi Google belum diatur. Hubungi pengelola website.");
-  const auth = new google.auth.GoogleAuth({ credentials: JSON.parse(raw), scopes: ["https://www.googleapis.com/auth/drive"] });
-  return google.drive({ version: "v3", auth });
-}
-
-async function readNotes(): Promise<Notes> {
-  const id = process.env.GOOGLE_PRAYER_NOTES_FILE_ID;
-  if (!id) return emptyNotes();
-  const drive = notesDrive();
-  const metadata = (await drive.files.get({ fileId: id, fields: "mimeType,size,trashed,properties,permissions(type,role,emailAddress)" })).data;
-  if (metadata.trashed || metadata.mimeType !== "application/json" || Number(metadata.size) > 40000 || metadata.properties?.kind !== "gmahkbsd-prayer-notes"
-    || !metadata.permissions?.length || metadata.permissions.some(p => p.type !== "user")) {
-    throw new PrayerSheetError("Penyimpanan alasan doa harus berupa file pribadi. Hubungi pengelola website.");
-  }
-  const raw = await drive.files.get({ fileId: id, alt: "media" }, { responseType: "text" });
-  const data = JSON.parse(String(raw.data)) as Notes;
-  if (data.version !== 1 || typeof data.date !== "string") throw new PrayerSheetError("Data alasan doa perlu diperiksa oleh pengelola website.");
-  try { return { version: 1, date: data.date, slots: validatePrayerSlots(data.slots) }; }
-  catch { throw new PrayerSheetError("Data alasan doa perlu diperiksa oleh pengelola website."); }
-}
 
 function demoSnapshot(data: DemoData): PrayerSnapshot {
   const slots = data.prayerSlots ?? emptyPrayerSlots().map((slot, index) => {
     const old = data.prayers[index]; return old ? { name: old.name, note: old.note ?? "", note_public: old.note_public } : slot;
   });
   const date = data.weekly.date;
-  const displayed = attachPrayerNotes(slots.map(s => s.name), date, { date: data.prayerDate ?? date, slots });
-  return { slots: displayed, date, revision: revision({ date, slots }), mode: "demo", canWrite: true, notesConfigured: true };
+  const displayed = slots.map(slot => ({ name: slot.name, note: "", note_public: false }));
+  return { slots: displayed, date, revision: revision({ date, slots: displayed }), mode: "demo", canWrite: true, notesConfigured: false };
 }
 
 async function readSheetNames(source?: SheetSources) {
@@ -74,11 +47,11 @@ async function readSheetNames(source?: SheetSources) {
 
 async function googleSnapshot(source?: SheetSources) {
   const sources = source ?? (await getSheetSettings()).sources;
-  const [sheet, notes] = await Promise.all([readSheetNames(sources), readNotes()]);
-  return { sheet, notes, snapshot: { slots: attachPrayerNotes(sheet.names, sheet.date, notes), date: sheet.date,
-    revision: revision({ sheet, notes, sources }), mode: "google" as const,
+  const sheet = await readSheetNames(sources);
+  return { sheet, snapshot: { slots: sheet.names.map(name => ({ name, note: "", note_public: false })), date: sheet.date,
+    revision: revision({ sheet, sources }), mode: "google" as const,
     canWrite: process.env.GOOGLE_SHEETS_WRITES_ENABLED === "true" && !sheet.hasFormula,
-    notesConfigured: Boolean(process.env.GOOGLE_PRAYER_NOTES_FILE_ID) } };
+    notesConfigured: false } };
 }
 
 export async function readPrayerSheet(): Promise<PrayerSnapshot> {
@@ -94,34 +67,19 @@ export async function savePrayerSheet(input: unknown, expectedRevision: string):
     data.prayerSlots = slots; data.prayerDate = data.weekly.date; return demoSnapshot(data);
   });
   const sources = (await getSheetSettings()).sources;
-  const { sheet, notes, snapshot } = await googleSnapshot(sources);
+  const { sheet, snapshot } = await googleSnapshot(sources);
   if (!snapshot.canWrite) throw new PrayerSheetError("Penyimpanan belum diaktifkan atau sel nama berisi rumus. Hubungi pengelola website.");
-  if (snapshot.revision !== expectedRevision) throw new PrayerSheetError("Spreadsheet atau alasan doa sudah diubah. Muat ulang sebelum menyimpan.", 409);
-  if (!snapshot.notesConfigured && slots.some(s => s.note)) throw new PrayerSheetError("Penyimpanan alasan doa belum diatur. Nama tetap dapat disimpan tanpa alasan.");
-  const nextNotes: Notes = { version: 1, date: sheet.date, slots };
-  // Save reasons first. If the sheet write fails, name/date binding prevents wrong reasons appearing.
-  if (snapshot.notesConfigured && revision(notes) !== revision(nextNotes)) {
-    await notesDrive().files.update({ fileId: process.env.GOOGLE_PRAYER_NOTES_FILE_ID!,
-      media: { mimeType: "application/json", body: Readable.from([JSON.stringify(nextNotes)]) } });
-  }
+  if (snapshot.revision !== expectedRevision) throw new PrayerSheetError("Spreadsheet sudah diubah. Muat ulang sebelum menyimpan.", 409);
   const requests = prayerUpdateRequests(slots, Number(sources.liturgy.kertasAcaraGid));
   await sheetsClient().spreadsheets.batchUpdate({ spreadsheetId: sources.liturgy.sheetId, requestBody: { requests } });
   const saved = await readPrayerSheet();
-  if (saved.date !== sheet.date || JSON.stringify(saved.slots) !== JSON.stringify(slots)) throw new PrayerSheetError("Hasil penyimpanan belum sesuai. Muat ulang untuk memeriksa nama dan alasan doa.", 409);
+  if (saved.date !== sheet.date || JSON.stringify(saved.slots) !== JSON.stringify(slots)) throw new PrayerSheetError("Hasil penyimpanan belum sesuai. Muat ulang untuk memeriksa nama.", 409);
   return saved;
 }
 
 export async function publicPrayerItems(now = new Date()) {
-  let snapshot: PrayerSnapshot;
-  try { snapshot = await readPrayerSheet(); }
-  catch {
-    // A notes-file outage must never expose private reasons or hide readable sheet names.
-    if (isWeeklyDemo()) throw new PrayerSheetError("Daftar doa belum dapat dimuat.");
-    const sheet = await readSheetNames();
-    snapshot = { slots: sheet.names.map(name => ({ name, note: "", note_public: false })), date: sheet.date,
-      revision: "", mode: "google", canWrite: false, notesConfigured: false };
-  }
+  const snapshot = await readPrayerSheet();
   const service = new Date(`${snapshot.date}T12:00:00+07:00`);
   if (Number.isNaN(service.getTime()) || churchWeekStart(service) !== churchWeekStart(now)) return [];
-  return snapshot.slots.flatMap((slot, index) => slot.name ? [{ id: index + 1, name: slot.name, note: slot.note_public ? slot.note || null : null }] : []);
+  return snapshot.slots.flatMap((slot, index) => slot.name ? [{ id: index + 1, name: slot.name, note: null }] : []);
 }

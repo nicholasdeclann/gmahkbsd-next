@@ -11,6 +11,7 @@ import { churchConfig } from "@/config/church";
 import { imageAsset } from "@/lib/asset";
 import Navbar from "./Navbar";
 import { ColorModeContext } from "./ColorModeContext";
+import GlassRuntime from "./ui/glass/GlassRuntime";
 
 export default function SiteProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -42,6 +43,7 @@ export default function SiteProvider({ children }: { children: React.ReactNode }
     <ColorModeContext.Provider value={{ dark, toggle }}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
+        <GlassRuntime />
         <div
           className={`site-frame${!admin && !staff ? " public-frame" : ""}`}
           data-theme={dark ? "dark" : "light"}

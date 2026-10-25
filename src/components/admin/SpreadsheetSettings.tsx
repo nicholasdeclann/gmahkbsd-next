@@ -1,8 +1,11 @@
 "use client";
+import { GlassButton } from "../ui/glass/GlassControls";
+import { Refresh, SaveOutlined } from "../ui/icons";
+import ConfirmDialog from "../ui/glass/ConfirmDialog";
 import LinkOutlined from "@mui/icons-material/LinkOutlined";
 
 import { useEffect, useState } from "react";
-import { Alert, Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Typography } from "@mui/material";
+import { Alert, Box, Button, TextField, Typography } from "@mui/material";
 import { sheetLink, type SheetSources } from "@/lib/sheetSources";
 import type { SourcePreview } from "@/lib/previewSheetSources";
 
@@ -41,7 +44,7 @@ export default function SpreadsheetSettings() {
     <Typography color="text.secondary" sx={{ mb: 3 }}>Ganti tautan saat spreadsheet baru siap. Periksa pratinjau sebelum memakai sumber baru. Zona waktu: Jakarta (WIB).</Typography>
     {settings?.demo && <Typography variant="body2" color="text.secondary" sx={{mb:3}}>Perubahan hanya disimpan pada latihan lokal.</Typography>}
     {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
-    {!settings && error && <Button onClick={() => window.location.reload()}>Muat Ulang</Button>}
+    {!settings && error && <GlassButton startIcon={<Refresh/>} onClick={() => window.location.reload()}>Refresh</GlassButton>}
     {success && <Alert severity="success" sx={{ mb: 3 }}>{success}</Alert>}
     {!settings && !error && <Typography>Memuat pengaturan…</Typography>}
     {settings && <>
@@ -61,16 +64,10 @@ export default function SpreadsheetSettings() {
         <Typography sx={{ mb: 2 }}>Sabat pada triwulan sekarang: {preview.quarterDates.length ? preview.quarterDates.join(", ") : "Belum tersedia"}</Typography>
         {preview.warnings.map(message => <Alert severity="warning" key={message} sx={{ mb: 2 }}>{message}</Alert>)}
         <Alert severity="success" sx={{ mb: 3 }}>Sumber dapat dibaca oleh website. Izin edit akun layanan untuk workbook Kertas Acara sudah tersedia.</Alert>
-        <Button variant="contained" disabled={busy} onClick={() => void request("save")}>{busy ? "Menyimpan…" : "Gunakan Tautan Ini"}</Button>
+        <GlassButton tone="primary" startIcon={<SaveOutlined/>} disabled={busy} onClick={() => void request("save")}>{busy ? "Menyimpan…" : "Simpan"}</GlassButton>
       </Box>}
       {settings.updatedAt && <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }}>Terakhir disimpan: {new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jakarta" }).format(new Date(settings.updatedAt))} WIB</Typography>}
     </>}
-    <Dialog open={restore} onClose={busy ? undefined : () => setRestore(false)}>
-      <DialogTitle>Pulihkan tautan sebelumnya?</DialogTitle>
-      <DialogContent><Typography>Website dan formulir akan kembali memakai kedua sumber sebelum penyimpanan terakhir. Akses spreadsheet akan diperiksa kembali.</Typography>
-        {settings?.previous && <Box sx={{ mt: 2, overflowWrap: "anywhere" }}><Typography variant="body2">Workbook: {sheetLink(settings.previous.liturgy.sheetId, settings.previous.liturgy.kertasAcaraGid)}</Typography><Typography variant="body2" sx={{ mt: 1 }}>Peserta: {sheetLink(settings.previous.schedule.sheetId, settings.previous.schedule.gid)}</Typography></Box>}
-      </DialogContent>
-      <DialogActions><Button disabled={busy} onClick={() => setRestore(false)}>Batal</Button><Button disabled={busy} onClick={() => void request("restore")}>Pulihkan</Button></DialogActions>
-    </Dialog>
+    <ConfirmDialog open={restore} onClose={()=>setRestore(false)} onConfirm={()=>void request("restore")} title="Pulihkan tautan sebelumnya?" message={<><Typography>Website dan formulir akan kembali memakai kedua sumber sebelum penyimpanan terakhir. Akses spreadsheet akan diperiksa kembali.</Typography>{settings?.previous&&<Box sx={{mt:2,overflowWrap:"anywhere"}}><Typography>Workbook: {sheetLink(settings.previous.liturgy.sheetId,settings.previous.liturgy.kertasAcaraGid)}</Typography><Typography>Peserta: {sheetLink(settings.previous.schedule.sheetId,settings.previous.schedule.gid)}</Typography></Box>}</>} confirmLabel="Pulihkan" busy={busy} tone="primary"/>
   </Box>;
 }

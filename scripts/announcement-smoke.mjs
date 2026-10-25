@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { readFile, writeFile, rename, unlink } from "node:fs/promises";
-import { announcementDetails } from "../src/lib/announcementTypes.ts";
+import { announcementDetails,todayJakarta,addDays } from "../src/lib/announcementTypes.ts";
 
 const base = process.env.DASHBOARD_TEST_URL ?? "http://127.0.0.1:3000";
 assert.ok(["127.0.0.1", "localhost"].includes(new URL(base).hostname));
@@ -16,11 +16,11 @@ let checks = 0;
 function check(name, actual, expected) { assert.deepEqual(actual, expected, name); console.log(`PASS ${name}`); checks++; }
 function form(department, caption, type = "image/png") {
   const data = new FormData(); data.append("file", new Blob([bytes], { type }), "practice-announcement.png");
-  data.append("department", department); data.append("caption", caption); return data;
+  data.append("title","Latihan Pengumuman");data.append("due_date",addDays(todayJakarta(),7));data.append("department", department); data.append("caption", caption); return data;
 }
 const upload = (data, headers = { Origin: base, Cookie: cookie }) => fetch(`${base}/api/photos/upload`, { method: "POST", headers, body: data });
 try {
-  check("Optional department defaults to Umum", announcementDetails("", "Hello").department, "Umum");
+  check("Optional department defaults to Umum", announcementDetails({caption:"Hello",title:"Test",due_date:todayJakarta()}).department, "Umum");
   check("Unauthenticated upload protected", (await upload(form("Pemuda", "Test"), { Origin: base })).status, 401);
   check("Cross-origin upload blocked", (await upload(form("Pemuda", "Test"), { Origin: "https://example.invalid", Cookie: cookie })).status, 403);
   check("Non-image rejected", (await upload(form("Pemuda", "Test", "text/html"))).status, 400);
@@ -42,6 +42,20 @@ try {
   check("Staff can edit announcement", edit.status, 200);
   check("Public sees saved description", (await (await fetch(`${base}/api/photos`)).json()).photos.find(p => p.id === ids[0]).caption, "Keterangan latihan diperbarui");
   check("Unknown image cannot expose files", (await fetch(`${base}/api/photos/local-not-a-real-file/image`)).status, 404);
+  const patch=(body,authenticated=true)=>fetch(base+"/api/photos/"+ids[0],{method:"PATCH",headers:{Origin:base,...(authenticated?{Cookie:cookie}:{}),"Content-Type":"application/json"},body:JSON.stringify(body)});
+  check("Anonymous manage rejected",(await fetch(base+"/api/photos?manage=true")).status,401);
+  check("Anonymous patch rejected",(await patch({title:"Changed"},false)).status,401);
+  check("Staff can end a post early",(await patch({due_date:addDays(todayJakarta(),-1)})).status,200);
+  const managed=(await(await fetch(base+"/api/photos?manage=true",{headers:{Cookie:cookie}})).json()).photos;
+  check("Expired remains manageable",managed.some(p=>p.id===ids[0]&&p.expired),true);
+  check("Expired missing publicly",(await(await fetch(base+"/api/photos")).json()).photos.some(p=>p.id===ids[0]),false);
+  check("Expired image hidden",(await fetch(base+"/api/photos/"+ids[0]+"/image")).status,404);
+  const staffImage=await fetch(base+"/api/photos/"+ids[0]+"/image",{headers:{Cookie:cookie}});
+  check("Staff sees expired image",staffImage.status,200);
+  check("Images not publicly cached",staffImage.headers.get("cache-control"),"private, no-store");
+  check("Partial edit preserves title",managed.find(p=>p.id===ids[0]).title,"Latihan Pengumuman");
+  check("Staff can reactivate",(await patch({due_date:addDays(todayJakarta(),7)})).status,200);
+  check("Reactivated visible",(await(await fetch(base+"/api/photos")).json()).photos.some(p=>p.id===ids[0]),true);
   const deleteUrl = `${base}/api/photos/${ids[0]}`;
   check("Unauthenticated delete protected", (await fetch(deleteUrl, { method: "DELETE", headers: { Origin: base } })).status, 401);
   check("Cross-origin delete blocked", (await fetch(deleteUrl, { method: "DELETE", headers: { Origin: "https://example.invalid", Cookie: cookie } })).status, 403);

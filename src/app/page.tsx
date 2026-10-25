@@ -14,7 +14,7 @@ import Link from "next/link";
 import { churchConfig } from "@/config/church";
 import { imageAsset } from "@/lib/asset";
 import PrayerListCard from "@/components/PrayerListCard";
-import PhotoGallery from "@/components/PhotoGallery";
+import AnnouncementGallery from "@/components/AnnouncementGallery";
 import EventPhotos from "@/components/events/EventPhotos";
 import SabbathThisWeek from "@/components/SabbathThisWeek";
 import GivingSection from "@/components/GivingSection";
@@ -42,7 +42,7 @@ export default function Home() {
             <ArrowForward />
           </Link>
         </div>
-        <PhotoGallery previewLimit={2} />
+        <AnnouncementGallery previewLimit={2} />
       </section>
 
       <div className="events-band">

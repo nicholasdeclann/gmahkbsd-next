@@ -90,16 +90,6 @@ export default function DashboardShell({
       </a>
       <Box component="header" className="admin-header glass-header">
         <Container maxWidth="lg" sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          {pathname !== "/admin" && (
-            <Button
-              component={Link}
-              href="/admin"
-              aria-label="Kembali ke Dashboard"
-              sx={{ minWidth: 44, width: 44, p: 1 }}
-            >
-              <ArrowBack />
-            </Button>
-          )}
           <div className="staff-brand">
             <Link href="/admin" className="staff-brand-link">
               <Image src={imageAsset(churchConfig.assets.logo)} width={34} height={34} alt="" />

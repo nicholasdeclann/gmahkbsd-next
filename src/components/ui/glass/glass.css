@@ -1,0 +1,658 @@
+/*
+ * Liquid glass material.
+ *
+ * Layers (see apple-design "Materials & depth"):
+ *   thin    - chips, captions, controls (lightest, draws attention to interactive things)
+ *   regular - floating bars
+ *   thick   - dialogs and sheets (heaviest, separates a modal task from the page)
+ *
+ * Refraction (SVG displacement) is a progressive enhancement: it is only switched on for small
+ * elements, on Chromium, when the user has not asked for less transparency (html.glass-refract).
+ */
+:root {
+  --glass-blur-thin: 12px;
+  --glass-blur-regular: 20px;
+  --glass-blur-thick: 32px;
+  --glass-tint-thin: rgba(255, 255, 255, 0.5);
+  --glass-tint: rgba(255, 255, 255, 0.62);
+  --glass-tint-thick: rgba(250, 252, 255, 0.8);
+  --glass-field: rgba(236, 243, 251, 0.95);
+  --glass-edge: rgba(255, 255, 255, 0.78);
+  --glass-edge-low: rgba(20, 43, 75, 0.14);
+  --glass-ring: rgba(20, 43, 75, 0.16);
+  --glass-shadow-sm: 0 1px 2px rgba(11, 24, 45, 0.08), 0 6px 16px rgba(11, 24, 45, 0.06);
+  --glass-shadow-lg: 0 32px 80px rgba(11, 24, 45, 0.34), 0 2px 6px rgba(11, 24, 45, 0.14);
+  --glass-scrim: rgba(11, 24, 45, 0.46);
+  --glass-ink: #142b4b;
+  --glass-danger: #b3261e;
+  --glass-danger-ink: #ffffff;
+  --glass-warn-bg: rgba(255, 196, 82, 0.5);
+  --glass-warn-ink: #5c3700;
+  --glass-ease: cubic-bezier(0.2, 0.9, 0.25, 1);
+}
+:root[data-theme="dark"] {
+  --glass-tint-thin: rgba(30, 50, 78, 0.5);
+  --glass-tint: rgba(24, 42, 68, 0.62);
+  --glass-tint-thick: rgba(16, 30, 50, 0.82);
+  --glass-field: rgba(11, 22, 40, 0.9);
+  --glass-edge: rgba(255, 255, 255, 0.28);
+  --glass-edge-low: rgba(0, 0, 0, 0.35);
+  --glass-ring: rgba(190, 215, 255, 0.24);
+  --glass-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 22px rgba(0, 0, 0, 0.35);
+  --glass-shadow-lg: 0 32px 80px rgba(0, 0, 0, 0.6), 0 2px 6px rgba(0, 0, 0, 0.35);
+  --glass-scrim: rgba(3, 8, 16, 0.62);
+  --glass-ink: #f3f7ff;
+  --glass-danger: #ffb4ab;
+  --glass-danger-ink: #3a0906;
+  --glass-warn-bg: rgba(255, 196, 82, 0.3);
+  --glass-warn-ink: #ffdca0;
+}
+
+.glass-sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- Surfaces ---------- */
+/* Solid by default: this is also the fallback when blur is unavailable or unwanted. */
+.glass,
+.glass-thin,
+.glass-thick {
+  background: var(--site-surface);
+  color: var(--glass-ink);
+  border: 1px solid var(--glass-ring);
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glass,
+  .glass-thin,
+  .glass-thick {
+    border-color: transparent;
+    box-shadow:
+      inset 0 1px 0 var(--glass-edge),
+      inset 0 -1px 0 var(--glass-edge-low),
+      inset 0 0 0 1px var(--glass-ring),
+      var(--glass-shadow-sm);
+  }
+  .glass-thin {
+    background: var(--glass-tint-thin);
+    -webkit-backdrop-filter: blur(var(--glass-blur-thin)) saturate(1.8);
+    backdrop-filter: blur(var(--glass-blur-thin)) saturate(1.8);
+  }
+  .glass {
+    background: var(--glass-tint);
+    -webkit-backdrop-filter: blur(var(--glass-blur-regular)) saturate(1.8);
+    backdrop-filter: blur(var(--glass-blur-regular)) saturate(1.8);
+  }
+  .glass-thick {
+    background: var(--glass-tint-thick);
+    -webkit-backdrop-filter: blur(var(--glass-blur-thick)) saturate(1.8);
+    backdrop-filter: blur(var(--glass-blur-thick)) saturate(1.8);
+    box-shadow:
+      inset 0 1px 0 var(--glass-edge),
+      inset 0 -1px 0 var(--glass-edge-low),
+      inset 0 0 0 1px var(--glass-ring),
+      var(--glass-shadow-lg);
+  }
+  /* Refraction: small elements only, never the large scrolling panels. */
+  html.glass-refract .glass-refract {
+    -webkit-backdrop-filter: url(#glass-refract) blur(var(--glass-blur-thin)) saturate(1.8);
+    backdrop-filter: url(#glass-refract) blur(var(--glass-blur-thin)) saturate(1.8);
+  }
+}
+
+/* ---------- Buttons ---------- */
+/* MUI's runtime styles load after this file at equal specificity, so glass buttons use two-class selectors. */
+.glass-thin.MuiButton-root,
+.glass-thin.MuiIconButton-root {
+  background: var(--site-surface);
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glass-thin.MuiButton-root,
+  .glass-thin.MuiIconButton-root {
+    background: var(--glass-tint-thin);
+    -webkit-backdrop-filter: blur(var(--glass-blur-thin)) saturate(1.8);
+    backdrop-filter: blur(var(--glass-blur-thin)) saturate(1.8);
+    box-shadow:
+      inset 0 1px 0 var(--glass-edge),
+      inset 0 -1px 0 var(--glass-edge-low),
+      inset 0 0 0 1px var(--glass-ring),
+      var(--glass-shadow-sm);
+  }
+  html.glass-refract .glass-refract.MuiButton-root,
+  html.glass-refract .glass-refract.MuiIconButton-root {
+    -webkit-backdrop-filter: url(#glass-refract) blur(var(--glass-blur-thin)) saturate(1.8);
+    backdrop-filter: url(#glass-refract) blur(var(--glass-blur-thin)) saturate(1.8);
+  }
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .glass-thin.MuiButton-root,
+  .glass-thin.MuiIconButton-root {
+    background: var(--site-surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    box-shadow: none;
+    border: 2px solid var(--site-muted, #52647b);
+  }
+}
+.glass-btn.MuiButton-root {
+  border-radius: 999px;
+  min-height: 48px;
+  padding: 10px 20px;
+  font-weight: 600;
+  letter-spacing: 0;
+  gap: 2px;
+  transition: transform 120ms var(--glass-ease), background-color 160ms ease, box-shadow 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.glass-btn.MuiButton-root:active:not(:disabled) {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+.glass-btn.MuiButton-root:focus-visible {
+  outline: 3px solid var(--site-blue);
+  outline-offset: 2px;
+}
+.glass-btn--primary.MuiButton-root {
+  background: var(--site-blue);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), inset 0 -1px 0 rgba(0, 0, 0, 0.18), 0 6px 16px rgba(21, 85, 192, 0.28);
+}
+:root[data-theme="dark"] .glass-btn--primary.MuiButton-root {
+  color: #0b182d;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), inset 0 -1px 0 rgba(0, 0, 0, 0.2), 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+.glass-btn--primary.MuiButton-root:hover {
+  background: var(--site-blue);
+  filter: brightness(1.08);
+}
+.glass-btn--glass.MuiButton-root {
+  color: var(--glass-ink);
+}
+.glass-btn--glass.MuiButton-root:hover {
+  background: var(--glass-tint);
+}
+.glass-btn--plain.MuiButton-root {
+  color: var(--site-blue);
+  background: transparent;
+}
+.glass-btn--plain.MuiButton-root:hover {
+  background: color-mix(in srgb, var(--site-blue) 12%, transparent);
+}
+.glass-btn--danger.MuiButton-root {
+  background: var(--glass-danger);
+  color: var(--glass-danger-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), inset 0 -1px 0 rgba(0, 0, 0, 0.2), 0 6px 16px rgba(179, 38, 30, 0.28);
+}
+.glass-btn--danger.MuiButton-root:hover {
+  background: var(--glass-danger);
+  filter: brightness(1.08);
+}
+.glass-btn--danger-quiet.MuiButton-root {
+  color: var(--glass-danger);
+}
+.glass-btn.MuiButton-root.Mui-disabled {
+  opacity: 0.5;
+}
+.glass-btn--primary.MuiButton-root.Mui-disabled,
+.glass-btn--danger.MuiButton-root.Mui-disabled {
+  background: var(--site-muted, #52647b);
+  color: #fff;
+}
+.glass-icon-btn.MuiIconButton-root {
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 999px;
+  color: var(--glass-ink);
+  transition: transform 120ms var(--glass-ease), background-color 160ms ease;
+}
+.glass-icon-btn.MuiIconButton-root:active {
+  transform: scale(0.94);
+}
+.glass-icon-btn.MuiIconButton-root:focus-visible {
+  outline: 3px solid var(--site-blue);
+  outline-offset: 2px;
+}
+
+/* ---------- Chips ---------- */
+.glass-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 28px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  max-width: 100%;
+  white-space: nowrap;
+}
+.glass-chip > span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.glass-chip svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+.glass-chip--accent {
+  color: var(--site-blue);
+}
+.glass-chip--warn,
+.glass-chip--warn.glass-thin {
+  background: var(--glass-warn-bg);
+  color: var(--glass-warn-ink);
+}
+.glass-chip--muted {
+  color: var(--site-muted);
+}
+
+/* ---------- Segmented control ---------- */
+.glass-segmented {
+  position: relative;
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  padding: 4px;
+  border-radius: 999px;
+  isolation: isolate;
+}
+.glass-segmented__thumb {
+  position: absolute;
+  inset: 4px auto 4px 4px;
+  width: calc((100% - 8px) / var(--n));
+  border-radius: 999px;
+  background: var(--site-surface);
+  box-shadow: 0 1px 3px rgba(11, 24, 45, 0.18), inset 0 1px 0 var(--glass-edge);
+  transform: translateX(calc(var(--i) * 100%));
+  transition: transform 320ms var(--glass-ease);
+  z-index: -1;
+}
+.glass-segmented button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--site-muted);
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+.glass-segmented button[aria-selected="true"] {
+  color: var(--glass-ink);
+}
+.glass-segmented button:focus-visible {
+  outline: 3px solid var(--site-blue);
+  outline-offset: 1px;
+}
+.glass-segmented__count {
+  min-width: 22px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  background: color-mix(in srgb, var(--site-blue) 14%, transparent);
+  color: var(--site-blue);
+}
+
+/* ---------- Dialog / sheet ---------- */
+.glass-dialog .MuiBackdrop-root {
+  background: var(--glass-scrim);
+}
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .glass-dialog .MuiBackdrop-root {
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+}
+.glass-dialog .MuiDialog-paper {
+  position: relative;
+  border-radius: 28px;
+  margin: 16px;
+  max-height: calc(100dvh - 32px);
+  width: 100%;
+  background-image: none;
+  color: var(--glass-ink);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  will-change: transform;
+}
+.glass-dialog--sm .MuiDialog-paper {
+  max-width: 480px;
+}
+.glass-dialog--md .MuiDialog-paper {
+  max-width: 640px;
+}
+.glass-dialog--lg .MuiDialog-paper {
+  max-width: 960px;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .glass-dialog .MuiDialog-paper {
+    animation: glass-materialize 360ms var(--glass-ease) backwards;
+  }
+  @keyframes glass-materialize {
+    from {
+      opacity: 0;
+      transform: scale(0.95) translateY(10px);
+      filter: blur(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+      filter: blur(0);
+    }
+  }
+}
+.glass-dialog__grabber {
+  display: none;
+  flex: none;
+  justify-content: center;
+  padding: 8px 0 0;
+  touch-action: none;
+  cursor: grab;
+}
+.glass-dialog__grabber::before {
+  content: "";
+  width: 40px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--glass-ring);
+}
+.glass-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 22px 16px 8px 28px;
+  touch-action: none;
+  flex: none;
+}
+.glass-dialog__header h2 {
+  margin: 0;
+  font-size: 1.375rem;
+  font-weight: 650;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: var(--glass-ink);
+  overflow-wrap: anywhere;
+}
+.glass-dialog__header p {
+  margin: 6px 0 0;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--site-muted);
+}
+.glass-dialog__body {
+  padding: 8px 28px 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.glass-dialog__actions {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 12px 28px 24px;
+}
+.glass-dialog__actions .glass-dialog__spacer {
+  margin-right: auto;
+}
+.glass-dialog__error {
+  margin-top: 16px;
+}
+
+/* Fields sit on a solid tint so light glass is never stacked on light glass. */
+.glass-dialog .MuiOutlinedInput-root {
+  background: var(--glass-field);
+  border-radius: 16px;
+}
+.glass-dialog .MuiOutlinedInput-notchedOutline {
+  border-color: var(--glass-ring);
+}
+.glass-dialog .MuiInputLabel-root {
+  color: var(--site-muted);
+}
+.glass-dialog .MuiFormHelperText-root {
+  color: var(--site-muted);
+  margin-inline: 4px;
+}
+
+/* Confirm */
+.glass-dialog--confirm .glass-dialog__body {
+  padding-top: 4px;
+}
+.glass-confirm__subject {
+  margin: 0 0 12px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--glass-field);
+  font-weight: 600;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Media (lightbox) */
+.glass-dialog--media .MuiDialog-paper {
+  max-width: min(1040px, calc(100vw - 32px));
+}
+.glass-dialog--media .glass-dialog__body {
+  padding: 0;
+}
+.glass-dialog__close-float {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+}
+
+/* ---------- Phones: bottom sheet ---------- */
+@media (max-width: 599.95px) {
+  .glass-dialog .MuiDialog-container {
+    align-items: flex-end;
+  }
+  .glass-dialog .MuiDialog-paper {
+    margin: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
+    width: calc(100% - 16px);
+    max-width: none;
+    max-height: calc(100dvh - 24px - env(safe-area-inset-top, 0px));
+    border-radius: 28px;
+  }
+  .glass-dialog__grabber {
+    display: flex;
+  }
+  .glass-dialog__header {
+    padding: 10px 12px 6px 20px;
+  }
+  .glass-dialog__body {
+    padding: 6px 20px 16px;
+  }
+  .glass-dialog__actions {
+    padding: 10px 20px calc(16px + env(safe-area-inset-bottom, 0px));
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .glass-dialog__actions .glass-btn.MuiButton-root {
+    width: 100%;
+  }
+  .glass-dialog__actions .glass-dialog__spacer {
+    margin-right: 0;
+  }
+  .glass-dialog--media .glass-dialog__grabber {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .glass-dialog .MuiDialog-paper {
+      animation-name: glass-sheet-in;
+    }
+    @keyframes glass-sheet-in {
+      from {
+        transform: translateY(100%);
+        opacity: 0.6;
+      }
+      to {
+        transform: none;
+        opacity: 1;
+      }
+    }
+  }
+}
+
+/* ---------- Date field ---------- */
+.due-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+.due-chips button {
+  appearance: none;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  min-height: 40px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-ring);
+  background: var(--glass-field);
+  color: var(--glass-ink);
+  cursor: pointer;
+  transition: transform 100ms ease-out;
+}
+.due-chips button:active {
+  transform: scale(0.97);
+}
+.due-chips button[aria-pressed="true"] {
+  background: var(--site-blue);
+  border-color: transparent;
+  color: #fff;
+}
+:root[data-theme="dark"] .due-chips button[aria-pressed="true"] {
+  color: #0b182d;
+}
+.due-chips button:focus-visible {
+  outline: 3px solid var(--site-blue);
+  outline-offset: 2px;
+}
+
+/* ---------- Photos fill their frames ---------- */
+.filled-image {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  background: var(--site-soft);
+}
+.filled-image img {
+  object-fit: cover;
+}
+.filled-image.is-loaded {
+  background: transparent;
+}
+.filled-image.is-loading::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.35) 50%, transparent 80%);
+  transform: translateX(-100%);
+  animation: filled-shimmer 1.4s ease-in-out infinite;
+}
+:root[data-theme="dark"] .filled-image.is-loading::after {
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.08) 50%, transparent 80%);
+}
+@keyframes filled-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+.filled-image__error {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  text-align: center;
+  font-size: 0.9375rem;
+  color: var(--site-muted);
+}
+
+/* ---------- Accessibility fallbacks ---------- */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .glass,
+  .glass-thin,
+  .glass-thick {
+    background: var(--site-surface);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border: 2px solid var(--site-muted, #52647b);
+    box-shadow: none;
+  }
+  .glass-dialog .MuiBackdrop-root {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: rgba(0, 0, 0, 0.72);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glass-dialog .MuiDialog-paper {
+    animation: none;
+  }
+  .glass-btn.MuiButton-root,
+  .glass-icon-btn.MuiIconButton-root,
+  .glass-segmented__thumb,
+  .due-chips button {
+    transition: none;
+  }
+  .filled-image.is-loading::after {
+    animation: none;
+  }
+}
+@media (forced-colors: active) {
+  .glass,
+  .glass-thin,
+  .glass-thick {
+    background: Canvas;
+    color: CanvasText;
+    border: 1px solid CanvasText;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  .glass-btn--primary.MuiButton-root,
+  .glass-btn--danger.MuiButton-root {
+    background: ButtonFace;
+    color: ButtonText;
+    border: 2px solid ButtonText;
+  }
+  .glass-segmented button[aria-selected="true"] {
+    outline: 2px solid Highlight;
+  }
+}
+
+/* Explicit specificity over MUI runtime Paper styles. */
+.glass-dialog .MuiDialog-paper.glass-thick{background:var(--site-surface)}
+@supports (backdrop-filter:blur(1px)){.glass-dialog .MuiDialog-paper.glass-thick{background:var(--glass-tint-thick)}}
+@media(prefers-reduced-transparency:reduce),(prefers-contrast:more){.glass-dialog .MuiDialog-paper.glass-thick{background:var(--site-surface)}}
+@media(forced-colors:active){.glass-dialog .MuiDialog-paper.glass-thick{background:Canvas}}
+
+.glass-dialog .glass-dialog__close-float.MuiIconButton-root{position:absolute;left:auto;right:12px;top:12px;width:44px;height:44px;min-width:44px}

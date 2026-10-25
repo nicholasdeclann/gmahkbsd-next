@@ -12,7 +12,7 @@ const initial=await (await request('/api/prayer/manage')).json();assert.equal(in
 const weekly=await (await request('/api/admin/kertas-acara')).json();assert.equal(weekly.mode,'demo');
 let checks=0;const check=(name,actual,expected)=>{assert.deepEqual(actual,expected,name);console.log('PASS '+name);checks++;};
 try {
-  check('Staff-only names and reasons', (await request('/api/prayer/manage','GET',undefined,{Origin:base})).status,401);
+  check('Staff-only names', (await request('/api/prayer/manage','GET',undefined,{Origin:base})).status,401);
   check('Staff-only saving',(await request('/api/prayer/manage','PUT',{}, {Origin:base})).status,401);
   check('Cross-site save rejected',(await request('/api/prayer/manage','PUT',{}, {Origin:'https://example.invalid',Cookie:cookie})).status,403);
   const currentDate=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Jakarta',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
@@ -22,10 +22,10 @@ try {
   const slots=emptyPrayerSlots(); slots[0]={name:'Local First',note:'PRIVATE TEST REASON',note_public:false};slots[1]={name:'Local Second',note:'PUBLIC TEST REASON',note_public:true}; slots[3].name='Local Fourth';
   check('Fifth slot rejected',(await request('/api/prayer/manage','PUT',{revision:state.revision,slots:[...slots,slots[0]]})).status,400);
   const saved=await request('/api/prayer/manage','PUT',{revision:state.revision,slots});check('Four slots saved',saved.status,200);
-  state=await saved.json();check('Staff reasons retained',state.slots,slots);
+  state=await saved.json();check('Reasons removed from staff data',state.slots,slots.map(s=>({...s,note:'',note_public:false})));
   const publicData=await(await request('/api/prayer')).json();
   check('Public order and empty slot preserved',publicData.items.map(p=>p.id),[1,2,4]);
-  check('Private reason omitted',publicData.items[0].note,null);check('Public reason opt-in',publicData.items[1].note,'PUBLIC TEST REASON');
+  check('Private reason omitted',publicData.items[0].note,null);check('Retired public reason omitted',publicData.items[1].note,null);
   check('Public has no private reasons',JSON.stringify(publicData).includes('PRIVATE TEST REASON'),false);
   check('Stale save blocked',(await request('/api/prayer/manage','PUT',{revision:initial.revision,slots:initial.slots})).status,409);
   const clear=await request('/api/prayer/manage','PUT',{revision:state.revision,slots:emptyPrayerSlots()});check('Slots can be cleared',clear.status,200);

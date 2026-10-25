@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { editAnnouncement, deleteAnnouncement, AnnouncementError } from "@/lib/announcements";
-import { announcementDetails } from "@/lib/announcementTypes";
+import { announcementPatch } from "@/lib/announcementTypes";
 import { adminRequestError } from "@/lib/adminRequest";
 
 export const dynamic = "force-dynamic";
@@ -36,10 +36,11 @@ export async function PATCH(
 
     const body = await req.json();
     if (!body || typeof body !== "object" || Array.isArray(body)) return NextResponse.json({ error: "Formulir tidak valid." }, { status: 400 });
-    let caption;
-    try { caption = announcementDetails(null, body.caption).caption; }
+    // Partial update: only the fields that were sent are validated and changed.
+    let patch;
+    try { patch = announcementPatch(body as Record<string, unknown>); }
     catch (error) { return NextResponse.json({ error: (error as Error).message }, { status: 400 }); }
-    const photo = await editAnnouncement(id, caption);
+    const photo = await editAnnouncement(id, patch);
 
     if (!photo) {
       return NextResponse.json({ error: "Pengumuman tidak ditemukan." }, { status: 404 });
@@ -49,7 +50,7 @@ export async function PATCH(
   } catch (error) {
     if (error instanceof AnnouncementError) return NextResponse.json({ error: error.message, code: error.code }, { status: error.status });
     return NextResponse.json(
-      { error: "Keterangan belum berhasil disimpan. Silakan coba lagi." },
+      { error: "Perubahan belum berhasil disimpan. Silakan coba lagi." },
       { status: 502 }
     );
   }

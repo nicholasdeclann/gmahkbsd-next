@@ -51,6 +51,8 @@ try {
   check("Unlimited prayer creation disabled", (await api("/api/prayer", { method: "POST", body: { name: "Local test name" } })).status, 409);
   const missingImage = new FormData();
   check("Announcement requires an image", (await fetch(`${base}/api/photos/upload`, { method: "POST", headers: { Origin: base, Cookie: cookie }, body: missingImage })).status, 400);
+  const incomplete=new FormData();incomplete.append("file",new Blob([await readFile(new URL("../public/assets/images/logo.png",import.meta.url))],{type:"image/png"}),"test.png");
+  check("Announcement requires title and due date",(await fetch(base+"/api/photos/upload",{method:"POST",headers:{Origin:base,Cookie:cookie},body:incomplete})).status,400);
   const callback = await api("/api/drive/auth/callback?code=invalid&state=invalid");
   check("Invalid OAuth state returns to settings", new URL(callback.headers.get("location")).pathname, "/admin/settings");
   check("Invalid OAuth state reported", new URL(callback.headers.get("location")).searchParams.get("drive"), "error");

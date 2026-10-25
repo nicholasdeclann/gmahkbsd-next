@@ -1,7 +1,8 @@
 "use client";
 import {useCallback,useEffect,useRef,useState} from "react";
-import {Alert,Box,Button,CircularProgress,Dialog,DialogActions,DialogContent,DialogTitle,MenuItem,TextField,Typography} from "@mui/material";
+import {Alert,Box,Button,CircularProgress,MenuItem,TextField,Typography} from "@mui/material";
 import Link from "next/link";
+import ConfirmDialog from "../ui/glass/ConfirmDialog";
 import { Add } from "@/components/ui/icons";
 import { ContentCopy } from "@/components/ui/icons";
 import { Refresh } from "@/components/ui/icons";
@@ -106,7 +107,7 @@ export default function GuestRegister({initialDate,readOnly=false,invalidDate=fa
       {!readOnly&&<Box className="guest-main-actions" sx={{display:"flex",gap:2,flexWrap:"wrap",mt:3}}><Button variant="outlined" startIcon={<Add/>} disabled={busy||Boolean(error)} onClick={add}>Tambah Tamu</Button><Button variant="contained" disabled={busy||!unsaved} onClick={()=>void save()}>{busy?"Menyimpan…":"Simpan Semua"}</Button></Box>}
     </>}
     <Typography className="guest-update-note" color="text.secondary" variant="body2" sx={{mt:3}}>{readOnly?"Diperbarui otomatis setiap 15 detik.":"Simpan setelah mengisi. Catatan yang belum disimpan belum terlihat oleh MC."}{lastUpdated?` Terakhir diperbarui ${lastUpdated} WIB.`:""}</Typography>
-    <Dialog open={Boolean(deleting)} onClose={busy?undefined:()=>setDeleting(null)} aria-labelledby="guest-delete-title"><DialogTitle id="guest-delete-title">Hapus Catatan Tamu?</DialogTitle><DialogContent><Typography>{deleting?.value.name||"Baris tamu kosong"}</Typography><Typography sx={{mt:2}}>Catatan ini akan hilang dari daftar penerima tamu dan MC.</Typography>{error&&<Alert severity="error" sx={{mt:2}}>{error}</Alert>}</DialogContent><DialogActions><Button disabled={busy} onClick={()=>setDeleting(null)}>Batal</Button><Button variant="contained" color="error" disabled={busy} onClick={()=>void remove()}>Hapus</Button></DialogActions></Dialog>
-    <Dialog open={Boolean(switchDate)||reload} onClose={()=>{setSwitchDate(null);setReload(false);}} aria-labelledby="guest-discard-title"><DialogTitle id="guest-discard-title">Ada Perubahan Belum Disimpan</DialogTitle><DialogContent><Typography>Jika melanjutkan, isian yang belum disimpan akan dibuang. Pilih Batal untuk menyimpannya terlebih dahulu.</Typography></DialogContent><DialogActions><Button onClick={()=>{setSwitchDate(null);setReload(false);}}>Batal</Button><Button onClick={()=>{if(switchDate)setDate(switchDate);else void load();setSwitchDate(null);setReload(false);}}>Lanjutkan</Button></DialogActions></Dialog>
+    <ConfirmDialog open={Boolean(deleting)} onClose={()=>setDeleting(null)} onConfirm={()=>void remove()} title="Hapus Catatan Tamu?" subject={deleting?.value.name||"Baris tamu kosong"} message="Catatan ini akan hilang dari daftar penerima tamu dan MC." confirmLabel="Hapus" busy={busy} error={error}/>
+    <ConfirmDialog open={Boolean(switchDate)||reload} onClose={()=>{setSwitchDate(null);setReload(false);}} onConfirm={()=>{if(switchDate)setDate(switchDate);else void load();setSwitchDate(null);setReload(false);}} title="Ada Perubahan Belum Disimpan" message="Jika melanjutkan, isian yang belum disimpan akan dibuang. Pilih Batal untuk menyimpannya terlebih dahulu." confirmLabel="Lanjutkan" tone="primary"/>
   </div>;
 }

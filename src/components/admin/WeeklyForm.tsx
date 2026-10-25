@@ -1,4 +1,6 @@
 "use client";
+import { GlassButton } from "../ui/glass/GlassControls";
+import ConfirmDialog from "../ui/glass/ConfirmDialog";
 import { SaveOutlined, Refresh, OpenInNew } from "../ui/icons";
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -12,6 +14,7 @@ export default function WeeklyForm() {
   const router = useRouter();
   const [snapshot, setSnapshot] = useState<WeeklySnapshot | null>(null);
   const [values, setValues] = useState<WeeklyValues | null>(null);
+  const [reloadConfirm,setReloadConfirm]=useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(true);
@@ -78,7 +81,7 @@ export default function WeeklyForm() {
     } catch (error) { setError(error instanceof Error ? error.message : "Gagal menyimpan. Isian Anda tetap tersedia."); }
     finally { setSaving(false); }
   }
-  return <>
+  return <><ConfirmDialog open={reloadConfirm} onClose={()=>setReloadConfirm(false)} onConfirm={()=>{setReloadConfirm(false);void load();}} title="Refresh?" message="Muat ulang dan batalkan perubahan yang belum disimpan?" confirmLabel="Refresh" tone="primary"/>
     <Typography component="h1" variant="h4" sx={{ fontWeight: 350, mb: 1 }}>Kertas Acara</Typography>
     <Typography color="text.secondary" sx={{ mb: 3 }}>Perbarui detail khotbah dan lagu untuk ibadah Sabat.</Typography>
     {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -87,7 +90,7 @@ export default function WeeklyForm() {
       <Box component="form" onSubmit={save}>
         {!snapshot.canWrite && <Alert severity="warning" sx={{ mb: 3 }}>Formulir dapat dilihat. Penyimpanan ke Google Sheets belum diaktifkan oleh pengelola.</Alert>}
         <Box sx={{ pt: 3, borderTop: "1px solid var(--site-border)", mb: 4 }}>
-          <TextField select label="Tanggal Sabat" value={values.date} onChange={event => change("date", event.target.value)} fullWidth disabled={saving || !snapshot.canWrite} helperText="Otomatis maju ke Sabat berikutnya mulai hari Minggu (WIB). Simpan Perubahan untuk memperbarui spreadsheet.">
+          <TextField select label="Tanggal Sabat" value={values.date} onChange={event => change("date", event.target.value)} fullWidth disabled={saving || !snapshot.canWrite} helperText="Otomatis maju ke Sabat berikutnya mulai hari Minggu (WIB). Simpan untuk memperbarui spreadsheet.">
             {snapshot.dates.map(date => <MenuItem key={date} value={date}>{formatChurchDate(date)}</MenuItem>)}
           </TextField>
           <Typography component="h2" variant="h6" sx={{ mt: 4, mb: 2, fontWeight: 400 }}>Detail Khotbah</Typography>
@@ -109,12 +112,12 @@ export default function WeeklyForm() {
         </Box>
         <Typography color="text.secondary" sx={{ mb: 2 }}>{snapshot.mode === "demo" ? "Mode latihan: perubahan hanya disimpan secara lokal." : "Menyimpan akan langsung memperbarui Kertas Acara yang digunakan website."}</Typography>
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-          <Button startIcon={<SaveOutlined />} type="submit" variant="contained" size="large" disabled={!dirty || saving || !snapshot.canWrite}>{saving ? "Menyimpan…" : "Simpan Perubahan"}</Button>
+          <GlassButton startIcon={<SaveOutlined />} type="submit" tone="primary" disabled={!dirty || saving || !snapshot.canWrite}>{saving ? "Menyimpan…" : "Simpan"}</GlassButton>
           <Button type="button" variant="outlined" color="error" startIcon={<Close />} onClick={clearFields} disabled={saving || !snapshot.canWrite}>Kosongkan Formulir</Button>
-          <Button startIcon={<Refresh />} variant="outlined" disabled={saving} onClick={() => { if (!dirty || window.confirm("Muat ulang dan batalkan perubahan yang belum disimpan?")) void load(); }}>Muat Ulang</Button>
+          <GlassButton startIcon={<Refresh />} disabled={saving} onClick={() => { if(dirty)setReloadConfirm(true);else void load(); }}>Refresh</GlassButton>
           {snapshot.mode === "google" && <Button endIcon={<OpenInNew />} component={Link} href="/kertas-acara" target="_blank">Lihat Kertas Acara</Button>}
         </Box>
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>Kosongkan Formulir menghapus isian khotbah dan lagu tanpa mengubah tanggal Sabat. Perubahan baru tersimpan setelah memilih Simpan Perubahan.</Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>Kosongkan Formulir menghapus isian khotbah dan lagu tanpa mengubah tanggal Sabat. Perubahan baru tersimpan setelah memilih Simpan.</Typography>
       </Box> : <Button variant="outlined" onClick={() => void load()}>Coba Lagi</Button>}
   </>;
 }
