@@ -1,20 +1,24 @@
 "use client";
+import StatusNote from "@/components/ui/notifications/StatusNote";
+
+import { useActionNotice, useNotifications } from "@/components/ui/notifications/NotificationProvider";
 import { GlassButton } from "../ui/glass/GlassControls";
 import { Refresh, SaveOutlined } from "../ui/icons";
 import ConfirmDialog from "../ui/glass/ConfirmDialog";
 import LinkOutlined from "@mui/icons-material/LinkOutlined";
 
 import { useEffect, useState } from "react";
-import { Alert, Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, TextField, Typography } from "@mui/material";
 import { sheetLink, type SheetSources } from "@/lib/sheetSources";
 import type { SourcePreview } from "@/lib/previewSheetSources";
 
 interface Settings { sources: SheetSources; previous?: SheetSources; revision: string; updatedAt?: string; demo: boolean; serviceEmail?: string }
 export default function SpreadsheetSettings() {
+  const {notify}=useNotifications();
   const [settings, setSettings] = useState<Settings | null>(null);
   const [mainLink, setMain] = useState(""), [participantLink, setParticipant] = useState("");
   const [preview, setPreview] = useState<SourcePreview | null>(null);
-  const [busy, setBusy] = useState(false), [error, setError] = useState(""), [success, setSuccess] = useState("");
+  const [busy, setBusy] = useState(false), [error,setError]=useActionNotice("error"), [success,setSuccess]=useActionNotice("success");
   const [restore, setRestore] = useState(false);
   function adopt(value: Settings) {
     setSettings(current => ({ ...value, serviceEmail: value.serviceEmail ?? current?.serviceEmail })); setMain(sheetLink(value.sources.liturgy.sheetId, value.sources.liturgy.kertasAcaraGid));
@@ -33,7 +37,7 @@ export default function SpreadsheetSettings() {
       const response = await fetch("/api/admin/sheet-settings", { method: mode === "preview" ? "POST" : "PUT", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ mainLink, participantLink, revision: settings?.revision, restore: mode === "restore" }) });
       const data = await response.json(); if (!response.ok) throw new Error(data.error);
-      if (mode === "preview") setPreview(data);
+      if (mode === "preview") { setPreview(data); notify({type:data.warnings.length?"info":"success",key:"sheet-preview",message:data.warnings.length?data.warnings.join("\n"):"Sumber dapat dibaca oleh website. Izin edit akun layanan untuk workbook Kertas Acara sudah tersedia."}); }
       else { adopt(data); setRestore(false); setSuccess(data.demo ? "Tautan tersimpan untuk latihan lokal. Website produksi tidak berubah." : "Tautan tersimpan. Halaman website memakai sumber baru paling lambat 15 detik setelah dimuat ulang."); }
     } catch (error) { setError(error instanceof TypeError ? "Koneksi terputus. Silakan coba lagi." : error instanceof Error ? error.message : "Pengaturan belum berhasil disimpan."); }
     finally { setBusy(false); }
@@ -42,9 +46,9 @@ export default function SpreadsheetSettings() {
   return <Box component="section" className="settings-panel" aria-label="Tautan Spreadsheet">
     <Typography color="text.secondary" sx={{ mb: 3 }}>Ganti tautan saat spreadsheet baru siap. Periksa pratinjau sebelum memakai sumber baru. Zona waktu: Jakarta (WIB).</Typography>
     {settings?.demo && <Typography variant="body2" color="text.secondary" sx={{mb:3}}>Perubahan hanya disimpan pada latihan lokal.</Typography>}
-    {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
+
     {!settings && error && <GlassButton startIcon={<Refresh/>} onClick={() => window.location.reload()}>Refresh</GlassButton>}
-    {success && <Alert severity="success" sx={{ mb: 3 }}>{success}</Alert>}
+
     {!settings && !error && <Typography>Memuat pengaturan…</Typography>}
     {settings && <>
       <TextField fullWidth label="Workbook Kertas Acara" value={mainLink} disabled={busy} onChange={event => { setMain(event.target.value); changed(); }} helperText="Berisi tab Kertas Acara, Lagu Sion, dan Jadwal Kuartal. Juga digunakan untuk nama Pokok Doa dan unduhan." sx={{ mb: 3 }} />
@@ -61,8 +65,7 @@ export default function SpreadsheetSettings() {
         <Typography sx={{ mb: 1 }}>Peserta: <strong>{preview.participants}</strong></Typography>
         <Typography sx={{ mb: 2 }}>Tanggal peserta: {preview.dates.join(", ")}</Typography>
         <Typography sx={{ mb: 2 }}>Sabat pada triwulan sekarang: {preview.quarterDates.length ? preview.quarterDates.join(", ") : "Belum tersedia"}</Typography>
-        {preview.warnings.map(message => <Alert severity="warning" key={message} sx={{ mb: 2 }}>{message}</Alert>)}
-        <Alert severity="success" sx={{ mb: 3 }}>Sumber dapat dibaca oleh website. Izin edit akun layanan untuk workbook Kertas Acara sudah tersedia.</Alert>
+        {preview.warnings.map(message => <StatusNote severity="warning" key={message} sx={{ mb: 2 }}>{message}</StatusNote>)}
         <GlassButton tone="primary" startIcon={<SaveOutlined/>} disabled={busy} onClick={() => void request("save")}>{busy ? "Menyimpan…" : "Simpan"}</GlassButton>
       </Box>}
       {settings.updatedAt && <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }}>Terakhir disimpan: {new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Jakarta" }).format(new Date(settings.updatedAt))} WIB</Typography>}

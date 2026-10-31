@@ -4,6 +4,7 @@ import { Dialog, IconButton } from "@mui/material";
 import { CloseIcon } from "../icons";
 import { useLanguage } from "../../LanguageProvider";
 import { useSheetDrag } from "./useSheetDrag";
+import { useNotificationScope } from "../notifications/NotificationProvider";
 
 export interface GlassDialogProps {
   open: boolean;
@@ -31,6 +32,7 @@ export default function GlassDialog({
   const { t } = useLanguage();
   const id = useId();
   const [paper, setPaper] = useState<HTMLElement | null>(null);
+  useNotificationScope(id, open ? paper : null);
   useSheetDrag(paper, onClose, busy);
   const titleId = `${id}-title`;
   const descriptionId = `${id}-description`;

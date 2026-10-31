@@ -1,6 +1,9 @@
 "use client";
+import StatusNote from "@/components/ui/notifications/StatusNote";
+
+import { useActionNotice } from "@/components/ui/notifications/NotificationProvider";
 import {useCallback,useEffect,useRef,useState} from "react";
-import {Alert,Box,Button,CircularProgress,MenuItem,TextField,Typography} from "@mui/material";
+import { Box, Button, CircularProgress, MenuItem, TextField, Typography } from "@mui/material";
 import Link from "next/link";
 import ConfirmDialog from "../ui/glass/ConfirmDialog";
 import { Add } from "@/components/ui/icons";
@@ -12,21 +15,21 @@ interface Row {key:string;value:GuestEntry;original?:GuestEntry;error?:string;sa
 function dirty(row:Row){return !row.original||row.value.name!==row.original.name||row.value.church!==row.original.church||row.value.pax!==row.original.pax||row.value.type!==row.original.type||(row.value.phone??"")!==(row.original.phone??"");}
 function errorText(error:unknown,fallback:string){return error instanceof Error&&!(error instanceof TypeError)?error.message:fallback;}
 export default function GuestRegister({initialDate,readOnly=false,invalidDate=false}:{initialDate:string;readOnly?:boolean;invalidDate?:boolean}){
-  const [date,setDate]=useState(initialDate),[rows,setRows]=useState<Row[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(""),[message,setMessage]=useState("");
+  const [date,setDate]=useState(initialDate),[rows,setRows]=useState<Row[]>([]),[loading,setLoading]=useState(true),[error,setError]=useActionNotice("error"),[message,setMessage]=useActionNotice("success");
   const [busy,setBusy]=useState(false),[deleting,setDeleting]=useState<Row|null>(null),[switchDate,setSwitchDate]=useState<string|null>(null),[reload,setReload]=useState(false),[shareUrl,setShareUrl]=useState(""),[lastUpdated,setLastUpdated]=useState("");
   const newRowFocus=useRef<string|null>(null);
   useEffect(()=>{if(!newRowFocus.current)return;const input=document.getElementById(`guest-name-${newRowFocus.current}`);if(input){input.scrollIntoView({behavior:"smooth",block:"center"});input.focus({preventScroll:true});newRowFocus.current=null;}},[rows]);
   const rowsRef=useRef(rows),busyRef=useRef(busy),generation=useRef(0);
   useEffect(()=>{rowsRef.current=rows;},[rows]);useEffect(()=>{busyRef.current=busy;},[busy]);
   const load=useCallback(async(signal?:AbortSignal,quiet=false)=>{
-    const request=++generation.current;if(!quiet)setLoading(true);setError("");
+    const request=++generation.current;if(!quiet){setLoading(true);setError("");}
     try{
       const response=await fetch(`/api/guests?date=${date}`,{cache:"no-store",signal});const data=await response.json();
       if(!response.ok)throw new Error(data.error||"Daftar tamu belum dapat dimuat.");
       if(signal?.aborted||request!==generation.current)return;
-      setRows(data.guests.map((value:GuestEntry)=>({key:value.id,value,original:value})));
+      setError("");setRows(data.guests.map((value:GuestEntry)=>({key:value.id,value,original:value})));
       setLastUpdated(new Intl.DateTimeFormat("id-ID",{timeZone:"Asia/Jakarta",hour:"2-digit",minute:"2-digit",second:"2-digit"}).format(new Date()));
-    }catch(error){if(!signal?.aborted&&request===generation.current)setError(errorText(error,"Daftar tamu belum dapat dimuat. Periksa koneksi lalu perbarui daftar."));}
+    }catch(error){if(!quiet&&!signal?.aborted&&request===generation.current)setError(errorText(error,"Daftar tamu belum dapat dimuat. Periksa koneksi lalu perbarui daftar."));}
     finally{if(!signal?.aborted&&request===generation.current)setLoading(false);}
   },[date]);
   useEffect(()=>{setRows([]);setMessage("");const controller=new AbortController();void load(controller.signal);return()=>controller.abort();},[load]);
@@ -44,13 +47,13 @@ export default function GuestRegister({initialDate,readOnly=false,invalidDate=fa
   function chooseDate(next:string){if(!isSaturday(next)){setError("Pilih tanggal hari Sabtu.");return;}if(next===date)return;if(rows.some(dirty)){setSwitchDate(next);return;}setDate(next);}
   async function saveRow(row:Row){
     let details;
-    try{details=guestDetails(row.value);}catch(error){setRows(current=>current.map(r=>r.key===row.key?{...r,error:(error as Error).message}:r));return false;}
+    try{details=guestDetails(row.value);}catch(error){setError((error as Error).message);setRows(current=>current.map(r=>r.key===row.key?{...r,error:(error as Error).message}:r));return false;}
     setRows(current=>current.map(r=>r.key===row.key?{...r,saving:true,error:undefined}:r));
     try{
       const response=await fetch(row.original?`/api/guests/${row.value.id}`:"/api/guests",{method:row.original?"PATCH":"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({...details,...(row.original?{revision:row.original.revision}:{requestId:row.requestId})})});
       const data=await response.json();if(!response.ok)throw new Error(data.error||"Catatan belum tersimpan.");
       setRows(current=>current.map(r=>r.key===row.key?{key:row.key,value:data.guest,original:data.guest}:r));return true;
-    }catch(error){setRows(current=>current.map(r=>r.key===row.key?{...r,saving:false,error:errorText(error,"Catatan belum tersimpan. Periksa koneksi lalu coba simpan kembali.")}:r));return false;}
+    }catch(error){setError(errorText(error,"Catatan belum tersimpan. Periksa koneksi lalu coba simpan kembali."));setRows(current=>current.map(r=>r.key===row.key?{...r,saving:false,error:errorText(error,"Catatan belum tersimpan. Periksa koneksi lalu coba simpan kembali.")}:r));return false;}
   }
   async function save(selected?:Row){
     if(busy)return;setBusy(true);busyRef.current=true;generation.current++;setMessage("");
@@ -67,7 +70,7 @@ export default function GuestRegister({initialDate,readOnly=false,invalidDate=fa
   }
   async function copyMcLink(){
     const url=`${window.location.origin}/tamu/mc?date=${date}`;setShareUrl(url);
-    try{await navigator.clipboard.writeText(url);setMessage("Tautan baca untuk pembawa acara telah disalin.");}catch{setMessage("Salin tautan pembawa acara di kotak tautan.");}
+    try{await navigator.clipboard.writeText(url);setMessage("Tautan baca untuk pembawa acara telah disalin.");}catch{setError("Salin tautan pembawa acara di kotak tautan.");}
   }
   async function copyList(){
     const text=[`Daftar Tamu — ${saturdayLabel(date)}`,"",...rows.filter(row=>row.original).map((row,index)=>`${index+1}. ${row.value.name} — ${row.value.church||"Jemaat asal belum dicatat"}${row.value.pax===null?"":` (${row.value.pax} orang)`}`)].join("\n");
@@ -77,7 +80,7 @@ export default function GuestRegister({initialDate,readOnly=false,invalidDate=fa
   return <div className={`guest-register${readOnly?" guest-register-mc":""}`}>
     <Typography component="h1" sx={{fontSize:{xs:"1.75rem",sm:"2.25rem"},fontWeight:350,mb:1}}>Daftar Tamu</Typography>
     <Typography color="text.secondary" sx={{mb:3,fontSize:"1.125rem"}}>{readOnly?"Daftar untuk dibacakan saat menyambut tamu. Tampilan ini hanya untuk membaca.":"Catat tamu perorangan atau keluarga untuk disambut oleh pembawa acara."}</Typography>
-    {invalidDate&&<Alert severity="info" sx={{mb:2}}>Tanggal pada tautan tidak valid. Menampilkan Sabat terdekat.</Alert>}
+    {invalidDate&&<StatusNote severity="info" sx={{mb:2}}>Tanggal pada tautan tidak valid. Menampilkan Sabat terdekat.</StatusNote>}
     <Box className="guest-toolbar" sx={{display:"flex",gap:2,flexWrap:"wrap",alignItems:"center",mb:3}}>
       <TextField label="Tanggal Sabat" type="date" value={date} onChange={event=>chooseDate(event.target.value)} disabled={busy||loading} slotProps={{inputLabel:{shrink:true}}} helperText="Pilih hari Sabtu."/>
       <Button onClick={()=>chooseDate(currentSaturday())} disabled={busy||loading}>Sabat Terdekat</Button>
@@ -89,8 +92,8 @@ export default function GuestRegister({initialDate,readOnly=false,invalidDate=fa
     <Typography component="h2" sx={{fontSize:"1.35rem",fontWeight:450,mb:1}}>{saturdayLabel(date)}</Typography>
     <Box role="status" className="guest-summary" sx={{mb:3}}><span><strong>{saved.length}</strong> catatan tamu</span><span><strong>{pax}</strong> orang tercatat</span>{unknownPax>0&&<span className="guest-summary-note">{unknownPax} catatan tanpa jumlah orang</span>}{unsaved>0&&!readOnly&&<span className="guest-summary-note">{unsaved} catatan belum disimpan</span>}</Box>
     {shareUrl&&<TextField label="Tautan baca untuk MC" value={shareUrl} fullWidth sx={{mb:3}} slotProps={{input:{readOnly:true}}} onFocus={event=>event.target.select()}/>}
-    {message&&<Alert severity="success" sx={{mb:3}} onClose={()=>setMessage("")}>{message}</Alert>}
-    {error&&<Alert severity="error" sx={{mb:3}} onClose={()=>setError("")}>{error}</Alert>}
+
+
     {loading?<Box sx={{py:6,textAlign:"center"}}><CircularProgress aria-label="Memuat daftar tamu"/></Box>:<>
       <table className={`guest-table${readOnly?" guest-table-readonly":""}`} aria-label={`Daftar tamu ${saturdayLabel(date)}`}>
         <thead><tr><th scope="col">Jenis Tamu</th><th scope="col">Nama / Keluarga</th><th scope="col">Jemaat Asal</th><th scope="col">Nomor HP</th><th scope="col">Jumlah Orang</th>{!readOnly&&<th scope="col">Tindakan</th>}</tr></thead>

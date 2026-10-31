@@ -5,6 +5,7 @@ import ShaderGradientBg from "@/components/ui/ShaderGradientBg";
 import { T, useLanguage } from "@/components/LanguageProvider";
 import { CakeOutlined, GiftOutlined, PartyPopperOutlined } from "@/components/ui/icons";
 import { fetchTextCached, CACHE_TTL } from "@/lib/sheetCache";
+import { useNotifications } from "@/components/ui/notifications/NotificationProvider";
 import {
   type BirthdayPerson,
   SHEET_URLS,
@@ -21,6 +22,7 @@ function birthdayStyle(name: string) {
 }
 
 export default function UlangTahunPage() {
+  const { notify } = useNotifications();
   const { language } = useLanguage();
   const locale = language === "en" ? "en-GB" : "id-ID";
 
@@ -116,6 +118,7 @@ export default function UlangTahunPage() {
       })
       .catch((err) => {
         console.error(err);
+        notify({type:"error",key:"birthday-load",message:"Gagal memuat data ulang tahun."});
         setError(true);
         setLoading(false);
       });
@@ -158,14 +161,7 @@ export default function UlangTahunPage() {
             </p>
           </div>
         ) : error ? (
-          <div className="birthday-empty-open" role="alert">
-            <h2>
-              <T text="Gagal memuat data ulang tahun." />
-            </h2>
-            <p>
-              <T text="Silakan muat ulang halaman ini beberapa saat lagi." />
-            </p>
-          </div>
+          <div className="birthday-empty-open"><button className="glass-btn glass-btn--glass" onClick={()=>location.reload()}><T text="Coba Lagi"/></button></div>
         ) : birthdays.length === 0 ? (
           <div className="birthday-empty-open">
             <h2>

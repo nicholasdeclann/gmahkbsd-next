@@ -12,6 +12,7 @@ import { imageAsset } from "@/lib/asset";
 import Navbar from "./Navbar";
 import { ColorModeContext } from "./ColorModeContext";
 import GlassRuntime from "./ui/glass/GlassRuntime";
+import NotificationProvider from "./ui/notifications/NotificationProvider";
 
 export default function SiteProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -44,6 +45,7 @@ export default function SiteProvider({ children }: { children: React.ReactNode }
       <ThemeProvider theme={theme}>
         <CssBaseline />
         <GlassRuntime />
+        <NotificationProvider>
         <div
           className={`site-frame${!admin && !staff ? " public-frame" : ""}`}
           data-theme={dark ? "dark" : "light"}
@@ -91,6 +93,7 @@ export default function SiteProvider({ children }: { children: React.ReactNode }
             </footer>
           )}
         </div>
+        </NotificationProvider>
       </ThemeProvider>
     </ColorModeContext.Provider>
   );

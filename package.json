@@ -17,7 +17,8 @@
     "test:kertas-paste": "node --experimental-strip-types --test scripts/kertas-acara-paste.test.mjs",
     "test:sabbath": "node --test scripts/sabbath-summary.test.mjs",
     "test:drive-health": "node --test scripts/drive-health.test.mjs",
-    "test:announcement-expiry": "node --test scripts/announcement-expiry.test.mjs"
+    "test:announcement-expiry": "node --test scripts/announcement-expiry.test.mjs",
+    "test:notifications": "node --test scripts/notifications.test.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

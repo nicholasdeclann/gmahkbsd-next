@@ -1,6 +1,9 @@
 "use client";
+import StatusNote from "@/components/ui/notifications/StatusNote";
+
+import { useActionNotice } from "@/components/ui/notifications/NotificationProvider";
 import {useCallback,useEffect,useId,useRef,useState} from "react";
-import {Alert} from "@mui/material";
+
 import {type AnnouncementItem,deriveAnnouncement,compareAnnouncements,todayJakarta,addDays} from "@/lib/announcementTypes";
 import {useLanguage} from "./LanguageProvider";
 import AnnouncementCard from "./AnnouncementCard";
@@ -11,15 +14,15 @@ import ConfirmDialog from "./ui/glass/ConfirmDialog";
 import {GlassButton,GlassSegmented} from "./ui/glass/GlassControls";
 import {AddPhotoAlternateOutlined,OpenInNew} from "./ui/icons";
 export default function AnnouncementGallery({editable=false,previewLimit}:{editable?:boolean;previewLimit?:number}){
- const panelId=useId();const {t}=useLanguage();const [posts,setPosts]=useState<AnnouncementItem[]>([]),[loading,setLoading]=useState(true),[error,setError]=useState(""),[success,setSuccess]=useState(""),[configured,setConfigured]=useState(true),[tab,setTab]=useState("active"),[editor,setEditor]=useState<AnnouncementItem|"new"|null>(null),[preview,setPreview]=useState<AnnouncementItem|null>(null),[deleting,setDeleting]=useState<AnnouncementItem|null>(null),[busy,setBusy]=useState(false),[deleteError,setDeleteError]=useState(""),[missing,setMissing]=useState(false);
+ const panelId=useId();const {t}=useLanguage();const [posts,setPosts]=useState<AnnouncementItem[]>([]),[loading,setLoading]=useState(true),[error,setError]=useActionNotice("error",undefined,{label:"Coba Lagi",onClick:()=>void load()}),[success,setSuccess]=useActionNotice("success"),[configured,setConfigured]=useState(true),[tab,setTab]=useState("active"),[editor,setEditor]=useState<AnnouncementItem|"new"|null>(null),[preview,setPreview]=useState<AnnouncementItem|null>(null),[deleting,setDeleting]=useState<AnnouncementItem|null>(null),[busy,setBusy]=useState(false),[deleteError,setDeleteError]=useActionNotice("error"),[missing,setMissing]=useState(false);
  const generation=useRef(0),openedDeepLink=useRef(false);
- const load=useCallback(async(signal?:AbortSignal,quiet=false)=>{const request=++generation.current;if(!quiet)setLoading(true);setError("");
+ const load=useCallback(async(signal?:AbortSignal,quiet=false)=>{const request=++generation.current;if(!quiet){setLoading(true);setError("");}
   try{const response=await fetch("/api/photos"+(editable?"?manage=true":""),{cache:"no-store",signal});const data=await response.json();if(!response.ok)throw new Error(data.error||t("Pengumuman belum dapat dimuat. Silakan coba lagi."));
    if(signal?.aborted||request!==generation.current)return;
-   const list=(data.photos as AnnouncementItem[]).map(p=>deriveAnnouncement(p)).sort(compareAnnouncements);setPosts(list);setConfigured(data.configured);
+   const list=(data.photos as AnnouncementItem[]).map(p=>deriveAnnouncement(p)).sort(compareAnnouncements);setError("");setPosts(list);setConfigured(data.configured);
    setPreview(current=>current?list.find(p=>p.id===current.id)??null:null);
    if(!editable&&!previewLimit&&!openedDeepLink.current){const id=new URL(location.href).searchParams.get("post");if(id){const post=list.find(p=>p.id===id);setPreview(post??null);setMissing(!post);}openedDeepLink.current=true;}
-  }catch(e){if(!signal?.aborted&&request===generation.current)setError(e instanceof Error?e.message:t("Pengumuman belum dapat dimuat. Silakan coba lagi."));}finally{if(!signal?.aborted&&request===generation.current)setLoading(false);}
+  }catch(e){if(!quiet&&!signal?.aborted&&request===generation.current)setError(e instanceof Error?e.message:t("Pengumuman belum dapat dimuat. Silakan coba lagi."));}finally{if(!signal?.aborted&&request===generation.current)setLoading(false);}
  },[editable,previewLimit,t]);
  useEffect(()=>{const c=new AbortController();void load(c.signal);return()=>c.abort();},[load]);
  useEffect(()=>{const c=new AbortController();let day=todayJakarta();const check=()=>{if(document.hidden)return;const next=todayJakarta();if(next!==day){day=next;setPosts(current=>current.map(p=>deriveAnnouncement(p)));setPreview(current=>current&&deriveAnnouncement(current).expired&&!editable?null:current);}void load(c.signal,true);};const timer=setInterval(check,60000);let boundary:ReturnType<typeof setTimeout>;function midnight(){boundary=setTimeout(()=>{check();midnight();},Math.max(1,Date.parse(addDays(todayJakarta(),1)+"T00:00:00+07:00")-Date.now()+30));}midnight();window.addEventListener("focus",check);document.addEventListener("visibilitychange",check);return()=>{c.abort();clearInterval(timer);clearTimeout(boundary);window.removeEventListener("focus",check);document.removeEventListener("visibilitychange",check);};},[load,editable]);
@@ -30,10 +33,10 @@ export default function AnnouncementGallery({editable=false,previewLimit}:{edita
  return <div className={editable?"announcement-board announcement-board--admin":"announcement-board"}>
   {!previewLimit&&<div className="announcement-toolbar">{editable?<><GlassSegmented panelId={panelId} label={t("Status pengumuman")} value={tab} onChange={setTab} options={[{value:"active",label:t("Aktif"),count:active.length},{value:"expired",label:t("Kedaluwarsa"),count:expired.length}]}/><div className="announcement-header-actions"><GlassButton tone="plain" href="/pengumuman" target="_blank" rel="noopener noreferrer" startIcon={<OpenInNew/>}>{t("Lihat di Website")}</GlassButton><GlassButton className="announcement-add" tone="primary" startIcon={<AddPhotoAlternateOutlined/>} onClick={()=>setEditor("new")}>{t("Tambah Pengumuman")}</GlassButton></div></>:<AnnouncementShare board/>}</div>}
   {editable&&active.some(p=>!p.due_date)&&<p className="announcement-undated">{active.filter(p=>!p.due_date).length} {t("pengumuman tanpa tanggal berakhir")}</p>}
-  {editable&&!configured&&<Alert severity="info" action={<GlassButton href="/admin/settings/google" tone="plain">{t("Pengaturan")}</GlassButton>}>{t("Hubungkan folder pengumuman di Google Drive sebelum menerbitkan gambar.")}</Alert>}
-  {error&&<Alert severity="error" action={<GlassButton onClick={()=>void load()} tone="plain">{t("Coba Lagi")}</GlassButton>}>{error}</Alert>}
-  {success&&<Alert severity="success" role="status" onClose={()=>setSuccess("")}>{success}</Alert>}
-  {missing&&<Alert severity="info">{t("Pengumuman ini sudah berakhir atau belum tersedia.")}</Alert>}
+  {editable&&!configured&&<StatusNote severity="info" action={<GlassButton href="/admin/settings/google" tone="plain">{t("Pengaturan")}</GlassButton>}>{t("Hubungkan folder pengumuman di Google Drive sebelum menerbitkan gambar.")}</StatusNote>}
+
+
+  {missing&&<StatusNote severity="info">{t("Pengumuman ini sudah berakhir atau belum tersedia.")}</StatusNote>}
   <div role={editable?"tabpanel":undefined} id={panelId} aria-labelledby={editable?panelId+"-"+tab:undefined}>
   {loading?<div className="announcement-masonry" aria-busy="true" aria-label={t("Memuat pengumuman")} >{[1,2].map(i=><div key={i} className="announcement-skeleton"/>)}</div>:<>
    {!visible.length&&!error&&<div className="announcement-empty"><p>{t(tab==="expired"?"Belum ada pengumuman kedaluwarsa.":"Belum ada pengumuman tambahan.")}</p>{editable&&<GlassButton tone="plain" onClick={()=>setEditor("new")}>{t("Tambah Pengumuman")}</GlassButton>}</div>}

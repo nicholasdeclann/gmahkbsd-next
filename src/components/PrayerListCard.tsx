@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { T } from "./LanguageProvider";
 import { churchConfig } from "@/config/church";
+import { useNotifications } from "./ui/notifications/NotificationProvider";
 
 interface PrayerItem {
   id: number;
@@ -10,6 +11,7 @@ interface PrayerItem {
 }
 
 export default function PrayerListCard({ showHeading = true }: { showHeading?: boolean }) {
+  const { notify } = useNotifications();
   const [items, setItems] = useState<PrayerItem[] | null>(null);
   const [available, setAvailable] = useState(true);
 
@@ -25,7 +27,7 @@ export default function PrayerListCard({ showHeading = true }: { showHeading?: b
         if (!cancelled) setItems(data.items ?? []);
       })
       .catch(() => {
-        if (!cancelled) setAvailable(false);
+        if (!cancelled) { setAvailable(false); notify({type:"error",key:"public-prayer",message:"Daftar doa belum dapat dimuat. Silakan coba lagi."}); }
       });
     return () => {
       cancelled = true;

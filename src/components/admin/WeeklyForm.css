@@ -1,0 +1,44 @@
+.weekly-form { max-width: 900px; min-width: 0; }
+.weekly-section { margin: 0 0 32px; min-width: 0; }
+.weekly-section .MuiInputBase-root { font-size: 16px; background: var(--site-surface); }
+.weekly-section .MuiInputBase-root:not(.MuiInputBase-multiline) { min-height: 48px; }
+.weekly-section .MuiFormLabel-root { font-size: 16px; }
+.weekly-section .MuiFormHelperText-root { margin-top: 8px; line-height: 1.5; }
+.weekly-section .MuiAutocomplete-clearIndicator,
+.weekly-section .MuiAutocomplete-popupIndicator { min-width: 44px; min-height: 44px; }
+.weekly-section .MuiAutocomplete-endAdornment { top: 50%; transform: translateY(-50%); }
+.weekly-section .MuiAutocomplete-inputRoot { padding-right: 96px !important; }
+.weekly-section .MuiAutocomplete-inputRoot .MuiAutocomplete-input { min-width: 30px; }
+.weekly-fields { display: grid; gap: 24px; }
+.weekly-song-fields { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.weekly-paste-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 20px; }
+.weekly-paste-heading h2 { font-weight: 500; }
+.weekly-paste-actions { display: flex; flex-wrap: wrap; gap: 8px 12px; margin-top: 16px; }
+.weekly-copy-status { display: block; font-size: 14px; color: var(--site-muted); }
+.weekly-copy-status:empty { display: none; }
+.weekly-copy-status:not(:empty) { margin-top: 12px; }
+.weekly-feedback { margin-bottom: 20px; }
+.weekly-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.weekly-actions .glass-btn, .weekly-paste .glass-btn { min-height: 44px; }
+.weekly-form input, .weekly-form textarea { scroll-margin-block: 100px 140px; }
+html:has(.weekly-form) { scroll-padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)); }
+@media (max-width: 599.95px) {
+  .weekly-form { padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px)); }
+  .weekly-song-fields { grid-template-columns: minmax(0, 1fr); }
+  .weekly-actions {
+    position: fixed; left: 12px; right: 12px; bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    z-index: 1200; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px;
+    padding: 10px; border-radius: 28px; border: 1px solid var(--glass-ring);
+    background: var(--site-surface); color: var(--site-text);
+  }
+  @supports (backdrop-filter: blur(1px)) {
+    .weekly-actions { background: var(--glass-tint-thick); backdrop-filter: blur(20px) saturate(1.5); -webkit-backdrop-filter: blur(20px) saturate(1.5); }
+  }
+  .weekly-actions .glass-btn { padding-inline: 12px; min-width: 0; font-size: 14px; }
+  .weekly-actions .MuiButton-startIcon { margin-right: 6px; margin-left: 0; }
+  .weekly-form--keyboard { padding-bottom: 0; }
+  .weekly-form--keyboard .weekly-actions { position: static; margin-top: 20px; }
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more), (forced-colors: active) {
+  .weekly-actions { background: var(--site-surface); backdrop-filter: none; -webkit-backdrop-filter: none; }
+}

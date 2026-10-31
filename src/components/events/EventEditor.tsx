@@ -1,10 +1,13 @@
 "use client";
+import StatusNote from "@/components/ui/notifications/StatusNote";
+
+import { useActionNotice } from "@/components/ui/notifications/NotificationProvider";
 import { useEffect, useRef, useState } from "react";
 import { SaveOutlined } from "../ui/icons";
 import GlassDialog from "../ui/glass/GlassDialog";
 import FilledImage from "../ui/glass/FilledImage";
 import {GlassButton} from "../ui/glass/GlassControls";
-import { Alert, Box, Button, Checkbox, FormControlLabel, TextField, Typography } from "@mui/material";
+import { Box, Button, Checkbox, FormControlLabel, TextField, Typography } from "@mui/material";
 import { eventDetails, EVENT_IMAGE_TYPES, EVENT_MAX_BYTES, type EventPhoto } from "@/lib/eventTypes";
 type PendingPhoto = {key:string;file:File;url:string;caption:string};
 async function resize(file:File):Promise<File> {
@@ -25,7 +28,7 @@ async function resize(file:File):Promise<File> {
 function PendingPreview({photo}:{photo:PendingPhoto}) {return <FilledImage src={photo.url} alt="Pratinjau foto kegiatan" ratio={16/9}/>;}
 export default function EventEditor({photo,onClose,onSaved}:{photo?:EventPhoto;onClose:()=>void;onSaved:(month:string)=>void}) {
   const [title,setTitle]=useState(photo?.title||""), [eventDate,setDate]=useState(photo?.eventDate||""), [caption,setCaption]=useState(photo?.caption||"");
-  const [published,setPublished]=useState(photo?.published??true), [pending,setPending]=useState<PendingPhoto[]>([]), [busy,setBusy]=useState(false), [error,setError]=useState(""), [progress,setProgress]=useState("");
+  const [published,setPublished]=useState(photo?.published??true), [pending,setPending]=useState<PendingPhoto[]>([]), [busy,setBusy]=useState(false), [error,setError]=useActionNotice("error"), [progress,setProgress]=useState("");
   const [completed,setCompleted]=useState(0);
   const urls=useRef(new Set<string>());
   useEffect(()=>{const allocated=urls.current;return ()=>{allocated.forEach(url=>URL.revokeObjectURL(url));};},[]);
@@ -72,8 +75,8 @@ export default function EventEditor({photo,onClose,onSaved}:{photo?:EventPhoto;o
       {photo?<TextField label="Keterangan foto" fullWidth multiline minRows={3} value={caption} onChange={e=>setCaption(e.target.value)} disabled={busy} slotProps={{htmlInput:{maxLength:2000}}}/>:pending.map((p,index)=><Box key={p.key} sx={{borderTop:"1px solid var(--site-border)",pt:2,mb:3}}><PendingPreview photo={p}/><TextField label={`Keterangan foto ${index+1}`} fullWidth multiline minRows={2} value={p.caption} onChange={e=>setPending(current=>current.map(entry=>entry.key===p.key?{...entry,caption:e.target.value}:entry))} disabled={busy} slotProps={{htmlInput:{maxLength:2000}}}/></Box>)}
       <FormControlLabel control={<Checkbox checked={published} onChange={e=>setPublished(e.target.checked)} disabled={busy}/>} label="Tampilkan kepada jemaat"/>
       <Typography variant="body2" color="text.secondary">Jika tidak dicentang, foto disimpan sebagai draf dan hanya terlihat di dashboard.</Typography>
-      {completed>0 && <Alert severity="info" sx={{mt:2}}>{completed} foto sudah tersimpan. Jangan unggah ulang foto tersebut.</Alert>}
+      {completed>0 && <StatusNote severity="info" sx={{mt:2}}>{completed} foto sudah tersimpan. Jangan unggah ulang foto tersebut.</StatusNote>}
       {progress && <Typography role="status" sx={{mt:2}}>{progress}</Typography>}
-      {error && <Alert severity="error" sx={{mt:2}}>{error}</Alert>}
+
     </GlassDialog>;
 }

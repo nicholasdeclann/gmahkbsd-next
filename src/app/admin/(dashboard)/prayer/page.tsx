@@ -1,10 +1,13 @@
 "use client";
+import StatusNote from "@/components/ui/notifications/StatusNote";
+
+import { useActionNotice } from "@/components/ui/notifications/NotificationProvider";
 import ConfirmDialog from "@/components/ui/glass/ConfirmDialog";
 import { SaveOutlined, Refresh } from "@/components/ui/icons";
 import { GlassButton } from "@/components/ui/glass/GlassControls";
 
 import { useCallback, useEffect, useState } from "react";
-import { Box, Typography, TextField, Alert, CircularProgress } from "@mui/material";
+import { Box, Typography, TextField, CircularProgress } from "@mui/material";
 import { emptyPrayerSlots, type PrayerSlot, type PrayerSnapshot } from "@/lib/prayerTypes";
 import { formatChurchDate } from "@/lib/kertasAcaraForm";
 
@@ -14,8 +17,8 @@ export default function PrayerAdminPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [reloadConfirm,setReloadConfirm]=useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [error,setError]=useActionNotice("error");
+  const [success,setSuccess]=useActionNotice("success");
   const dirty = Boolean(snapshot && JSON.stringify(snapshot.slots) !== JSON.stringify(slots));
   const load = useCallback(async () => {
     setLoading(true); setError(""); setSuccess("");
@@ -48,9 +51,9 @@ export default function PrayerAdminPage() {
   return <Box sx={{ maxWidth: 760 }}>
     <Typography component="h1" variant="h4" sx={{ fontWeight: 350, mb: 1 }}>Pokok Doa</Typography>
     {snapshot?.date && <Typography color="text.secondary" sx={{ mb: 2 }}>{formatChurchDate(snapshot.date)}</Typography>}
-    {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-    {success && <Alert severity="success" role="status" sx={{ mb: 2 }}>{success}</Alert>}
-    {snapshot && !snapshot.canWrite && <Alert severity="info" sx={{ mb: 2 }}>Penyimpanan belum diaktifkan atau sel nama berisi rumus. Hubungi pengelola website.</Alert>}
+
+
+    {snapshot && !snapshot.canWrite && <StatusNote severity="info" sx={{ mb: 2 }}>Penyimpanan belum diaktifkan atau sel nama berisi rumus. Hubungi pengelola website.</StatusNote>}
     {loading ? <CircularProgress aria-label="Memuat pokok doa" /> : snapshot && <Box component="form" onSubmit={save}>
       <Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", sm: "repeat(2, minmax(0, 1fr))" }, gap: 1.5 }}>
         {slots.map((slot, index) => <Box key={index} sx={{ display: "flex", alignItems: "center", gap: 1.5, p: 1.5, border: "1px solid var(--site-border)", borderRadius: "18px", bgcolor: "var(--site-surface)", minWidth: 0 }}>

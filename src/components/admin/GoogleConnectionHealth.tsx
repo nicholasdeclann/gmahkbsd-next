@@ -1,16 +1,20 @@
 "use client";
+import StatusNote from "@/components/ui/notifications/StatusNote";
+
+import { useActionNotice, useNotifications } from "@/components/ui/notifications/NotificationProvider";
 import {useCallback,useEffect,useState} from "react";
 import Link from "next/link";
-import {Alert,Box,Button,Typography} from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import { GlassButton } from "../ui/glass/GlassControls";
 import Refresh from "@mui/icons-material/Refresh";
 import type {DriveHealth} from "@/lib/driveHealthTypes";
 
 export default function GoogleConnectionHealth({compact=false}:{compact?:boolean}) {
-  const [health,setHealth]=useState<DriveHealth|null>(null),[loading,setLoading]=useState(true),[connecting,setConnecting]=useState(false),[error,setError]=useState("");
+  const {notify}=useNotifications();
+  const [health,setHealth]=useState<DriveHealth|null>(null),[loading,setLoading]=useState(true),[connecting,setConnecting]=useState(false),[error,setError]=useActionNotice("error");
   const check=useCallback(async(signal?:AbortSignal)=>{
     setLoading(true);setError("");
-    try{const response=await fetch("/api/admin/google-health",{cache:"no-store",signal});const data=await response.json();if(!response.ok)throw new Error(data.error);if(!signal?.aborted)setHealth(data);}
+    try{const response=await fetch("/api/admin/google-health",{cache:"no-store",signal});const data=await response.json();if(!response.ok)throw new Error(data.error);if(!signal?.aborted){setHealth(data);if(!signal)notify({type:data.code==="connected"?"success":data.code==="demo"?"info":"error",key:"google-check",message:data.message});}}
     catch(err){if(!signal?.aborted)setError(err instanceof Error?err.message:"Status belum dapat dimuat.");}
     finally{if(!signal?.aborted)setLoading(false);}
   },[]);
@@ -27,11 +31,11 @@ export default function GoogleConnectionHealth({compact=false}:{compact?:boolean
   const failed=health&&!["connected","demo"].includes(health.code);
   return <Box component="section" aria-label="Kesehatan koneksi Google" aria-busy={loading} sx={{mb:3}}>
     {compact&&<Typography component="h2" variant="h6" sx={{mb:2}}>Kesehatan Koneksi Google</Typography>}
-    {error&&<Alert severity="error" sx={{mb:2}}>{error}</Alert>}
+
     {loading&&<Typography role="status" sx={{mb:2}}>Memeriksa koneksi Google…</Typography>}
     {health&&<>
-      <Alert severity={health.code==="connected"?"success":health.code==="demo"?"info":"warning"} sx={{mb:2}}>{health.message}{loading?" (Pemeriksaan ulang sedang berjalan.)":""}</Alert>
-      {nearExpiry&&<Alert severity="warning" sx={{mb:2}}>Koneksi pada browser ini {expires!<=Date.now()?"telah berakhir":"akan berakhir dalam kurang dari dua hari"}. Hubungkan ulang sebelum digunakan untuk pelayanan.</Alert>}
+      <StatusNote severity={health.code==="connected"?"success":health.code==="demo"?"info":"warning"} sx={{mb:2}}>{health.message}{loading?" (Pemeriksaan ulang sedang berjalan.)":""}</StatusNote>
+      {nearExpiry&&<StatusNote severity="warning" sx={{mb:2}}>Koneksi pada browser ini {expires!<=Date.now()?"telah berakhir":"akan berakhir dalam kurang dari dua hari"}. Hubungkan ulang sebelum digunakan untuk pelayanan.</StatusNote>}
       <Typography variant="body2" color="text.secondary" sx={{mb:1}}>Terakhir diperiksa: {date(health.checkedAt)}<br/>Terakhir berhasil di browser ini: {health.lastSuccessfulCheck?date(health.lastSuccessfulCheck):"Belum ada pemeriksaan berhasil yang tercatat."}</Typography>
       {!compact&&health.code!=="demo"&&<details>
         <summary>Detail &amp; Pemulihan</summary>

@@ -1,15 +1,9 @@
 "use client";
+import { useActionNotice } from "@/components/ui/notifications/NotificationProvider";
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import {
-  Box,
-  Container,
-  Typography,
-  TextField,
-  Button,
-  Alert,
-} from "@mui/material";
+import { Box, Container, Typography, TextField, Button } from "@mui/material";
 import Link from "next/link";
 import { ArrowBack } from "@/components/ui/icons";
 import DisplaySettings from "@/components/DisplaySettings";
@@ -17,7 +11,7 @@ import DisplaySettings from "@/components/DisplaySettings";
 export default function AdminLoginPage() {
   const router = useRouter();
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error,setError]=useActionNotice("error");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,9 +51,10 @@ export default function AdminLoginPage() {
       </Typography>
       <Typography color="text.secondary" sx={{ textAlign: "center", mb: 3 }}>Masuk dengan kata sandi staf.</Typography>
       <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-        {error && <Alert severity="error">{error}</Alert>}
+
         <TextField
           type="password"
+          error={Boolean(error)}
           label="Kata Sandi"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

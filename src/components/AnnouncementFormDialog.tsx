@@ -1,6 +1,9 @@
 "use client";
+import StatusNote from "@/components/ui/notifications/StatusNote";
+
+import { useActionNotice } from "@/components/ui/notifications/NotificationProvider";
 import {useEffect,useRef,useState} from "react";
-import {Alert,TextField} from "@mui/material";
+import { TextField } from "@mui/material";
 import {announcementDetails,announcementPatch,nextSabbath,todayJakarta,ANNOUNCEMENT_IMAGE_TYPES,ANNOUNCEMENT_MAX_BYTES,type AnnouncementItem} from "@/lib/announcementTypes";
 import {useLanguage} from "./LanguageProvider";
 import GlassDialog from "./ui/glass/GlassDialog";
@@ -10,7 +13,7 @@ import FilledImage from "./ui/glass/FilledImage";
 import DueDateField from "./ui/glass/DueDateField";
 export default function AnnouncementFormDialog({post,onClose,onSaved}:{post?:AnnouncementItem;onClose:()=>void;onSaved:(post:AnnouncementItem)=>void}){
  const {t}=useLanguage();const legacy=Boolean(post&&/^\d+$/.test(post.id));
- const [title,setTitle]=useState(post?.title||""),[caption,setCaption]=useState(post?.caption||""),[department,setDepartment]=useState(post?.department||""),[due,setDue]=useState(post?.due_date||nextSabbath()),[file,setFile]=useState<File|null>(null),[preview,setPreview]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useState("");
+ const [title,setTitle]=useState(post?.title||""),[caption,setCaption]=useState(post?.caption||""),[department,setDepartment]=useState(post?.department||""),[due,setDue]=useState(post?.due_date||nextSabbath()),[file,setFile]=useState<File|null>(null),[preview,setPreview]=useState(""),[busy,setBusy]=useState(false),[error,setError]=useActionNotice("error");
  const dueRef=useRef<HTMLDivElement>(null);
  useEffect(()=>{if(!file)return;const url=URL.createObjectURL(file);setPreview(url);return()=>URL.revokeObjectURL(url);},[file]);
  useEffect(()=>{if(post?.expired||post&&!post.due_date)dueRef.current?.querySelector("input")?.focus();},[post]);
@@ -33,8 +36,8 @@ export default function AnnouncementFormDialog({post,onClose,onSaved}:{post?:Ann
    <TextField label={t("Departemen (opsional)")} value={department} onChange={e=>setDepartment(e.target.value)} disabled={busy||legacy} fullWidth/>
    <TextField label={t("Keterangan (opsional)")} multiline minRows={3} value={caption} onChange={e=>setCaption(e.target.value)} disabled={busy} fullWidth slotProps={{htmlInput:{maxLength:2000}}}/>
    {!legacy&&<div ref={dueRef}><DueDateField autoFocus={Boolean(post?.expired||post&&!post.due_date)} value={due} onChange={setDue} disabled={busy} min={post?undefined:todayJakarta()}/></div>}
-   {legacy&&<Alert severity="info">{t("Pengumuman lama ini hanya mendukung perubahan keterangan.")}</Alert>}
-   {error&&<Alert severity="error" role="alert">{error}</Alert>}
+   {legacy&&<StatusNote severity="info">{t("Pengumuman lama ini hanya mendukung perubahan keterangan.")}</StatusNote>}
+
   </div>
  </GlassDialog>;
 }

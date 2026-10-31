@@ -1,4 +1,5 @@
 "use client";
+import {useNotifications} from "@/components/ui/notifications/NotificationProvider";
 import { T, useLanguage } from "@/components/LanguageProvider";
 
 
@@ -31,6 +32,7 @@ import KertasAcaraLoading from "./loading";
 const { parsing } = churchConfig.kertasAcara;
 
 function KertasAcaraContent() {
+  const {notify}=useNotifications();
   const {t}=useLanguage();
   const searchParams = useSearchParams();
   const columnOffset = searchParams.get("week") === "next" ? 1 : 0;
@@ -113,7 +115,8 @@ function KertasAcaraContent() {
         setLoading(false);
       })
       .catch(() => {
-        setScheduleDate("Gagal memuat jadwal");
+        notify({type:"error",key:"service-load",message:"Gagal memuat jadwal. Silakan coba lagi."});
+        setScheduleDate("");
         setLoading(false);
       });
   }, []);

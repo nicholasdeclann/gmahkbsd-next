@@ -1,4 +1,5 @@
 "use client";
+import { useActionNotice } from "@/components/ui/notifications/NotificationProvider";
 import { AddPhotoAlternateOutlined } from "@/components/ui/icons";
 
 import { T, useLanguage } from "@/components/LanguageProvider";
@@ -8,7 +9,7 @@ import FilledImage from "../ui/glass/FilledImage";
 import Lightbox from "../ui/glass/Lightbox";
 import ConfirmDialog from "../ui/glass/ConfirmDialog";
 import Link from "next/link";
-import { Alert, Box, Button, CircularProgress, TextField, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, TextField, Typography } from "@mui/material";
 import { jakartaMonth, monthLabel, previousMonth, type EventPhoto } from "@/lib/eventTypes";
 import EventEditor from "./EventEditor";
 import { ArrowBackIosNewRounded } from "@/components/ui/icons";
@@ -20,8 +21,8 @@ function PhotoImage({photo}:{photo:EventPhoto}) {return <FilledImage src={photo.
 export default function EventPhotos({manage=false,carousel=false}:{manage?:boolean;carousel?:boolean}) {
   const {t,language}=useLanguage();
   const [month,setMonth]=useState(()=>manage?jakartaMonth():previousMonth());
-  const [photos,setPhotos]=useState<EventPhoto[]>([]), [cursor,setCursor]=useState<string|null>(null), [loading,setLoading]=useState(true), [error,setError]=useState("");
-  const [editor,setEditor]=useState<EventPhoto|"new"|null>(null), [preview,setPreview]=useState<EventPhoto|null>(null), [deleting,setDeleting]=useState<EventPhoto|null>(null), [busy,setBusy]=useState(false), [success,setSuccess]=useState("");
+  const [photos,setPhotos]=useState<EventPhoto[]>([]), [cursor,setCursor]=useState<string|null>(null), [loading,setLoading]=useState(true), [error,setError]=useActionNotice("error",undefined,{label:"Coba Lagi",onClick:()=>void load()});
+  const [editor,setEditor]=useState<EventPhoto|"new"|null>(null), [preview,setPreview]=useState<EventPhoto|null>(null), [deleting,setDeleting]=useState<EventPhoto|null>(null), [busy,setBusy]=useState(false), [success,setSuccess]=useActionNotice("success");
   const [index,setIndex]=useState(0), [loadMore,setLoadMore]=useState(false);
   const [playing,setPlaying]=useState(true), [hovered,setHovered]=useState(false), [focused,setFocused]=useState(false);
   const touchX=useRef<number|null>(null), generation=useRef(0);
@@ -62,8 +63,8 @@ export default function EventPhotos({manage=false,carousel=false}:{manage?:boole
   if(carousel&&!loading&&!error&&!photos.length)return null;
   const contents=<>
     {!carousel&&<Box sx={{display:"flex",gap:2,alignItems:"center",flexWrap:"wrap",mb:4}}><TextField label={t("Bulan kegiatan")} type="month" value={month} onChange={e=>{if(e.target.value)setMonth(e.target.value);}} disabled={busy||loadMore} slotProps={{inputLabel:{shrink:true}}}/>{manage&&<Button startIcon={<AddPhotoAlternateOutlined/>} variant="contained" onClick={()=>setEditor("new")}>Tambah Foto Kegiatan</Button>}</Box>}
-    {success&&<Alert severity="success" onClose={()=>setSuccess("")} sx={{mb:3}}>{success}</Alert>}
-    {error&&<Alert severity="error" sx={{mb:3}} action={<Button onClick={()=>void load()}><T text="Coba Lagi" /></Button>}>{t(error)}</Alert>}
+
+
     {loading?<Box sx={{py:5,textAlign:"center"}}><CircularProgress aria-label={t("Memuat kegiatan jemaat")}/></Box>:carousel&&current?<>
       <div className="event-slide" role="region" aria-roledescription="carousel" aria-label={`Kegiatan ${monthLabel(month,language==="en"?"en-GB":"id-ID")}`} tabIndex={0}
         onMouseEnter={()=>setHovered(true)} onMouseLeave={()=>setHovered(false)} onFocus={()=>setFocused(true)} onBlur={e=>{if(!e.currentTarget.contains(e.relatedTarget))setFocused(false);}}

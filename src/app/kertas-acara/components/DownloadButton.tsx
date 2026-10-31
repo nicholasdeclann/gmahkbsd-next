@@ -1,4 +1,5 @@
 "use client";
+import {useNotifications} from "@/components/ui/notifications/NotificationProvider";
 import { T } from "@/components/LanguageProvider";
 
 
@@ -108,8 +109,9 @@ function cropToContent(
 }
 
 export default function DownloadButton({ dateLabel }: DownloadButtonProps) {
+  const {notify,dismiss}=useNotifications();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(false);
+
 
   const filenameBase = `kertas-acara${
     dateLabel ? `-${dateLabel.replace(/\s+/g, "-")}` : ""
@@ -126,7 +128,7 @@ export default function DownloadButton({ dateLabel }: DownloadButtonProps) {
 
   const handleDownload = async () => {
     setLoading(true);
-    setError(false);
+    dismiss("service-download");
     try {
       // Fetch the PDF via our proxy (Vercel). If the API is unavailable
       // (e.g. a static-export host), fall back to Google's export URL.
@@ -182,8 +184,9 @@ export default function DownloadButton({ dateLabel }: DownloadButtonProps) {
       const objectUrl = URL.createObjectURL(blob);
       triggerBrowserDownload(objectUrl, `${filenameBase}.jpg`);
       URL.revokeObjectURL(objectUrl);
+      notify({type:"success",key:"service-download",message:"Kertas Acara siap diunduh."});
     } catch {
-      setError(true);
+      notify({type:"error",key:"service-download",message:"Gagal mengunduh. Silakan coba lagi."});
     } finally {
       setLoading(false);
     }
@@ -207,9 +210,6 @@ export default function DownloadButton({ dateLabel }: DownloadButtonProps) {
       >
         <T text={loading ? "Menyiapkan..." : "Unduh Kertas Acara (JPG)"} />
       </Button>
-      {error && (
-        <Box sx={styles.errorText}><T text="Gagal mengunduh. Silakan coba lagi." /></Box>
-      )}
     </Box>
   );
 }

@@ -1,9 +1,10 @@
 "use client";
+import { useActionNotice } from "@/components/ui/notifications/NotificationProvider";
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
-import { Alert, Box, Button, Container } from "@mui/material";
+import { Box, Button, Container } from "@mui/material";
 import DisplaySettings from "../DisplaySettings";
 import AdminBreadcrumbs from "./AdminBreadcrumbs";
 import NavigationSheet from "../ui/NavigationSheet";
@@ -67,7 +68,7 @@ export default function DashboardShell({
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const router = useRouter();
-  const [error, setError] = useState("");
+  const [error,setError]=useActionNotice("error");
   const [leaving, setLeaving] = useState(false);
 
   async function logout() {
@@ -200,11 +201,7 @@ export default function DashboardShell({
               : "Mode lokal · Kertas Acara dan Pokok Doa memakai spreadsheet gereja."}
           </p>
         )}
-        {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error}
-          </Alert>
-        )}
+
         {children}
       </Container>
     </Box>

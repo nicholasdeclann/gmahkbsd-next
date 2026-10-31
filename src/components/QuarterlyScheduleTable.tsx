@@ -1,8 +1,11 @@
 "use client";
+import StatusNote from "@/components/ui/notifications/StatusNote";
+import { useNotifications } from "@/components/ui/notifications/NotificationProvider";
+
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { Alert, Button, CircularProgress, TextField } from "@mui/material";
+import { Button, CircularProgress, TextField } from "@mui/material";
 import { Refresh } from "@/components/ui/icons";
 import { TodayOutlined } from "@/components/ui/icons";
 import { useLanguage } from "./LanguageProvider";
@@ -10,6 +13,8 @@ import type { QuarterlySchedule } from "@/lib/quarterlySchedule";
 
 export default function QuarterlyScheduleTable() {
   const { t, language } = useLanguage();
+  const { notify, dismiss } = useNotifications();
+  const loadFailed = useRef(false);
   const [data, setData] = useState<QuarterlySchedule | null>(null);
   const [busy, setBusy] = useState(true), [error, setError] = useState(false), [query, setQuery] = useState("");
   const scroller = useRef<HTMLDivElement>(null);
@@ -19,8 +24,8 @@ export default function QuarterlyScheduleTable() {
       const response = await fetch(`/api/jadwal-pelayanan${force ? "?refresh=1" : ""}`, { signal, cache: "no-store" });
       if (!response.ok) throw new Error("Unavailable");
       const result: QuarterlySchedule = await response.json();
-      if (!signal.aborted) setData(result);
-    } catch { if (!signal.aborted) setError(true); }
+      if (!signal.aborted) { setData(result); loadFailed.current=false; dismiss("quarter-load"); }
+    } catch { if (!signal.aborted) { setError(true); if (!loadFailed.current || force) notify({type:"error",key:"quarter-load",message:"Jadwal belum dapat dimuat. Silakan coba lagi."}); loadFailed.current=true; } }
     finally { if (!signal.aborted) setBusy(false); }
   }, []);
   const [refresh, setRefresh] = useState(0);
@@ -55,12 +60,11 @@ export default function QuarterlyScheduleTable() {
     </div>
     <p className="quarter-help">{t("Geser tabel ke samping untuk melihat tanggal lainnya. Kolom tugas tetap terlihat.")}</p>
     {needle && <p role="status">{count ? `${count} ${t("penugasan ditemukan.")}` : t("Tidak ada nama yang cocok.")}</p>}
-    {error && <Alert severity="error" sx={{ mb: 2 }}>{t("Jadwal belum dapat dimuat. Silakan coba lagi.")}</Alert>}
-    {data?.stale && <Alert severity="info" sx={{ mb: 2 }}>{t("Google Sheets sedang lambat. Menampilkan jadwal terakhir yang berhasil dimuat.")}</Alert>}
+    {data?.stale && <StatusNote severity="info" sx={{ mb: 2 }}>{t("Google Sheets sedang lambat. Menampilkan jadwal terakhir yang berhasil dimuat.")}</StatusNote>}
     {busy && !data && <div className="quarter-loading"><CircularProgress aria-label={t("Memuat jadwal…")} /></div>}
-    {data && !data.dates.length && <Alert severity="info">{t("Jadwal belum tersedia untuk triwulan ini.")}</Alert>}
+    {data && !data.dates.length && <StatusNote severity="info">{t("Jadwal belum tersedia untuk triwulan ini.")}</StatusNote>}
     {data && data.dates.length > 0 && <>
-      {data.missingDates.length > 0 && <Alert severity="info" sx={{ mb: 2 }}>{t("Jadwal belum lengkap. Tanggal berikut belum tersedia:")} {data.missingDates.map(dateLabel).join(", ")}.</Alert>}
+      {data.missingDates.length > 0 && <StatusNote severity="info" sx={{ mb: 2 }}>{t("Jadwal belum lengkap. Tanggal berikut belum tersedia:")} {data.missingDates.map(dateLabel).join(", ")}.</StatusNote>}
       <div className="quarter-scroll" ref={scroller} role="region" aria-label={t("Tabel jadwal pelayanan triwulan")} tabIndex={0} aria-busy={busy}>
         <table className="quarter-table">
           <caption>{t("Jadwal Pelayanan")} · {data.year} · {t("Triwulan")} {data.quarter}</caption>

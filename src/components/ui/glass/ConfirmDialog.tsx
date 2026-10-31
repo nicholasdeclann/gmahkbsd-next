@@ -1,6 +1,6 @@
 "use client";
 import type { ReactNode } from "react";
-import { Alert } from "@mui/material";
+
 import GlassDialog from "./GlassDialog";
 import { GlassButton } from "./GlassControls";
 import { useLanguage } from "../../LanguageProvider";
@@ -24,7 +24,6 @@ export default function ConfirmDialog({
       </>}>
       {subject && <p className="glass-confirm__subject">{subject}</p>}
       <div>{typeof message === "string" ? t(message) : message}</div>
-      {error && <Alert severity="error" className="glass-dialog__error">{error}</Alert>}
     </GlassDialog>
   );
 }
