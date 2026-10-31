@@ -92,7 +92,10 @@ export default function NotificationProvider({ children }: { children: ReactNode
     let frame = 0;
     const measure = () => {
       const header = document.querySelector<HTMLElement>(".admin-header, .site-header");
-      setOffset(Math.max(12, header?.getBoundingClientRect().bottom ?? 0) + 12);
+      const headerBottom = Math.max(0, header?.getBoundingClientRect().bottom ?? 0);
+      const toolbar = document.querySelector<HTMLElement>("[data-notification-offset]")?.getBoundingClientRect();
+      const bottom = toolbar && toolbar.top <= headerBottom + 2 && toolbar.bottom > headerBottom ? toolbar.bottom : headerBottom;
+      setOffset(Math.max(12, bottom) + 12);
     };
     const schedule = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(measure); };
     const observer = new ResizeObserver(schedule);

@@ -28,7 +28,7 @@ export default function AnnouncementFormDialog({post,onClose,onSaved}:{post?:Ann
    const data=await response.json();if(!response.ok)throw new Error(data.error||t("Pengumuman belum berhasil disimpan."));onSaved(data.photo);
   }catch(e){setError(e instanceof Error?t(e.message):t("Pengumuman belum berhasil disimpan."));}finally{setBusy(false);}
  }
- return <GlassDialog open onClose={onClose} title={post?"Edit Pengumuman":"Tambah Pengumuman"} busy={busy} size="md" actions={<><GlassButton tone="plain" disabled={busy} onClick={onClose}>{t("Batal")}</GlassButton><GlassButton tone="primary" startIcon={post?<SaveOutlined/>:undefined} disabled={busy} onClick={()=>void save()}>{t(busy?"Menyimpan…":post?"Simpan":"Terbitkan Pengumuman")}</GlassButton></>}>
+ return <GlassDialog open onClose={onClose} title={post?"Edit Pengumuman":"Tambah Pengumuman"} busy={busy} size="md" actions={<GlassButton tone="primary" startIcon={post?<SaveOutlined/>:undefined} disabled={busy} onClick={()=>void save()}>{t(busy?"Menyimpan…":post?"Simpan":"Terbitkan Pengumuman")}</GlassButton>}>
   <div className="announcement-form">
    {!post&&<label>{t("Gambar Pengumuman")}<input type="file" accept="image/jpeg,image/png,image/webp" disabled={busy} onChange={e=>setFile(e.target.files?.[0]||null)}/><small>JPG / PNG / WebP · 4 MB</small></label>}
    {(preview||post)&&<FilledImage src={preview||post!.image_url} alt={t("Pratinjau gambar pengumuman")} adaptive/>}

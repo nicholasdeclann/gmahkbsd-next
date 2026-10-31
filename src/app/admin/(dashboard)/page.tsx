@@ -6,7 +6,6 @@ import {
   CampaignOutlined,
   PhotoLibraryOutlined,
   PeopleOutline,
-  RecordVoiceOverOutlined,
   SettingsOutlined,
   ArrowForward,
 } from "@/components/ui/icons";
@@ -48,20 +47,12 @@ const weekly = [
 
 const tools = [
   {
-    title: "Penerima Tamu",
-    badge: "Meja Sambutan",
-    description: "Formulir buku tamu Sabat yang cepat diakses oleh tim penerima tamu.",
+    title: "Daftar Tamu",
+    badge: "Penerima Tamu & MC",
+    description: "Catat tamu dan buka tampilan MC dari satu halaman.",
     href: "/tamu",
     icon: PeopleOutline,
     accent: "teal",
-  },
-  {
-    title: "Tampilan MC",
-    badge: "Mimbar & Sambutan",
-    description: "Daftar tamu terkini yang mudah dibaca untuk sesi penyambutan.",
-    href: "/tamu/mc",
-    icon: RecordVoiceOverOutlined,
-    accent: "violet",
   },
   {
     title: "Pengaturan Website",

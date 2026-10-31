@@ -68,8 +68,7 @@ export default function AdminLoginPage() {
         </Button>
       </Box>
       <Box sx={{mt:4,pt:3,borderTop:"1px solid var(--site-border)",textAlign:"center"}}>
-        <Button href="/tamu" variant="outlined" fullWidth>Penerima Tamu</Button>
-        <Button href="/tamu/mc" variant="outlined" fullWidth sx={{mt:1.5}}>Tampilan MC</Button>
+        <Button href="/tamu" variant="outlined" fullWidth>Daftar Tamu</Button>
         <Typography variant="body2" color="text.secondary" sx={{mt:1}}>Daftar tamu dapat diisi tanpa kata sandi.</Typography>
       </Box>
     </Container>

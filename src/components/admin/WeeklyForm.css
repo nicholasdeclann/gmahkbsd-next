@@ -1,4 +1,4 @@
-.weekly-form { max-width: 900px; min-width: 0; }
+.weekly-form { width: 100%; min-width: 0; }
 .weekly-section { margin: 0 0 32px; min-width: 0; }
 .weekly-section .MuiInputBase-root { font-size: 16px; background: var(--site-surface); }
 .weekly-section .MuiInputBase-root:not(.MuiInputBase-multiline) { min-height: 48px; }

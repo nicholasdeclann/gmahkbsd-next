@@ -6,6 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { Box, Button, Container } from "@mui/material";
 import DisplaySettings from "../DisplaySettings";
+import StaffHeader from "./StaffHeader";
 import AdminBreadcrumbs from "./AdminBreadcrumbs";
 import NavigationSheet from "../ui/NavigationSheet";
 import {
@@ -20,7 +21,6 @@ import {
   OpenInNew,
   LogoutOutlined,
   ArrowBack,
-  RecordVoiceOverOutlined,
 } from "../ui/icons";
 import { churchConfig } from "@/config/church";
 import { imageAsset } from "@/lib/asset";
@@ -49,8 +49,7 @@ const drawerGroups = [
   {
     title: "Alat Pelayanan & Pengaturan",
     items: [
-      { title: "Penerima Tamu", href: "/tamu", icon: PeopleOutline },
-      { title: "Tampilan MC", href: "/tamu/mc", icon: RecordVoiceOverOutlined },
+      { title: "Daftar Tamu", href: "/tamu", icon: PeopleOutline },
       { title: "Pengaturan Website", href: "/admin/settings", icon: SettingsOutlined },
     ],
   },
@@ -89,17 +88,7 @@ export default function DashboardShell({
       <a className="skip-link" href="#main-content">
         Langsung ke isi halaman
       </a>
-      <Box component="header" className="admin-header glass-header">
-        <Container maxWidth="lg" sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-          <div className="staff-brand">
-            <Link href="/admin" className="staff-brand-link">
-              <Image src={imageAsset(churchConfig.assets.logo)} width={34} height={34} alt="" />
-              <span>
-                GMAHK BSD<small>Dashboard Staf</small>
-              </span>
-            </Link>
-          </div>
-          <nav className="admin-desktop-nav" aria-label="Navigasi staf">
+      <StaffHeader navigation={<nav className="admin-desktop-nav" aria-label="Navigasi staf">
             {desktopNavLinks.map((item) => (
               <Link
                 key={item.href}
@@ -109,8 +98,8 @@ export default function DashboardShell({
                 {item.title}
               </Link>
             ))}
-          </nav>
-          <div className="header-icon-actions">
+          </nav>}>
+
             <Link
               href="/"
               className="header-icon-btn"
@@ -141,9 +130,8 @@ export default function DashboardShell({
             >
               <MenuOutlined aria-hidden="true" />
             </button>
-          </div>
-        </Container>
-      </Box>
+
+      </StaffHeader>
       <NavigationSheet open={open} onClose={() => setOpen(false)} title="Menu Staf">
         <div className="sheet-sections">
           {drawerGroups.map((group) => (

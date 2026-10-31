@@ -10,7 +10,7 @@
     "test:dashboard": "node --experimental-strip-types scripts/dashboard-smoke.mjs",
     "test:announcements": "node --experimental-strip-types scripts/announcement-smoke.mjs",
     "test:events": "node --test scripts/events-drive.test.mjs && node --experimental-strip-types scripts/events-smoke.mjs",
-    "test:guests": "node --test scripts/guests-drive.test.mjs && node --experimental-strip-types scripts/guests-smoke.mjs",
+    "test:guests": "node --test scripts/guests-drive.test.mjs scripts/guest-navigation.test.mjs scripts/history-index.test.mjs && node --experimental-strip-types scripts/guests-smoke.mjs",
     "test:prayer": "node --test scripts/prayer-slots.test.mjs && node scripts/prayer-smoke.mjs",
     "connect:sheets": "node --experimental-strip-types scripts/connect-sheets.mjs",
     "test:sheet-settings": "node --test scripts/sheet-settings.test.mjs",

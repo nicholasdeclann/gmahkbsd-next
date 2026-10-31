@@ -13,9 +13,11 @@ import Navbar from "./Navbar";
 import { ColorModeContext } from "./ColorModeContext";
 import GlassRuntime from "./ui/glass/GlassRuntime";
 import NotificationProvider from "./ui/notifications/NotificationProvider";
+import { installHistoryIndex } from "@/lib/historyIndex";
 
 export default function SiteProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  useEffect(() => installHistoryIndex(window.history, window), []);
   const admin = pathname.startsWith("/admin");
   const staff = pathname === "/tamu" || pathname.startsWith("/tamu/");
   const [preference, setPreference] = useState(false);

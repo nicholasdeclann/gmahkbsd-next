@@ -48,7 +48,7 @@ export default function PrayerAdminPage() {
     } catch (error) { setError(error instanceof Error ? error.message : "Nama belum berhasil disimpan. Isian Anda tetap tersedia."); }
     finally { setSaving(false); }
   }
-  return <Box sx={{ maxWidth: 760 }}>
+  return <Box sx={{ width: "100%", minWidth: 0 }}>
     <Typography component="h1" variant="h4" sx={{ fontWeight: 350, mb: 1 }}>Pokok Doa</Typography>
     {snapshot?.date && <Typography color="text.secondary" sx={{ mb: 2 }}>{formatChurchDate(snapshot.date)}</Typography>}
 
