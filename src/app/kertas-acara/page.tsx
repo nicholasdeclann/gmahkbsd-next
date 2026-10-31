@@ -27,6 +27,8 @@ import { getThisWeeksSaturday, formatDate, getSaturdayOfMonth } from "./utils";
 import { LaguSionMap, ParticipantData, ParticipantItem, Row } from "./types";
 import { churchConfig } from "@/config/church";
 import { fetchTextCached, CACHE_TTL } from "@/lib/sheetCache";
+import { GlassButton } from "@/components/ui/glass/GlassControls";
+import KertasAcaraPosterGate from "@/components/KertasAcaraPosterGate";
 import KertasAcaraLoading from "./loading";
 
 const { parsing } = churchConfig.kertasAcara;
@@ -316,13 +318,7 @@ function KertasAcaraContent() {
             <Box sx={styles.header}>
               <Box sx={styles.dateNavigation}>
                 {columnOffset === 1 && (
-                  <Button
-                    component={Link}
-                    href="/kertas-acara"
-                    variant="outlined"
-                    startIcon={<ChevronLeft />}
-                    sx={styles.inactiveButton}
-                  ><T text="Sabat Ini" /></Button>
+                  <GlassButton component={Link} href="/kertas-acara" startIcon={<ChevronLeft />}><T text="Sabat Ini" /></GlassButton>
                 )}
                 <Box sx={styles.dateContainer}>
                   <Typography
@@ -338,13 +334,7 @@ function KertasAcaraContent() {
                   </Typography>
                 </Box>
                 {columnOffset === 0 && (
-                  <Button
-                    component={Link}
-                    href="/kertas-acara?week=next"
-                    variant="outlined"
-                    endIcon={<ChevronRight />}
-                    sx={styles.inactiveButton}
-                  ><T text="Sabat Depan" /></Button>
+                  <GlassButton component={Link} href="/kertas-acara?week=next" endIcon={<ChevronRight />}><T text="Sabat Depan" /></GlassButton>
                 )}
               </Box>
             </Box>
@@ -515,7 +505,7 @@ export default function KertasAcara() {
     <Suspense
       fallback={<KertasAcaraLoading />}
     >
-      <KertasAcaraContent />
+      <KertasAcaraPosterGate><KertasAcaraContent /></KertasAcaraPosterGate>
     </Suspense>
   );
 }

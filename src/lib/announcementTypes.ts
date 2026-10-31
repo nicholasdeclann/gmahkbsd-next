@@ -11,6 +11,8 @@ export interface AnnouncementItem {
   expired: boolean;
   created_at: string;
   image_url: string;
+  replacement_date?: string | null;
+  replacement_active?: boolean;
   width?: number;
   height?: number;
 }

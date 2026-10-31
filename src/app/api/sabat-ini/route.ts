@@ -1,3 +1,5 @@
+import { upcomingSabbath } from "@/lib/sabbathSummary";
+import { resolveSabbathPoster } from "@/lib/sabbathPresentation";
 import { NextResponse } from "next/server";
 import { getSheetSources } from "@/lib/sheetSettings";
 import { buildSabbathSummary, summaryRows } from "@/lib/sabbathSummary";
@@ -18,6 +20,9 @@ async function read(url:string) {
 }
 export async function GET() {
   try {
+    const date = upcomingSabbath();
+    const poster = await resolveSabbathPoster(date);
+    if (poster) return NextResponse.json({ date, poster, title: "", verse: "", speaker: "", detailsReady: true }, { headers: { "Cache-Control": "no-store" } });
     const {liturgy,schedule}=await getSheetSources();
     const key=JSON.stringify({liturgy,schedule});let source=saved?.key===key?saved:undefined;let stale=false;
     if(!source || Date.now()-source.at>300000) {

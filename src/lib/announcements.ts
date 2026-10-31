@@ -1,3 +1,4 @@
+import { getPosterAssignments } from "./sabbathPosters";
 import { google, type drive_v3 } from "googleapis";
 import { Readable } from "node:stream";
 import { randomUUID } from "node:crypto";
@@ -123,6 +124,11 @@ export async function publishAnnouncement(file: File, details: NewAnnouncement):
 }
 
 export async function editAnnouncement(id: string, patch: AnnouncementPatch): Promise<AnnouncementItem | null> {
+  if (patch.due_date !== undefined) {
+    const assignments = await getPosterAssignments();
+    const date = Object.keys(assignments.assignments).find(date => assignments.assignments[date] === id);
+    if (date && patch.due_date < date) throw new AnnouncementError("Tanggal berakhir pengumuman harus pada atau setelah Sabat yang dipilih.", 400);
+  }
   if (isLocalDemo()) return updateDemo(data => {
     const post = data.announcements.find(p => p.id === id);
     if (!post) return null;

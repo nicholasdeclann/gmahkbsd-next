@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
+import SabbathPoster from "./SabbathPoster";
 import Link from "next/link";
 import { ArrowForward } from "@/components/ui/icons";
 import ShaderGradientBg from "@/components/ui/ShaderGradientBg";
@@ -50,7 +51,7 @@ export default function SabbathThisWeek() {
 
   return (
     <ShaderGradientBg variant="sabbath" className="sabbath-band">
-      <section className="site-width sabbath-summary" aria-labelledby="sabbath-title">
+      <section className={`site-width sabbath-summary${data?.poster ? " sabbath-summary--poster" : ""}`} aria-labelledby="sabbath-title">
         <div className="sabbath-summary-heading">
           <h2 id="sabbath-title" className="section-title">
             {t("Sabat Ini")}
@@ -66,12 +67,12 @@ export default function SabbathThisWeek() {
                 }).format(new Date(`${data.date}T12:00:00+07:00`))}
               </time>
               <br />
-              {churchConfig.services[0].time}
+              {!data.poster && churchConfig.services[0].time}
             </p>
           )}
-          <Link className="text-link sabbath-link" href="/kertas-acara">
+          {!data?.poster && <Link className="text-link sabbath-link" href="/kertas-acara">
             {t("Lihat Kertas Acara")} <ArrowForward fontSize="small" />
-          </Link>
+          </Link>}
         </div>
         <div className="sabbath-summary-details" aria-live="polite" aria-busy={!data && !error}>
           {error ? (
@@ -87,7 +88,7 @@ export default function SabbathThisWeek() {
             </p>
           ) : !data ? (
             <p>{t("Memuat informasi Sabat…")}</p>
-          ) : (
+          ) : data.poster ? <SabbathPoster post={data.poster} compact /> : (
             <>
               <p className="sabbath-meta-label">{t("Judul Khotbah")}</p>
               <h3>{data.title || t("Informasi khotbah segera tersedia.")}</h3>

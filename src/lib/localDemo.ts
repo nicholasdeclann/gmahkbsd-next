@@ -21,7 +21,7 @@ export interface DemoPrayer {
 }
 /** Stored shape: `title` is optional and `expired` is derived on read, so older practice data keeps working. */
 export type DemoAnnouncement = Omit<AnnouncementItem, "title" | "expired"> & { title?: string | null; mime_type: string };
-export interface DemoData { weekly: WeeklyValues; prayers: DemoPrayer[]; nextPrayerId: number; announcements: DemoAnnouncement[]; prayerSlots?: PrayerSlot[]; prayerDate?: string; events?: (EventPhoto & { mime: string })[]; guests?: GuestEntry[]; sheetSettings?: {version:1;sources:SheetSources;previous?:SheetSources;updatedAt:string} }
+export interface DemoData { sabbathPosters?: import("./sabbathPosterTypes").PosterAssignments; weekly: WeeklyValues; prayers: DemoPrayer[]; nextPrayerId: number; announcements: DemoAnnouncement[]; prayerSlots?: PrayerSlot[]; prayerDate?: string; events?: (EventPhoto & { mime: string })[]; guests?: GuestEntry[]; sheetSettings?: {version:1;sources:SheetSources;previous?:SheetSources;updatedAt:string} }
 const directory = path.join(process.cwd(), "work");
 const filename = path.join(directory, "dashboard-demo.json");
 let pending: Promise<unknown> = Promise.resolve();

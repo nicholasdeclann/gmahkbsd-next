@@ -44,7 +44,7 @@ export default function AnnouncementGallery({editable=false,previewLimit}:{edita
   </>}
   </div>
   {editor&&<AnnouncementFormDialog key={editor==="new"?"new":editor.id} post={editor==="new"?undefined:editor} onClose={()=>setEditor(null)} onSaved={saved}/>}
-  <ConfirmDialog open={Boolean(deleting)} onClose={()=>setDeleting(null)} onConfirm={()=>void remove()} title="Hapus Pengumuman?" subject={deleting?.title} message="Pengumuman akan hilang dari papan jemaat. File gambarnya dipindahkan ke sampah Google Drive dan dapat dipulihkan dari sana." confirmLabel="Hapus Pengumuman" busyLabel="Menghapus…" busy={busy} error={deleteError}/>
-  {preview&&<Lightbox open onClose={()=>setPreview(null)} src={preview.image_url} title={preview.title} caption={<><p>{preview.department}</p><p className="announcement-full-caption">{preview.caption}</p></>} actions={<AnnouncementShare id={preview.id} caption={preview.title}/>}/>}
+  <ConfirmDialog open={Boolean(deleting)} onClose={()=>setDeleting(null)} onConfirm={()=>void remove()} title="Hapus Pengumuman?" subject={deleting?.title} message={deleting?.replacement_active?"Poster ini digunakan sebagai Kertas Acara. Menghapusnya akan mengembalikan susunan ibadah biasa dan memindahkan gambar ke sampah Google Drive.":"Pengumuman akan hilang dari papan jemaat. File gambarnya dipindahkan ke sampah Google Drive dan dapat dipulihkan dari sana."} confirmLabel="Hapus Pengumuman" busyLabel="Menghapus…" busy={busy} error={deleteError}/>
+  {preview&&<Lightbox open onClose={()=>setPreview(null)} src={preview.image_url} title={preview.title} caption={<><p>{preview.department}</p>{preview.caption?.trim()&&<p className="announcement-full-caption">{preview.caption}</p>}</>} actions={<AnnouncementShare id={preview.id} caption={preview.title}/>}/>}
  </div>;
 }

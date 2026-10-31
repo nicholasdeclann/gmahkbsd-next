@@ -1,0 +1,52 @@
+.sabbath-poster { width: 100%; min-width: 0; }
+.sabbath-poster-copy { margin-bottom: 20px; }
+.sabbath-poster-label { display: inline-block; color: var(--site-blue); font-size: 14px; font-weight: 500; margin-bottom: 8px; }
+.sabbath-poster h2, .sabbath-poster h3 { font-size: clamp(24px, 4vw, 36px); font-weight: 400; line-height: 1.25; margin: 0 0 12px; overflow-wrap: anywhere; }
+.sabbath-poster p { line-height: 1.6; }
+.sabbath-poster-image { display: block; padding: 0; border: 0; border-radius: 12px; overflow: hidden; width: 100%; background: var(--site-surface); cursor: zoom-in; }
+.sabbath-poster-image img { display: block; width: 100%; height: auto; }
+.sabbath-poster-image:focus-visible { outline: 3px solid var(--site-blue); outline-offset: 4px; }
+.sabbath-poster-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.sabbath-poster-actions .text-link { padding: 12px 0; }
+.sabbath-poster-caption { white-space: pre-wrap; overflow-wrap: anywhere; max-width: 72ch; margin-top: 24px; }
+.sabbath-poster--compact { display: grid; grid-template-columns: minmax(0, 200px) minmax(0, 1fr); gap: 0 24px; }
+.sabbath-poster--compact .sabbath-poster-image, .sabbath-poster--compact .sabbath-poster-failed { grid-column: 1; grid-row: 1 / 3; align-self: start; }
+.sabbath-poster--compact .sabbath-poster-copy, .sabbath-poster--compact .sabbath-poster-actions { grid-column: 2; }
+.sabbath-poster--compact h3 { font-size: 26px; }
+.sabbath-poster--compact .sabbath-poster-actions { margin-top: 0; }
+.poster-date-navigation { display: flex; align-items: center; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-bottom: 28px; }
+.poster-date-navigation time { font-size: 20px; }
+.announcement-replacement { display: grid; gap: 16px; padding-top: 8px; }
+.announcement-replacement p { margin: 0; color: var(--site-muted); font-size: 14px; line-height: 1.5; }
+.poster-confirm-preview { display: block; max-width: 100%; max-height: 180px; object-fit: contain; margin: 16px auto; }
+.glass-lightbox-zoom { max-height: 65dvh; overflow: auto; overscroll-behavior: contain; border-radius: 12px; touch-action: pan-x pan-y pinch-zoom; }
+.glass-lightbox-zoom img { display: block; max-width: none; height: auto; }
+.glass-lightbox-zoom-controls { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; padding-right: 52px; min-height: 44px; flex-wrap: wrap; }
+@media (max-width: 599.95px) {
+ .sabbath-poster--compact { grid-template-columns: minmax(0, 100px) minmax(0, 1fr); gap: 0 16px; }
+ .sabbath-poster--compact h3 { font-size: 21px; }
+ .sabbath-poster--compact p { font-size: 14px; }
+ .sabbath-poster--compact .sabbath-poster-copy { margin-bottom: 12px; }
+ .poster-date-navigation time { flex-basis: 100%; order: -1; }
+}
+
+.glass-dialog--media.glass-dialog--zoomable .glass-dialog__body { padding: 16px; }
+.glass-dialog--zoomable .glass-lightbox-caption { padding: 16px 0 0; white-space: pre-wrap; }
+
+/* Special-service preview: one heading row, then one tightly grouped poster row. */
+.sabbath-band .sabbath-summary.sabbath-summary--poster{grid-template-columns:minmax(0,1fr);gap:24px;padding-block:32px}
+.sabbath-summary--poster .sabbath-summary-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px 24px;flex-wrap:wrap}
+.sabbath-summary--poster .section-title,.sabbath-summary--poster .sabbath-date{margin:0}
+.sabbath-summary--poster .sabbath-date br{display:none}
+.sabbath-summary--poster .sabbath-poster--compact{grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:12px 24px;grid-template-rows:min-content min-content;align-content:start}
+.sabbath-summary--poster .sabbath-poster-copy{margin:0}
+.sabbath-summary--poster .sabbath-poster-label{color:#c5dcff;margin:0 0 6px}
+.sabbath-summary--poster .sabbath-poster-copy h3{margin:0 0 8px;font-size:clamp(21px,2.4vw,28px)}
+.sabbath-summary--poster .sabbath-poster-copy p{margin:0}
+.sabbath-summary--poster .sabbath-poster-actions{margin:0}
+@media(max-width:599.95px){.sabbath-summary--poster .sabbath-poster--compact{grid-template-columns:minmax(0,100px) minmax(0,1fr);gap:12px 16px}.sabbath-summary--poster .sabbath-summary-heading{gap:6px 16px}}
+
+.sabbath-summary--poster .sabbath-poster--compact{align-items:center;grid-template-rows:auto}
+.sabbath-poster--compact .sabbath-poster-image,.sabbath-poster--compact .sabbath-poster-failed{grid-row:auto;align-self:center}
+.sabbath-poster-preview-copy{grid-column:2;min-width:0}
+.sabbath-summary--poster .sabbath-poster-preview-copy .sabbath-poster-actions{margin-top:16px}

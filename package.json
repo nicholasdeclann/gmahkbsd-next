@@ -18,7 +18,8 @@
     "test:sabbath": "node --test scripts/sabbath-summary.test.mjs",
     "test:drive-health": "node --test scripts/drive-health.test.mjs",
     "test:announcement-expiry": "node --test scripts/announcement-expiry.test.mjs",
-    "test:notifications": "node --test scripts/notifications.test.mjs"
+    "test:notifications": "node --test scripts/notifications.test.mjs",
+    "test:sabbath-posters": "node --test scripts/sabbath-poster.test.mjs scripts/sabbath-poster-drive.test.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

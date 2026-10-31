@@ -14,3 +14,7 @@
 :root[data-theme=dark] .announcement-caption.glass-thin{background:rgba(16,30,50,.94)}
 @media(prefers-reduced-transparency:reduce),(prefers-contrast:more){.announcement-caption.glass-thin{background:var(--site-surface)}}
 @media(forced-colors:active){.announcement-caption.glass-thin{background:Canvas;color:CanvasText}}
+
+.announcement-replacement-badge{padding:0 16px 16px;min-width:0}.announcement-replacement-badge .glass-chip{max-width:100%;white-space:normal}
+
+.glass-lightbox-caption p{margin:8px 0 0}.glass-dialog--media .glass-dialog__actions{padding-top:0;padding-bottom:16px}

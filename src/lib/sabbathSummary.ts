@@ -1,5 +1,5 @@
 import { sheetDate } from "./quarterlySchedule";
-export interface SabbathSummary { date: string; title: string; verse: string; speaker: string; detailsReady: boolean; stale?: boolean }
+export interface SabbathSummary { poster?: import("./announcementTypes").AnnouncementItem | null; date: string; title: string; verse: string; speaker: string; detailsReady: boolean; stale?: boolean }
 type Cell = { v?: string | number | null; f?: string } | null;
 type Row = { c?: Cell[] };
 const months = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];

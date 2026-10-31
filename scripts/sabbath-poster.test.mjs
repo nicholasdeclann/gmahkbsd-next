@@ -1,0 +1,7 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { posterDate, changePoster, posterForDate } from '../src/lib/sabbathPosterTypes.ts';
+const empty = {version:1,revision:'0',assignments:{}};
+test('only real Saturdays are accepted',()=>{assert.equal(posterDate('2026-11-07'),'2026-11-07');for(const date of ['2026-11-06','2026-02-30','bad'])assert.throws(()=>posterDate(date));});
+test('assignment and replacement are revision checked; removal never restores an older poster',()=>{const a=changePoster(empty,'0','2026-11-07','a','1');assert.equal(a.assignments['2026-11-07'],'a');assert.throws(()=>changePoster(a,'0','2026-11-07','b','2'));const b=changePoster(a,'1','2026-11-07','b','2');const removed=changePoster(b,'2','2026-11-07',null,'3');assert.equal(removed.assignments['2026-11-07'],undefined);assert.equal(a.assignments['2026-11-07'],'a');});
+test('only assigned, nonexpired, sufficiently long-lived posts resolve',()=>{const state=changePoster(empty,'0','2026-11-07','a','1');const post={id:'a',due_date:'2026-11-07',expired:false};assert.equal(posterForDate(state,'2026-11-07',[post]),post);assert.equal(posterForDate(state,'2026-11-14',[post]),null);assert.equal(posterForDate(state,'2026-11-07',[]),null);assert.equal(posterForDate(state,'2026-11-07',[{...post,expired:true}]),null);assert.equal(posterForDate(state,'2026-11-07',[{...post,due_date:'2026-11-06'}]),null);});
