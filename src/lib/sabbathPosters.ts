@@ -7,10 +7,6 @@ import { changePoster, posterDate, type PosterAssignments } from "./sabbathPoste
 
 const kind = "gmahkbsd-sabbath-posters";
 const pointer = "gmahkbsdPosterMap";
-function etagOf(headers: unknown): string | null {
-  const value = headers as { get?: (name: string) => string | null; etag?: string };
-  return typeof value.get === "function" ? value.get("etag") : value.etag ?? null;
-}
 const empty = (): PosterAssignments => ({ version: 1, revision: "0", assignments: {} });
 export class PosterError extends Error { constructor(message: string, public status = 502) { super(message); } }
 function reader() {
@@ -33,13 +29,33 @@ async function readState() {
     const candidates = await step("find-registry", () => drive.files.list({q: "'" + process.env.GOOGLE_DRIVE_FOLDER_ID + "' in parents and trashed=false and properties has {key='kind' and value='" + kind + "'}", fields:"files(id)",orderBy:"createdTime",pageSize:1,supportsAllDrives:true,includeItemsFromAllDrives:true}));
     id = candidates.data.files?.[0]?.id ?? undefined;
   }
-  if (!id) return { state: empty(), id: null, etag: null as string | null, configured:false };
-  const metadata = await step("registry-metadata", () => drive.files.get({fileId:id!,fields:"id",supportsAllDrives:true}));
+  if (!id) return { state: empty(), id: null, configured:false };
   const response = await step("read-registry", () => drive.files.get({ fileId: id!, alt: "media", supportsAllDrives: true }, { responseType: "text" }));
   const state = JSON.parse(String(response.data)) as PosterAssignments;
   if (state.version !== 1 || typeof state.revision !== "string" || !state.assignments || Array.isArray(state.assignments) || typeof state.assignments !== "object") throw new PosterError("Penetapan poster tidak valid. Hubungi pengelola website.");
   for (const [date, post] of Object.entries(state.assignments)) { posterDate(date); if (typeof post !== "string" || !/^[a-zA-Z0-9_-]{1,200}$/.test(post)) throw new PosterError("Penetapan poster tidak valid."); }
-  return { state, id, etag: etagOf(metadata.headers), configured };
+  // Drive v3 omits ETags for these resources. Immutable change files avoid
+  // overwriting another staff member's saved revision. The earliest child of
+  // a revision wins deterministically; conflicting branches never reactivate.
+  const changes: {id:string;createdTime:string;properties:Record<string,string>}[] = [];
+  let pageToken: string | undefined;
+  do {
+    const result = await step("read-changes", () => drive.files.list({q:"'"+process.env.GOOGLE_DRIVE_FOLDER_ID+"' in parents and trashed=false and properties has {key='kind' and value='gmahkbsd-poster-change'} and properties has {key='registry' and value='"+id+"'}", fields:"nextPageToken,files(id,createdTime,properties)", pageSize:100, pageToken, supportsAllDrives:true,includeItemsFromAllDrives:true}));
+    changes.push(...(result.data.files??[]).map(file=>({id:file.id!,createdTime:file.createdTime!,properties:file.properties??{}})));
+    pageToken=result.data.nextPageToken??undefined;
+  } while(pageToken);
+  changes.sort((a,b)=>a.createdTime.localeCompare(b.createdTime)||a.id.localeCompare(b.id));
+  let current=state;
+  const seen=new Set<string>();
+  while(!seen.has(current.revision)) {
+    seen.add(current.revision);
+    const next=changes.find(change=>change.properties.previous===current.revision);
+    if(!next)break;
+    const props=next.properties;
+    if(!props.revision||props.revision===current.revision||!props.date)throw new PosterError("Penetapan poster tidak valid.");
+    current=changePoster(current,current.revision,props.date,props.poster||null,props.revision);
+  }
+  return {state:current,id,configured};
 }
 export async function getPosterAssignments(): Promise<PosterAssignments> {
   return isLocalDemo() ? (await readDemo()).sabbathPosters ?? empty() : (await readState()).state;
@@ -66,17 +82,9 @@ export async function assignPoster(date: string, id: string | null, expected: st
   let state: PosterAssignments;
   try { state = changePoster(stored.state, expected, date, id, randomUUID()); }
   catch (error) { throw new PosterError((error as Error).message, 409); }
-  const media = { mimeType: "application/json", body: Readable.from([JSON.stringify(state)]) };
-  try {
-    if (stored.id) {
-      if (!stored.etag) throw new PosterError("Revisi Google Drive belum tersedia. Refresh lalu coba lagi.");
-      await drive.files.update({ fileId: stored.id, media, supportsAllDrives: true }, { headers: { "If-Match": stored.etag } });
-    }
-    const checked = await readState();
-    if (checked.state.revision !== state.revision) throw new PosterError("Penetapan poster telah berubah. Refresh lalu coba lagi.", 409);
-    return state;
-  } catch (error) {
-    if ((error as { response?: { status?: number } }).response?.status === 412) throw new PosterError("Penetapan poster telah berubah. Refresh lalu coba lagi.", 409);
-    throw error;
-  }
+  if (!stored.id) throw new PosterError("Penyimpanan poster perlu disiapkan oleh pengelola website.",503);
+  await step("append-change",()=>drive.files.create({requestBody:{name:"Kertas Acara - "+date+" - "+state.revision+".json",parents:[process.env.GOOGLE_DRIVE_FOLDER_ID!],properties:{kind:"gmahkbsd-poster-change",registry:stored.id!,previous:expected,revision:state.revision,date,poster:id??""}},media:{mimeType:"application/json",body:Readable.from([JSON.stringify({version:1,previous:expected,date,id,revision:state.revision})])},fields:"id",supportsAllDrives:true}));
+  const checked=await readState();
+  if(checked.state.revision!==state.revision)throw new PosterError("Penetapan poster telah berubah. Refresh lalu coba lagi.",409);
+  return state;
 }
