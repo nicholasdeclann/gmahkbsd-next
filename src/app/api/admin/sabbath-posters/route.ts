@@ -7,6 +7,8 @@ import { posterDate } from "@/lib/sabbathPosterTypes";
 export const dynamic = "force-dynamic";
 const headers = { "Cache-Control": "no-store" };
 function failure(error: unknown) {
+  const detail = error as { posterStage?: string; response?: { status?: number; data?: { error?: { errors?: { reason?: string }[] } } } };
+  console.error("Sabbath poster request failed", { stage: detail?.posterStage ?? "request", status: detail?.response?.status ?? (error instanceof PosterError ? error.status : undefined), reasons: detail?.response?.data?.error?.errors?.map(item => item.reason) });
   return NextResponse.json({ error: error instanceof PosterError ? error.message : "Penetapan poster belum berhasil. Refresh lalu coba lagi." }, { status: error instanceof PosterError ? error.status : 502, headers });
 }
 export async function GET() {

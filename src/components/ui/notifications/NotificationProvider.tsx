@@ -52,6 +52,7 @@ export default function NotificationProvider({ children }: { children: ReactNode
   const [scopes, setScopes] = useState<{ id: string; element: HTMLElement }[]>([]);
   const [mounted, setMounted] = useState(false);
   const [offset, setOffset] = useState(80);
+  const [bounds, setBounds] = useState<{left:number;width:number}|null>(null);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
   const paused = hovered || focused;
@@ -96,15 +97,21 @@ export default function NotificationProvider({ children }: { children: ReactNode
       const toolbar = document.querySelector<HTMLElement>("[data-notification-offset]")?.getBoundingClientRect();
       const bottom = toolbar && toolbar.top <= headerBottom + 2 && toolbar.bottom > headerBottom ? toolbar.bottom : headerBottom;
       setOffset(Math.max(12, bottom) + 12);
+      const container = target ?? document.querySelector<HTMLElement>(".admin-main, main .site-width, .site-header .site-width");
+      const rect = container?.getBoundingClientRect();
+      const left = Math.max(12, (rect?.left ?? 0) + (target ? 16 : 0));
+      const right = Math.min(window.innerWidth - 12, (rect?.right ?? window.innerWidth) - (target ? 16 : 0));
+      setBounds({left,width:Math.max(0,right-left)});
     };
     const schedule = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(measure); };
     const observer = new ResizeObserver(schedule);
-    observer.observe(document.body);
+    observer.observe(document.body); if (target) observer.observe(target);
     const header = document.querySelector(".admin-header, .site-header"); if (header) observer.observe(header);
+    target?.addEventListener("animationend", schedule); target?.addEventListener("transitionend", schedule);
     measure(); window.addEventListener("resize", schedule); window.addEventListener("scroll", schedule, { passive: true });
     window.visualViewport?.addEventListener("resize", schedule);
-    return () => { observer.disconnect(); cancelAnimationFrame(frame); window.removeEventListener("resize", schedule); window.removeEventListener("scroll", schedule); window.visualViewport?.removeEventListener("resize", schedule); };
-  }, [pathname]);
+    return () => { observer.disconnect(); cancelAnimationFrame(frame); target?.removeEventListener("animationend", schedule); target?.removeEventListener("transitionend", schedule); window.removeEventListener("resize", schedule); window.removeEventListener("scroll", schedule); window.visualViewport?.removeEventListener("resize", schedule); };
+  }, [pathname, target]);
   useEffect(() => {
     if (!current) { activeId.current = ""; return; }
     if (activeId.current !== current.id) { activeId.current = current.id; remaining.current = 6000; }
@@ -116,7 +123,7 @@ export default function NotificationProvider({ children }: { children: ReactNode
   useEffect(() => { setHovered(false); setFocused(false); }, [current?.id, target]);
   const value = useMemo(() => ({ notify, dismiss, scope }), [notify, dismiss, scope]);
   const icon = current?.type === "success" ? <path d="m5 12 4 4L19 6"/> : current?.type === "error" ? <><path d="m9 9 6 6m0-6-6 6"/><circle cx="12" cy="12" r="9"/></> : <><circle cx="12" cy="12" r="9"/><path d="M12 11v6m0-10h.01"/></>;
-  const notice = current && <div ref={host} id={hostId} className="notice-host" style={{ top: `max(${offset}px, env(safe-area-inset-top, 0px))` }}>
+  const notice = current && <div ref={host} id={hostId} className="notice-host" style={{ top: `max(${offset}px, env(safe-area-inset-top, 0px))`, ...(bounds ? {left:bounds.left,width:bounds.width,transform:"none"} : {}) }}>
     <div key={current.id} className={`glass-notice glass-notice--${current.type}`} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} onFocusCapture={() => setFocused(true)} onBlurCapture={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
       <svg className="glass-notice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{icon}</svg>
       <div className="glass-notice-content">
